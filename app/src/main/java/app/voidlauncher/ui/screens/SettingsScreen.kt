@@ -66,6 +66,8 @@ import app.voidlauncher.data.settings.Setting
 import app.voidlauncher.data.settings.SettingCategory
 import app.voidlauncher.data.settings.SettingType
 import app.voidlauncher.data.settings.SettingsManager
+import app.voidlauncher.helper.IconCache
+import app.voidlauncher.helper.iconpack.IconPackManager
 import app.voidlauncher.helper.isAccessServiceEnabled
 import app.voidlauncher.helper.isClauncherDefault
 import app.voidlauncher.helper.setPlainWallpaperByTheme
@@ -97,6 +99,9 @@ fun SettingsScreen(
     var showingDialog by remember { mutableStateOf<String?>(null) }
     var currentProperty by remember { mutableStateOf<KProperty1<AppSettings, *>?>(null) }
     var currentAnnotation by remember { mutableStateOf<Setting?>(null) }
+
+    var showGridWarningDialog by remember { mutableStateOf(false) }
+    var pendingGridChange by remember { mutableStateOf<Pair<String, Int>?>(null) }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -144,6 +149,25 @@ fun SettingsScreen(
         }
     }
 
+    if (showGridWarningDialog && pendingGridChange != null) {
+        GridSizeWarningDialog(
+            title = "Grid Size Change",
+            message = "Changing the grid size will move some apps and widgets to inaccessible positions. Do you want to continue?",
+            onConfirm = {
+                coroutineScope.launch {
+                    val (propertyName, newValue) = pendingGridChange!!
+                    viewModel.updateGridSize(propertyName, newValue)
+                    showGridWarningDialog = false
+                    pendingGridChange = null
+                }
+            },
+            onDismiss = {
+                showGridWarningDialog = false
+                pendingGridChange = null
+            }
+        )
+    }
+
     // Display the appropriate dialog based on setting type
     when (showingDialog) {
         "slider" -> {
@@ -162,9 +186,30 @@ fun SettingsScreen(
                         onDismiss = { showingDialog = null },
                         onValueSelected = { newValue ->
                             coroutineScope.launch {
-                                when (prop.returnType.classifier) {
-                                    Int::class -> viewModel.updateSetting(prop.name, newValue.toInt())
-                                    Float::class -> viewModel.updateSetting(prop.name, newValue)
+                                val propertyName = prop.name
+                                val intValue = newValue.toInt()
+
+                                // Check if this is a grid size change that affects items
+                                if ((propertyName == "homeScreenRows" || propertyName == "homeScreenColumns") &&
+                                    viewModel.willGridChangeAffectItems(propertyName, intValue)) {
+
+                                    // Show warning dialog
+                                    pendingGridChange = propertyName to intValue
+                                    showGridWarningDialog = true
+                                    showingDialog = null
+                                } else {
+                                    // Safe to change directly
+                                    when (prop.returnType.classifier) {
+                                        Int::class -> {
+                                            if (propertyName == "homeScreenRows" || propertyName == "homeScreenColumns") {
+                                                viewModel.updateGridSize(propertyName, intValue)
+                                            } else {
+                                                viewModel.updateSetting(propertyName, intValue)
+                                            }
+                                        }
+                                        Float::class -> viewModel.updateSetting(propertyName, newValue)
+                                    }
+                                    showingDialog = null
                                 }
                             }
                         }
@@ -199,6 +244,7 @@ fun SettingsScreen(
                     val selectionType = when (prop.name) {
                         "swipeLeftApp" -> AppSelectionType.SWIPE_LEFT_APP
                         "swipeRightApp" -> AppSelectionType.SWIPE_RIGHT_APP
+                        "doubleTapApp" -> AppSelectionType.DOUBLE_TAP_APP
                         "swipeUpApp" -> AppSelectionType.SWIPE_UP_APP
                         "swipeDownApp" -> AppSelectionType.SWIPE_DOWN_APP
                         else -> null
@@ -432,6 +478,9 @@ fun SettingsScreen(
                                                 "swipeRightApp" -> {
                                                     AppSelectionType.SWIPE_RIGHT_APP
                                                 }
+                                                "doubleTapApp" -> {
+                                                    AppSelectionType.DOUBLE_TAP_APP
+                                                }
                                                 "swipeUpApp" -> {
                                                     AppSelectionType.SWIPE_UP_APP
                                                 }
@@ -451,7 +500,43 @@ fun SettingsScreen(
                                         }
                                     )
                                 }
-                                else -> { /* Why is color picker even needed? */ }
+                                SettingType.ICON_PACK_PICKER -> {
+                                    val iconCache = remember { IconCache(context) }
+                                    var availableIconPacks by remember { mutableStateOf<List<IconPackManager.IconPackInfo>>(emptyList()) }
+                                    var showIconPackDialog by remember { mutableStateOf(false) }
+
+                                    LaunchedEffect(Unit) {
+                                        availableIconPacks = iconCache.getAvailableIconPacks()
+                                    }
+
+                                    val selectedPackName = property.get(uiState) as String
+                                    val selectedPackDisplayName = availableIconPacks.find {
+                                        it.packageName == selectedPackName
+                                    }?.name ?: "Default Icons"
+
+                                    SettingsItem(
+                                        title = annotation.title,
+                                        subtitle = selectedPackDisplayName,
+                                        description = annotation.description.takeIf { it.isNotEmpty() },
+                                        enabled = isEnabled,
+                                        onClick = { showIconPackDialog = true }
+                                    )
+
+                                    if (showIconPackDialog) {
+                                        IconPackSelectionDialog(
+                                            iconPacks = availableIconPacks,
+                                            selectedPack = selectedPackName,
+                                            onDismiss = { showIconPackDialog = false },
+                                            onPackSelected = { selectedPack ->
+                                                coroutineScope.launch {
+                                                    viewModel.updateSetting(property.name, selectedPack)
+                                                    iconCache.clearCache()
+                                                    showIconPackDialog = false
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -823,3 +908,72 @@ fun DropdownSettingDialog(
     )
 }
 
+@Composable
+fun GridSizeWarningDialog(
+    title: String,
+    message: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = { Text(message) },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Continue")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
+fun IconPackSelectionDialog(
+    iconPacks: List<IconPackManager.IconPackInfo>,
+    selectedPack: String,
+    onDismiss: () -> Unit,
+    onPackSelected: (String) -> Unit
+) {
+    var selected by remember { mutableStateOf(selectedPack) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Select Icon Pack") },
+        text = {
+            LazyColumn {
+                items(iconPacks.size) { index ->
+                    val pack = iconPacks[index]
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selected = pack.packageName }
+                            .padding(vertical = 12.dp, horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = selected == pack.packageName,
+                            onClick = { selected = pack.packageName }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(pack.name)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onPackSelected(selected) }) {
+                Text("Apply")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}

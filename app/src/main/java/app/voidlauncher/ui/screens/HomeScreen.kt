@@ -82,42 +82,54 @@ fun HomeScreen(
             .fillMaxSize()
             .detectSwipeGestures(
                 onSwipeUp = { when (settings.swipeUpAction) {
-                    Constants.SwipeDownAction.NOTIFICATIONS -> expandNotificationDrawer(context)
-                    Constants.SwipeDownAction.SEARCH -> onNavigateToAppDrawer()
-                    Constants.SwipeDownAction.APP -> viewModel.launchSwipeUpApp()
-                    Constants.SwipeDownAction.NULL -> {}
+                    Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+                    Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
+                    Constants.SwipeAction.APP -> viewModel.launchSwipeUpApp()
+                    Constants.SwipeAction.NULL -> {}
                         else -> onNavigateToAppDrawer()
                 } },
                 onSwipeDown = {
                     when (settings.swipeDownAction) {
-                        Constants.SwipeDownAction.NOTIFICATIONS -> expandNotificationDrawer(context)
-                        Constants.SwipeDownAction.SEARCH -> onNavigateToAppDrawer()
-                        Constants.SwipeDownAction.APP -> viewModel.launchSwipeDownApp()
-                        Constants.SwipeDownAction.NULL -> {null}
+                        Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+                        Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
+                        Constants.SwipeAction.APP -> viewModel.launchSwipeDownApp()
+                        Constants.SwipeAction.NULL -> {}
                         else -> expandNotificationDrawer(context)
                     }
                 },
-                onSwipeLeft = { viewModel.launchSwipeLeftApp() },
-                onSwipeRight = { viewModel.launchSwipeRightApp() }
+                onSwipeLeft = {
+                    when (settings.swipeLeftAction) {
+                        Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+                        Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
+                        Constants.SwipeAction.APP -> viewModel.launchSwipeLeftApp()
+                        Constants.SwipeAction.NULL -> { /* Do nothing */ }
+                        else -> { /* Do nothing by default */ }
+                    }
+                },
+                onSwipeRight = {
+                    when (settings.swipeRightAction) {
+                        Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+                        Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
+                        Constants.SwipeAction.APP -> viewModel.launchSwipeRightApp()
+                        Constants.SwipeAction.NULL -> {}
+                        else -> {}
+                    }
+                }
             )
             .pointerInput(Unit) {
                 detectTapGestures(
                     onDoubleTap = {
-                        if (settings.doubleTapToLock) {
-                            // Substituir lockScreen() por código para abrir a Camera
-                            try {
-                                val intent = context.packageManager.getLaunchIntentForPackage("app.grapheneos.camera")
-                                if (intent != null) {
-                                    context.startActivity(intent)
-                                } else {
-                                    // Caso o Signal não esteja instalado
-                                    Toast.makeText(context, "A Canera não está instalado", Toast.LENGTH_SHORT).show()
-                                }
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                                Toast.makeText(context, "Erro ao abrir a Camera", Toast.LENGTH_SHORT).show()
-                            }
-                        }
+                        // if (settings.doubleTapToLock) {
+                        //     viewModel.lockScreen()
+                        // }
+                        when (settings.doubleTapAction) {
+                            Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+                            Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
+                            Constants.SwipeAction.APP -> viewModel.launchDoubleTapApp()
+                            Constants.SwipeAction.NULL -> {}
+                            else -> {}
+                    }
+
                     },
                     onLongPress = { offset ->
                         // Store the touch position for hit testing

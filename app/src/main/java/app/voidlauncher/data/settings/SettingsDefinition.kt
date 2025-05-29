@@ -47,24 +47,15 @@ enum class SettingType {
     SLIDER,
     DROPDOWN,
     BUTTON,
-    COLOR_PICKER,
-    APP_PICKER
+//    COLOR_PICKER,
+    APP_PICKER,
+    ICON_PACK_PICKER
 }
 
 /**
  * Central data class for all application settings
  */
 data class AppSettings(
-    // General settings
-//    @Setting(
-//        title = "Home Apps Number",
-//        category = SettingCategory.GENERAL,
-//        type = SettingType.SLIDER,
-//        min = 0f,
-//        max = 16f,
-//        step = 1f
-//    )
-    val homeAppsNum: Int = 0,
 
     @Setting(
         title = "Show App Names",
@@ -158,7 +149,7 @@ data class AppSettings(
         max = 50f,
         step = 1f
     )
-    val iconCornerRadius: Int = 25,
+    val iconCornerRadius: Int = 0,
 
     @Setting(
         title = "Item Spacing",
@@ -167,22 +158,6 @@ data class AppSettings(
         options = ["None", "Small", "Medium", "Large"]
     )
     val itemSpacing: Int = 1,
-
-    // Layout settings
-//    @Setting(
-//        title = "Alignment",
-//        category = SettingCategory.LAYOUT,
-//        type = SettingType.DROPDOWN,
-//        options = ["Left", "Center", "Right"]
-//    )
-    val homeAlignment: Int = Gravity.CENTER,
-
-//    @Setting(
-//        title = "Bottom Alignment",
-//        category = SettingCategory.LAYOUT,
-//        type = SettingType.TOGGLE
-//    )
-    val homeBottomAlignment: Boolean = false,
 
     @Setting(
         title = "Show Status Bar",
@@ -198,23 +173,27 @@ data class AppSettings(
     )
     val scaleHomeApps: Boolean = true,
 
-//    @Setting(
-//        title = "Number of Columns",
-//        category = SettingCategory.LAYOUT,
-//        type = SettingType.SLIDER,
-//        min = 1f,
-//        max = 4f,
-//        step = 1f
-//    )
-    val homeScreenColumns: Int = 1,
+    @Setting(
+        title = "Home Screen Rows",
+        category = SettingCategory.LAYOUT,
+        type = SettingType.SLIDER,
+        min = 4f,
+        max = 12f,
+        step = 1f,
+        description = "Number of rows in the home screen grid"
+    )
+    val homeScreenRows: Int = 8,
 
-//    @Setting(
-//        title = "Date & Time",
-//        category = SettingCategory.LAYOUT,
-//        type = SettingType.DROPDOWN,
-//        options = ["Off", "Date Only", "On"]
-//    )
-    val dateTimeVisibility: Int = Constants.DateTime.ON,
+    @Setting(
+        title = "Home Screen Columns",
+        category = SettingCategory.LAYOUT,
+        type = SettingType.SLIDER,
+        min = 2f,
+        max = 8f,
+        step = 1f,
+        description = "Number of columns in the home screen grid"
+    )
+    val homeScreenColumns: Int = 4,
 
     @Setting(
         title = "Force Landscape Mode",
@@ -231,6 +210,14 @@ data class AppSettings(
         description = "Display app icons on the home screen"
     )
     val showHomeScreenIcons: Boolean = false,
+
+    @Setting(
+        title = "Icon Pack",
+        category = SettingCategory.APPEARANCE,
+        type = SettingType.ICON_PACK_PICKER,
+        description = "Choose custom icon pack for apps"
+    )
+    val selectedIconPack: String = "default",
 
 //    @Setting( // Already present in SettingsScreen
 //        title = "Lock Settings",
@@ -258,42 +245,13 @@ data class AppSettings(
     )
     val showIconsInPortrait: Boolean = false,
 
-//    @Setting(
-//        title = "Home apps edit mode",
-//        category = SettingCategory.LAYOUT,
-//        type = SettingType.TOGGLE
-//    )
-    val editHomeApps: Boolean = false,
-
-//    @Setting(
-//        title = "Widgets edit mode",
-//        category = SettingCategory.LAYOUT,
-//        type = SettingType.TOGGLE
-//    )
-    val editWidgets: Boolean = false,
-
-    // Gestures settings
-    @Setting(
-        title = "Left Swipe Gesture",
-        category = SettingCategory.GESTURES,
-        type = SettingType.TOGGLE
-    )
-    val swipeLeftEnabled: Boolean = true,
-
-    @Setting(
-        title = "Right Swipe Gesture",
-        category = SettingCategory.GESTURES,
-        type = SettingType.TOGGLE
-    )
-    val swipeRightEnabled: Boolean = true,
-
     @Setting(
         title = "Swipe Down Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
-        options = ["Search", "Notifications", "App", "None"]
+        options = ["None", "Search", "Notifications", "App"]
     )
-    val swipeDownAction: Int = Constants.SwipeDownAction.NOTIFICATIONS,
+    val swipeDownAction: Int = Constants.SwipeAction.NOTIFICATIONS,
 
     @Setting(
         title = "Swipe Down App",
@@ -306,9 +264,9 @@ data class AppSettings(
         title = "Swipe Up Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
-        options = ["Search", "Notifications", "App", "None"]
+        options = ["None", "Search", "Notifications", "App"]
     )
-    val swipeUpAction: Int = Constants.SwipeDownAction.SEARCH,
+    val swipeUpAction: Int = Constants.SwipeAction.SEARCH,
 
 
     @Setting(
@@ -345,7 +303,14 @@ data class AppSettings(
     )
     val searchResultsFontSize: Float = 1.0f,
 
-    // App selection settings
+    @Setting(
+        title = "Swipe Left Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        options = ["None", "Search", "Notifications", "App"]
+    )
+    val swipeLeftAction: Int = Constants.SwipeAction.NULL,
+
     @Setting(
         title = "Left Swipe App",
         category = SettingCategory.GESTURES,
@@ -353,6 +318,16 @@ data class AppSettings(
         dependsOn = "swipeLeftEnabled"
     )
     val swipeLeftApp: AppPreference = AppPreference(label = "Not set"),
+
+
+    @Setting(
+        title = "Swipe Right Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        options = ["None", "Search", "Notifications", "App"]
+    )
+    val swipeRightAction: Int = Constants.SwipeAction.NULL,
+
 
     @Setting(
         title = "Right Swipe App",
@@ -362,6 +337,25 @@ data class AppSettings(
     )
     val swipeRightApp: AppPreference = AppPreference(label = "Not set"),
 
+
+    @Setting(
+        title = "Double Tap Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        options = ["None", "Search", "Notifications", "App"]
+    )
+    val doubleTapAction: Int = Constants.SwipeAction.NULL,
+
+
+    @Setting(
+        title = "Double Tap App",
+        category = SettingCategory.GESTURES,
+        type = SettingType.APP_PICKER,
+        dependsOn = "doubleTapEnabled"
+    )
+    val doubleTapApp: AppPreference = AppPreference(label = "Not set"),
+
+
     @Setting(
         title = "Set Plain Wallpaper",
         category = SettingCategory.APPEARANCE,
@@ -369,6 +363,8 @@ data class AppSettings(
         description = "Set a plain black/white wallpaper based on theme"
     )
     val plainWallpaper: Boolean = false,
+
+
 
     val homeApps: List<HomeAppPreference> = List(Constants.HomeAppCount.NUM) { HomeAppPreference() }, // Changed from NUM to actual count needed, ensure constant is correct
 
@@ -425,6 +421,7 @@ class SettingsManager {
     /**
      * Get a setting value from an AppSettings instance
      */
+    @Suppress("unused")
     fun getSettingValue(settings: AppSettings, property: KProperty1<AppSettings, *>): Any? {
         return property.get(settings)
     }

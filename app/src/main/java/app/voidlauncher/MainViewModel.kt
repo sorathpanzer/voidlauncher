@@ -13,7 +13,9 @@ import app.voidlauncher.data.*
 import app.voidlauncher.data.repository.AppRepository
 import app.voidlauncher.data.repository.SettingsRepository
 import app.voidlauncher.data.settings.AppPreference
+import app.voidlauncher.data.settings.AppSettings
 import app.voidlauncher.data.settings.HomeAppPreference
+import app.voidlauncher.helper.IconCache
 import app.voidlauncher.helper.MyAccessibilityService
 import app.voidlauncher.helper.getScreenDimensions
 import app.voidlauncher.helper.getUserHandleFromString
@@ -29,8 +31,8 @@ import kotlin.math.ceil
  */
 class MainViewModel(application: Application, private val appWidgetHost: AppWidgetHost) : AndroidViewModel(application) {
     private val appContext = application.applicationContext
-    val settingsRepository = SettingsRepository(appContext) // New settings repository
-    private val appRepository = AppRepository(appContext, settingsRepository) // Will need refactoring in future
+    val settingsRepository = SettingsRepository(appContext)
+    private val appRepository = AppRepository(appContext, settingsRepository, viewModelScope)
 
     private val REQUEST_CODE_CONFIGURE_WIDGET = 101
     private var pendingWidgetInfo: PendingWidgetInfo? = null
@@ -70,17 +72,19 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     init {
 
         viewModelScope.launch {
-            settingsRepository.getHomeLayout().collect { layout ->
-                _homeLayoutState.value = layout
+            combine(
+                settingsRepository.getHomeLayout(),
+                settingsRepository.settings
+            ) { layout, settings ->
+                val updatedLayout = layout.copy(
+                    rows = settings.homeScreenRows,
+                    columns = settings.homeScreenColumns
+                )
+                loadIconsForHomeLayout(updatedLayout, settings)
+            }.collect { updatedLayout ->
+                _homeLayoutState.value = updatedLayout
             }
         }
-
-        // Initialize UI states from settings
-//        viewModelScope.launch {
-//            settingsRepository.settings.collect { settings ->
-//                updateHomeScreenState(settings)
-//            }
-//        }
 
         viewModelScope.launch {
             appRepository.appListAll.collect { apps ->
@@ -103,24 +107,136 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
                 _hiddenApps.value = apps
             }
         }
+
+        viewModelScope.launch {
+            settingsRepository.settings
+                .map { it.selectedIconPack }
+                .distinctUntilChanged()
+                .drop(1) // Skip initial value
+                .collect { newIconPack ->
+                    refreshHomeScreenAppIcons()
+                }
+        }
     }
-//
-//    private fun updateHomeScreenState(settings: AppSettings) {
-//        viewModelScope.launch {
-//            val homeApps = settingsRepository.getHomeApps()
-//
-//            _homeScreenState.value = HomeScreenUiState(
-//                homeAppsNum = settings.homeAppsNum,
-//                homeScreenColumns = settings.homeScreenColumns,
-//                dateTimeVisibility = settings.dateTimeVisibility,
-////                homeAlignment = settings.homeAlignment,
-//                homeBottomAlignment = settings.homeBottomAlignment,
-//                homeApps = homeApps.map { app ->
-//                    getAppModelFromPreference(app)
-//                }
-//            )
-//        }
-//    }
+
+    /**
+     * Load icons for all apps in the home layout
+     */
+    private suspend fun loadIconsForHomeLayout(layout: HomeLayout, settings: AppSettings): HomeLayout {
+        if (!settings.showHomeScreenIcons) {
+            return layout // Don't load icons if they're not shown
+        }
+
+        val iconCache = IconCache(appContext)
+
+        val updatedItems = layout.items.map { item ->
+            when (item) {
+                is HomeItem.App -> {
+                    // Load icon with current icon pack
+                    val icon = iconCache.getIcon(
+                        packageName = item.appModel.appPackage,
+                        className = item.appModel.activityClassName,
+                        user = item.appModel.user,
+                        iconPackName = settings.selectedIconPack,
+                    )
+
+                    // Update AppModel with loaded icon
+                    val updatedAppModel = item.appModel.copy(appIcon = icon)
+                    item.copy(appModel = updatedAppModel)
+                }
+                is HomeItem.Widget -> item
+            }
+        }
+
+        return layout.copy(items = updatedItems)
+    }
+
+    /**
+     * Refresh icons for apps on home screen
+     */
+    private suspend fun refreshHomeScreenAppIcons() {
+        val currentLayout = _homeLayoutState.value
+        val settings = settingsRepository.settings.first()
+        val iconCache = IconCache(appContext)
+
+        val updatedItems = currentLayout.items.map { item ->
+            when (item) {
+                is HomeItem.App -> {
+                    // Get updated icon for this app
+                    val updatedIcon = if (settings.showHomeScreenIcons) {
+                        iconCache.getIcon(
+                            packageName = item.appModel.appPackage,
+                            className = item.appModel.activityClassName,
+                            user = item.appModel.user,
+                            iconPackName = settings.selectedIconPack,
+                        )
+                    } else {
+                        null
+                    }
+
+                    // Create updated AppModel with new icon
+                    val updatedAppModel = item.appModel.copy(appIcon = updatedIcon)
+                    item.copy(appModel = updatedAppModel)
+                }
+                is HomeItem.Widget -> item // Widgets don't need icon updates
+            }
+        }
+
+        // Update the layout with new icons
+        val updatedLayout = currentLayout.copy(items = updatedItems)
+        _homeLayoutState.value = updatedLayout
+
+        // Also save to persistence
+        settingsRepository.saveHomeLayout(updatedLayout)
+    }
+
+    suspend fun updateGridSize(newRows: Int, newColumns: Int) {
+        val currentLayout = _homeLayoutState.value
+
+        // Check if any items would be out of bounds with new grid size
+        val itemsOutOfBounds = currentLayout.items.filter { item ->
+            item.row + item.rowSpan > newRows || item.column + item.columnSpan > newColumns
+        }
+
+        if (itemsOutOfBounds.isNotEmpty()) {
+            // Move out-of-bounds items to valid positions
+            val updatedItems = currentLayout.items.map { item ->
+                if (item.row + item.rowSpan > newRows || item.column + item.columnSpan > newColumns) {
+                    // Find a new valid position for this item
+                    val newPosition = findNextAvailableGridPosition(
+                        currentLayout.copy(rows = newRows, columns = newColumns),
+                        item.columnSpan,
+                        item.rowSpan
+                    )
+
+                    when (item) {
+                        is HomeItem.App -> item.copy(
+                            row = newPosition?.first ?: 0,
+                            column = newPosition?.second ?: 0
+                        )
+                        is HomeItem.Widget -> item.copy(
+                            row = newPosition?.first ?: 0,
+                            column = newPosition?.second ?: 0
+                        )
+                    }
+                } else {
+                    item
+                }
+            }
+
+            // Save the updated layout
+            val newLayout = currentLayout.copy(
+                items = updatedItems,
+                rows = newRows,
+                columns = newColumns
+            )
+            settingsRepository.saveHomeLayout(newLayout)
+        } else {
+            // No items out of bounds, just update grid size
+            val newLayout = currentLayout.copy(rows = newRows, columns = newColumns)
+            settingsRepository.saveHomeLayout(newLayout)
+        }
+    }
 
     fun addAppToHomeScreen(appModel: AppModel) {
         viewModelScope.launch {
@@ -399,7 +515,6 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value
 
-            // --- Implement Placeholder: Resize Validation ---
             if (!checkResizeValidity(currentLayout, widgetItem, newRowSpan, newColSpan)) {
                 _errorMessage.value = "Cannot resize widget: overlaps or out of bounds."
                 return@launch
@@ -413,19 +528,19 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                 }
             }
             val newLayout = currentLayout.copy(items = newItems)
-            settingsRepository.saveHomeLayout(newLayout) // Persist the layout change
 
-            // --- Implement Placeholder: Notify Widget Size Change ---
-            // This requires knowing the screen/cell dimensions. Get from settings or calculate.
-            // For simplicity, assume we can get screen Dp here (might need context or pass from UI)
-            val screenWidthDp = getScreenDimensions(context = appContext).first // Example placeholder - GET ACTUAL VALUE
-            val screenHeightDp = getScreenDimensions(appContext).second // Example placeholder - GET ACTUAL VALUE
+            // Update state immediately
+            _homeLayoutState.value = newLayout
+
+            // Update widget options
+            val screenWidthDp = getScreenDimensions(context = appContext).first
+            val screenHeightDp = getScreenDimensions(appContext).second
             val (cellWidthDp, cellHeightDp) = getCellSizeDp(
                 screenWidthDp, screenHeightDp, currentLayout.rows, currentLayout.columns
             )
 
             val minWidth = (newColSpan * cellWidthDp).toInt()
-            val maxWidth = minWidth // Keep min/max same for simplicity now
+            val maxWidth = minWidth
             val minHeight = (newRowSpan * cellHeightDp).toInt()
             val maxHeight = minHeight
 
@@ -435,27 +550,44 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                 putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, minHeight)
                 putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, maxHeight)
             }
+
             try {
                 appWidgetManager.updateAppWidgetOptions(widgetItem.appWidgetId, options)
+                // Persist the changes
+                settingsRepository.saveHomeLayout(newLayout)
+                // Force refresh
+                settingsRepository.triggerHomeLayoutRefresh()
             } catch (e: Exception) {
                 Log.e("ViewModelWidget", "Failed to update widget options for ID ${widgetItem.appWidgetId}", e)
             }
         }
     }
+
     fun removeWidget(widgetItem: HomeItem.Widget) {
         viewModelScope.launch {
             try {
-                appWidgetHost.deleteAppWidgetId(widgetItem.appWidgetId)
+                // First, remove from layout
                 val currentLayout = _homeLayoutState.value
                 val newItems = currentLayout.items.filterNot { it.id == widgetItem.id }
                 val newLayout = currentLayout.copy(items = newItems)
+
+                // Update the layout state immediately
+                _homeLayoutState.value = newLayout
+
+                // Then delete the widget ID and persist
+                appWidgetHost.deleteAppWidgetId(widgetItem.appWidgetId)
                 settingsRepository.saveHomeLayout(newLayout)
+
+                // Force a refresh of the widget host
+                settingsRepository.triggerHomeLayoutRefresh()
+
             } catch (e: Exception) {
                 Log.e("ViewModelWidget", "Error deleting widget ID ${widgetItem.appWidgetId}", e)
                 _errorMessage.value = "Failed to remove widget."
             }
         }
     }
+
 
     fun requestWidgetReconfigure(widgetItem: HomeItem.Widget) {
         viewModelScope.launch {
@@ -529,28 +661,28 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
 
             if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
                 if (resultCode == RESULT_OK) {
-                    // Configuration successful
                     pendingWidgetInfo?.let { info ->
-                        if(info.appWidgetId == widgetId) { // Ensure it's the one we were waiting for
+                        if(info.appWidgetId == widgetId) {
                             addWidgetToLayout(info.appWidgetId, info.providerInfo)
                         }
                     } ?: run {
-                        // Handle reconfigure success if needed (e.g., update UI state)
+                        // Handle reconfigure success - force widget refresh
                         Log.d("ViewModelWidget", "Widget ID $widgetId reconfigured successfully.")
-                        // Force UI refresh if needed
-                        viewModelScope.launch { settingsRepository.triggerHomeLayoutRefresh() }
+                        viewModelScope.launch {
+                            // Force immediate UI refresh (maybe too many refreshes?)
+                            val currentLayout = _homeLayoutState.value
+                            _homeLayoutState.value = currentLayout.copy() // Trigger recomposition
+                            settingsRepository.triggerHomeLayoutRefresh()
+                        }
                     }
                 } else {
-                    // Configuration cancelled or failed
                     Log.w("ViewModelWidget", "Widget configuration cancelled/failed for ID $widgetId")
-                    appWidgetHost.deleteAppWidgetId(widgetId) // Clean up allocated ID
+                    appWidgetHost.deleteAppWidgetId(widgetId)
                     _errorMessage.value = "Widget configuration cancelled."
-                    pendingWidgetInfo = null // Clear pending state
                 }
             }
-            pendingWidgetInfo = null // Clear pending state regardless
+            pendingWidgetInfo = null
         }
-        // Handle other activity results if needed
     }
 
 
@@ -642,6 +774,10 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                 setSwipeRightApp(appModel)
             }
 
+            Constants.FLAG_SET_DOUBLE_TAP_APP -> {
+                setDoubleTapApp(appModel)
+            }
+
             Constants.FLAG_SET_SWIPE_UP_APP -> {
                 setSwipeUpApp(appModel)
             }
@@ -693,6 +829,19 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
             )
 
             settingsRepository.setSwipeRightApp(appPreference)
+        }
+    }
+
+    private fun setDoubleTapApp(app: AppModel) {
+        viewModelScope.launch {
+            val appPreference = AppPreference(
+                label = app.appLabel,
+                packageName = app.appPackage,
+                activityClassName = app.activityClassName,
+                userString = app.user.toString()
+            )
+
+            settingsRepository.setDoubleTapApp(appPreference)
         }
     }
 
@@ -760,6 +909,21 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         }
     }
 
+    fun launchDoubleTapApp() {
+        viewModelScope.launch {
+            val doubleTapApp = settingsRepository.getDoubleTapApp()
+            if (doubleTapApp.packageName.isNotEmpty()) {
+                val app = AppModel(
+                    appLabel = doubleTapApp.label,
+                    key = null,
+                    appPackage = doubleTapApp.packageName,
+                    activityClassName = doubleTapApp.activityClassName,
+                    user = getUserHandleFromString(appContext, doubleTapApp.userString)
+                )
+                launchApp(app)
+            }
+        }
+    }
 
     private fun setSwipeUpApp(app: AppModel) {
         viewModelScope.launch {

@@ -22,26 +22,36 @@ object Constants {
         const val SHARE = "SHARE"
     }
 
-    object DateTime {
-        const val OFF = 0
-        const val ON = 1
-        const val DATE_ONLY = 2
+//    object DateTime {
+//        const val OFF = 0
+//        const val ON = 1
+//        const val DATE_ONLY = 2
+//
+//        fun isTimeVisible(dateTimeVisibility: Int): Boolean {
+//            return dateTimeVisibility == ON
+//        }
+//
+//        fun isDateVisible(dateTimeVisibility: Int): Boolean {
+//            return dateTimeVisibility == ON || dateTimeVisibility == DATE_ONLY
+//        }
+//    }
 
-        fun isTimeVisible(dateTimeVisibility: Int): Boolean {
-            return dateTimeVisibility == ON
-        }
-
-        fun isDateVisible(dateTimeVisibility: Int): Boolean {
-            return dateTimeVisibility == ON || dateTimeVisibility == DATE_ONLY
-        }
-    }
-
-    object SwipeDownAction {
+    object SwipeAction {
         const val SEARCH = 1
         const val NOTIFICATIONS = 2
         const val APP = 3
-        const val NULL = 4
+        const val NULL = 0
     }
+
+    object GridSize {
+        const val MIN_ROWS = 4
+        const val MAX_ROWS = 12
+        const val MIN_COLUMNS = 2
+        const val MAX_COLUMNS = 8
+        const val DEFAULT_ROWS = 8
+        const val DEFAULT_COLUMNS = 4
+    }
+
 
     object TextSize {
         const val ONE = 0.6f
@@ -80,8 +90,9 @@ object Constants {
 
     const val FLAG_SET_SWIPE_LEFT_APP = 17
     const val FLAG_SET_SWIPE_RIGHT_APP = 18
-    const val FLAG_SET_SWIPE_UP_APP = 19
-    const val FLAG_SET_SWIPE_DOWN_APP = 20
+    const val FLAG_SET_DOUBLE_TAP_APP = 19
+    const val FLAG_SET_SWIPE_UP_APP = 20
+    const val FLAG_SET_SWIPE_DOWN_APP = 21
 
     const val REQUEST_CODE_ENABLE_ADMIN = 666
     const val REQUEST_CODE_LAUNCHER_SELECTOR = 678
