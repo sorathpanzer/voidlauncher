@@ -36,8 +36,6 @@ class SettingsRepository(private val context: Context) {
 
     companion object {
         // Define all preference keys
-        val HOME_APPS_NUM = intPreferencesKey("HOME_APPS_NUM")
-        val HOME_SCREEN_COLUMNS = intPreferencesKey("HOME_SCREEN_COLUMNS")
         val SHOW_APP_NAMES = booleanPreferencesKey("SHOW_APP_NAMES")
         val SHOW_APP_ICONS = booleanPreferencesKey("SHOW_APP_ICONS")
         val AUTO_SHOW_KEYBOARD = booleanPreferencesKey("AUTO_SHOW_KEYBOARD")
@@ -51,17 +49,10 @@ class SettingsRepository(private val context: Context) {
         val USE_DYNAMIC_THEME = booleanPreferencesKey("USE_DYNAMIC_THEME")
         val ICON_CORNER_RADIUS = intPreferencesKey("ICON_CORNER_RADIUS")
         val ITEM_SPACING = intPreferencesKey("ITEM_SPACING")
-        val HOME_ALIGNMENT = intPreferencesKey("HOME_ALIGNMENT")
-        val HOME_BOTTOM_ALIGNMENT = booleanPreferencesKey("HOME_BOTTOM_ALIGNMENT")
         val STATUS_BAR = booleanPreferencesKey("STATUS_BAR")
-        val DATE_TIME_VISIBILITY = intPreferencesKey("DATE_TIME_VISIBILITY")
         val FORCE_LANDSCAPE_MODE = booleanPreferencesKey("FORCE_LANDSCAPE_MODE")
         val SHOW_ICONS_IN_LANDSCAPE = booleanPreferencesKey("SHOW_ICONS_IN_LANDSCAPE")
         val SHOW_ICONS_IN_PORTRAIT = booleanPreferencesKey("SHOW_ICONS_IN_PORTRAIT")
-        val EDIT_HOME_APPS = booleanPreferencesKey("EDIT_HOME_APPS")
-        val EDIT_WIDGETS = booleanPreferencesKey("EDIT_WIDGETS")
-        val SWIPE_LEFT_ENABLED = booleanPreferencesKey("SWIPE_LEFT_ENABLED")
-        val SWIPE_RIGHT_ENABLED = booleanPreferencesKey("SWIPE_RIGHT_ENABLED")
         val SWIPE_DOWN_ACTION = intPreferencesKey("SWIPE_DOWN_ACTION")
         val SWIPE_UP_ACTION = intPreferencesKey("SWIPE_UP_ACTION")
         val DOUBLE_TAP_TO_LOCK = booleanPreferencesKey("DOUBLE_TAP_TO_LOCK")
@@ -89,6 +80,7 @@ class SettingsRepository(private val context: Context) {
         val HOME_APPS_JSON = stringPreferencesKey("HOME_APPS_JSON")
         val SWIPE_LEFT_APP_JSON = stringPreferencesKey("SWIPE_LEFT_APP_JSON")
         val SWIPE_RIGHT_APP_JSON = stringPreferencesKey("SWIPE_RIGHT_APP_JSON")
+        val DOUBLE_TAP_APP_JSON = stringPreferencesKey("DOUBLE_TAP_APP_JSON")
         val SWIPE_UP_APP_JSON = stringPreferencesKey("SWIPE_UP_APP_JSON")
         val SWIPE_DOWN_APP_JSON = stringPreferencesKey("SWIPE_DOWN_APP_JSON")
 
@@ -97,12 +89,23 @@ class SettingsRepository(private val context: Context) {
         val LOCK_SETTINGS = booleanPreferencesKey("LOCK_SETTINGS")
         val SETTINGS_LOCK_PIN = stringPreferencesKey("SETTINGS_LOCK_PIN")
 
+        val SWIPE_LEFT_ACTION = intPreferencesKey("SWIPE_LEFT_ACTION")
+        val SWIPE_RIGHT_ACTION = intPreferencesKey("SWIPE_RIGHT_ACTION")
+        val DOUBLE_TAP_ACTION = intPreferencesKey("DOUBLE_TAP_ACTION")
+
+        val HOME_SCREEN_ROWS = intPreferencesKey("HOME_SCREEN_ROWS")
+        val HOME_SCREEN_COLUMNS = intPreferencesKey("HOME_SCREEN_COLUMNS")
+
+        val SELECTED_ICON_PACK = stringPreferencesKey("SELECTED_ICON_PACK")
+
+
     }
 
     private val defaultAppSettings = AppSettings.getDefault()
     private val defaultHomeApps: List<HomeAppPreference> = defaultAppSettings.homeApps
     private val defaultSwipeLeftApp: AppPreference = defaultAppSettings.swipeLeftApp
     private val defaultSwipeRightApp: AppPreference = defaultAppSettings.swipeRightApp
+    private val defaultDoubleTapApp: AppPreference = defaultAppSettings.doubleTapApp
     private val defaultSwipeUpApp: AppPreference = defaultAppSettings.swipeUpApp
     private val defaultSwipeDownApp: AppPreference = defaultAppSettings.swipeDownApp
 
@@ -123,6 +126,10 @@ class SettingsRepository(private val context: Context) {
             json.decodeFromStringCatching(it, defaultSwipeRightApp)
         } ?: defaultSwipeRightApp
 
+        val doubleTapApp = prefs[DOUBLE_TAP_APP_JSON]?.let {
+            json.decodeFromStringCatching(it, defaultDoubleTapApp)
+        } ?: defaultDoubleTapApp
+
         val swipeUpApp = prefs[SWIPE_UP_APP_JSON]?.let {
             json.decodeFromStringCatching(it, defaultSwipeUpApp)
         } ?: defaultSwipeUpApp
@@ -142,7 +149,6 @@ class SettingsRepository(private val context: Context) {
 
         AppSettings(
             // General settings
-            homeAppsNum = prefs[HOME_APPS_NUM] ?: 0,
             showAppNames = prefs[SHOW_APP_NAMES] ?: false,
             showAppIcons = prefs[SHOW_APP_ICONS] ?: true,
             autoShowKeyboard = prefs[AUTO_SHOW_KEYBOARD] ?: true,
@@ -156,29 +162,26 @@ class SettingsRepository(private val context: Context) {
             fontWeight = prefs[FONT_WEIGHT] ?: 2,
             useSystemFont = prefs[USE_SYSTEM_FONT] ?: true,
             useDynamicTheme = prefs[USE_DYNAMIC_THEME] ?: false,
-            iconCornerRadius = prefs[ICON_CORNER_RADIUS] ?: 25,
+            iconCornerRadius = prefs[ICON_CORNER_RADIUS] ?: 0,
             itemSpacing = prefs[ITEM_SPACING] ?: 1,
 
             // Layout settings
-            homeAlignment = prefs[HOME_ALIGNMENT] ?: Gravity.CENTER,
-            homeBottomAlignment = prefs[HOME_BOTTOM_ALIGNMENT] ?: false,
             statusBar = prefs[STATUS_BAR] ?: false,
-            homeScreenColumns = prefs[HOME_SCREEN_COLUMNS] ?: 1,
-            dateTimeVisibility = prefs[DATE_TIME_VISIBILITY] ?: Constants.DateTime.ON,
             forceLandscapeMode = prefs[FORCE_LANDSCAPE_MODE] ?: false,
             showHomeScreenIcons = prefs[SHOW_HOME_SCREEN_ICONS] ?: false,
             showIconsInLandscape = prefs[SHOW_ICONS_IN_LANDSCAPE] ?: false,
             showIconsInPortrait = prefs[SHOW_ICONS_IN_PORTRAIT] ?: false,
-            editHomeApps = prefs[EDIT_HOME_APPS] ?: false,
-            editWidgets = prefs[EDIT_WIDGETS] ?: false,
             scaleHomeApps = prefs[SCALE_HOME_APPS] ?: true,
+            homeScreenRows = prefs[HOME_SCREEN_ROWS] ?: 8,
+            homeScreenColumns = prefs[HOME_SCREEN_COLUMNS] ?: 4,
 
             // Gestures settings
-            swipeLeftEnabled = prefs[SWIPE_LEFT_ENABLED] ?: true,
-            swipeRightEnabled = prefs[SWIPE_RIGHT_ENABLED] ?: true,
-            swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeDownAction.NOTIFICATIONS,
-            swipeUpAction = prefs[SWIPE_UP_ACTION] ?: Constants.SwipeDownAction.SEARCH,
+            swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeAction.NOTIFICATIONS,
+            swipeUpAction = prefs[SWIPE_UP_ACTION] ?: Constants.SwipeAction.SEARCH,
             doubleTapToLock = prefs[DOUBLE_TAP_TO_LOCK] ?: false,
+            swipeLeftAction = prefs[SWIPE_LEFT_ACTION] ?: Constants.SwipeAction.NULL,
+            swipeRightAction = prefs[SWIPE_RIGHT_ACTION] ?: Constants.SwipeAction.NULL,
+            doubleTapAction = prefs[DOUBLE_TAP_ACTION] ?: Constants.SwipeAction.NULL,
 
             lockSettings = prefs[LOCK_SETTINGS] ?: false,
             settingsLockPin = prefs[SETTINGS_LOCK_PIN] ?: "",
@@ -201,10 +204,12 @@ class SettingsRepository(private val context: Context) {
             shareShownTime = prefs[SHARE_SHOWN_TIME] ?: 0L,
             searchResultsUseHomeFont = prefs[SEARCH_RESULTS_USE_HOME_FONT] ?: false,
             searchResultsFontSize = prefs[SEARCH_RESULTS_FONT_SIZE] ?: 1.0f,
+            selectedIconPack = prefs[SELECTED_ICON_PACK] ?: "default",
 
             homeApps = homeApps,
             swipeLeftApp = swipeLeftApp,
             swipeRightApp = swipeRightApp,
+            doubleTapApp = doubleTapApp,
             swipeUpApp = swipeUpApp,
             swipeDownApp = swipeDownApp,
             renamedApps = renamedApps
@@ -239,7 +244,6 @@ class SettingsRepository(private val context: Context) {
                     @Suppress("UNCHECKED_CAST")
                     when (name) {
                         // General settings
-                        "homeAppsNum" -> prefs[HOME_APPS_NUM] = newValue as Int
                         "showAppNames" -> prefs[SHOW_APP_NAMES] = newValue as Boolean
                         "showAppIcons" -> prefs[SHOW_APP_ICONS] = true // as Boolean
                         "autoShowKeyboard" -> prefs[AUTO_SHOW_KEYBOARD] = newValue as Boolean
@@ -257,25 +261,22 @@ class SettingsRepository(private val context: Context) {
                         "itemSpacing" -> prefs[ITEM_SPACING] = newValue as Int
 
                         // Layout settings
-                        "homeAlignment" -> prefs[HOME_ALIGNMENT] = newValue as Int
-                        "homeBottomAlignment" -> prefs[HOME_BOTTOM_ALIGNMENT] = newValue as Boolean
                         "statusBar" -> prefs[STATUS_BAR] = newValue as Boolean
-                        "homeScreenColumns" -> prefs[HOME_SCREEN_COLUMNS] = newValue as Int
-                        "dateTimeVisibility" -> prefs[DATE_TIME_VISIBILITY] = newValue as Int
                         "forceLandscapeMode" -> prefs[FORCE_LANDSCAPE_MODE] = newValue as Boolean
                         "showHomeScreenIcons" -> prefs[SHOW_HOME_SCREEN_ICONS] = newValue as Boolean
                         "showIconsInLandscape" -> prefs[SHOW_ICONS_IN_LANDSCAPE] = newValue as Boolean
                         "showIconsInPortrait" -> prefs[SHOW_ICONS_IN_PORTRAIT] = newValue as Boolean
-                        "editHomeApps" -> prefs[EDIT_HOME_APPS] = newValue as Boolean
-                        "editWidgets" -> prefs[EDIT_WIDGETS] = newValue as Boolean
                         "scaleHomeApps" -> prefs[SCALE_HOME_APPS] = newValue as Boolean
+                        "homeScreenRows" -> prefs[HOME_SCREEN_ROWS] = newValue as Int
+                        "homeScreenColumns" -> prefs[HOME_SCREEN_COLUMNS] = newValue as Int
 
                         // Gestures settings
-                        "swipeLeftEnabled" -> prefs[SWIPE_LEFT_ENABLED] = newValue as Boolean
-                        "swipeRightEnabled" -> prefs[SWIPE_RIGHT_ENABLED] = newValue as Boolean
                         "swipeDownAction" -> prefs[SWIPE_DOWN_ACTION] = newValue as Int
                         "swipeUpAction" -> prefs[SWIPE_UP_ACTION] = newValue as Int
                         "doubleTapToLock" -> prefs[DOUBLE_TAP_TO_LOCK] = newValue as Boolean
+                        "swipeLeftAction" -> prefs[SWIPE_LEFT_ACTION] = newValue as Int
+                        "swipeRightAction" -> prefs[SWIPE_RIGHT_ACTION] = newValue as Int
+                        "doubleTapAction" -> prefs[DOUBLE_TAP_ACTION] = newValue as Int
 
                         // Search result appearance
                         "searchResultsUseHomeFont" -> prefs[SEARCH_RESULTS_USE_HOME_FONT] = newValue as Boolean
@@ -283,6 +284,7 @@ class SettingsRepository(private val context: Context) {
 
                         "lockSettings" -> prefs[LOCK_SETTINGS] = newValue as Boolean
                         "settingsLockPin" -> prefs[SETTINGS_LOCK_PIN] = newValue as String
+                        "selectedIconPack" -> prefs[SELECTED_ICON_PACK] = newValue as String
 
                         // Other properties
                         "firstOpen" -> prefs[FIRST_OPEN] = newValue as Boolean
@@ -306,6 +308,7 @@ class SettingsRepository(private val context: Context) {
                         "homeApps" -> prefs[HOME_APPS_JSON] = json.encodeToString(newValue)
                         "swipeLeftApp" -> prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(newValue)
                         "swipeRightApp" -> prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(newValue)
+                        "doubleTapApp" -> prefs[DOUBLE_TAP_APP_JSON] = json.encodeToString(newValue)
                         "clockApp" -> prefs[SWIPE_UP_APP_JSON] = json.encodeToString(newValue)
                         "calendarApp" -> prefs[SWIPE_DOWN_APP_JSON] = json.encodeToString(newValue)
                         "renamedApps" -> prefs[RENAMED_APPS_JSON] = json.encodeToString(newValue)
@@ -388,6 +391,12 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
+    suspend fun setDoubleTapApp(app: AppPreference) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[DOUBLE_TAP_APP_JSON] = json.encodeToString(app)
+        }
+    }
+
     suspend fun setSwipeUpApp(app: AppPreference) {
         context.settingsDataStore.edit { prefs ->
             prefs[SWIPE_UP_APP_JSON] = json.encodeToString(app)
@@ -408,16 +417,16 @@ class SettingsRepository(private val context: Context) {
         return settings.first().swipeRightApp
     }
 
+    suspend fun getDoubleTapApp(): AppPreference {
+        return settings.first().doubleTapApp
+    }
+
     suspend fun setSettingsLock(locked: Boolean) {
         updateSetting { it.copy(lockSettings = locked) }
     }
 
     suspend fun setSettingsLockPin(pin: String) {
         updateSetting { it.copy(settingsLockPin = pin) }
-    }
-
-    suspend fun isSettingsLocked(): Boolean {
-        return settings.first().lockSettings
     }
 
     suspend fun validateSettingsPin(pin: String): Boolean {
