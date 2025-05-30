@@ -950,12 +950,12 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
     fun lockScreen() {
         viewModelScope.launch {
             val settings = settingsRepository.settings.first()
-            if (settings.doubleTapToLock) {
+            // if (settings.doubleTapToLock) {
                 // Use accessibility service to lock screen
                 val intent = Intent(appContext, MyAccessibilityService::class.java)
                 intent.action = "LOCK_SCREEN"
                 appContext.startService(intent)
-            }
+            // }
         }
     }
 

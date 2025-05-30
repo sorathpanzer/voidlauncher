@@ -385,7 +385,7 @@ fun SettingsScreen(
                                                                 e.printStackTrace()
                                                             }
                                                         }
-                                                        "doubleTapToLock" -> {
+                                                        "doubleTapAction" -> { //doubleTapToLock
                                                             if (it && !isAccessServiceEnabled(context)) {
                                                                 Toast.makeText(context, "Enable accessibility permission for this functionality.", Toast.LENGTH_SHORT).show()
                                                                 val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
