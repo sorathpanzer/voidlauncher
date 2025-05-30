@@ -40,6 +40,7 @@ object Constants {
         const val SEARCH = 1
         const val NOTIFICATIONS = 2
         const val APP = 3
+        const val LOCKSCREEN = 4
         const val NULL = 0
     }
 

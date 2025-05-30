@@ -178,10 +178,10 @@ class SettingsRepository(private val context: Context) {
             // Gestures settings
             swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeAction.NOTIFICATIONS,
             swipeUpAction = prefs[SWIPE_UP_ACTION] ?: Constants.SwipeAction.SEARCH,
-            doubleTapToLock = prefs[DOUBLE_TAP_TO_LOCK] ?: false,
+            // doubleTapToLock = prefs[DOUBLE_TAP_TO_LOCK] ?: false,
             swipeLeftAction = prefs[SWIPE_LEFT_ACTION] ?: Constants.SwipeAction.NULL,
             swipeRightAction = prefs[SWIPE_RIGHT_ACTION] ?: Constants.SwipeAction.NULL,
-            doubleTapAction = prefs[DOUBLE_TAP_ACTION] ?: Constants.SwipeAction.NULL,
+            doubleTapAction = prefs[DOUBLE_TAP_ACTION] ?: Constants.SwipeAction.LOCKSCREEN,
 
             lockSettings = prefs[LOCK_SETTINGS] ?: false,
             settingsLockPin = prefs[SETTINGS_LOCK_PIN] ?: "",
@@ -273,7 +273,7 @@ class SettingsRepository(private val context: Context) {
                         // Gestures settings
                         "swipeDownAction" -> prefs[SWIPE_DOWN_ACTION] = newValue as Int
                         "swipeUpAction" -> prefs[SWIPE_UP_ACTION] = newValue as Int
-                        "doubleTapToLock" -> prefs[DOUBLE_TAP_TO_LOCK] = newValue as Boolean
+                        // "doubleTapToLock" -> prefs[DOUBLE_TAP_TO_LOCK] = newValue as Boolean
                         "swipeLeftAction" -> prefs[SWIPE_LEFT_ACTION] = newValue as Int
                         "swipeRightAction" -> prefs[SWIPE_RIGHT_ACTION] = newValue as Int
                         "doubleTapAction" -> prefs[DOUBLE_TAP_ACTION] = newValue as Int

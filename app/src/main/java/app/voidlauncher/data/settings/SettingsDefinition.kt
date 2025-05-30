@@ -249,7 +249,7 @@ data class AppSettings(
         title = "Swipe Down Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
-        options = ["None", "Search", "Notifications", "App"]
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val swipeDownAction: Int = Constants.SwipeAction.NOTIFICATIONS,
 
@@ -264,7 +264,7 @@ data class AppSettings(
         title = "Swipe Up Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
-        options = ["None", "Search", "Notifications", "App"]
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val swipeUpAction: Int = Constants.SwipeAction.SEARCH,
 
@@ -277,12 +277,13 @@ data class AppSettings(
     val swipeUpApp: AppPreference = AppPreference(),
 
 
-    @Setting(
-        title = "Double Tap to Lock Screen",
-        category = SettingCategory.GESTURES,
-        type = SettingType.TOGGLE
-    )
-    val doubleTapToLock: Boolean = false,
+    // @Setting(
+    //     title = "Double Tap to Lock Screen",
+    //     category = SettingCategory.GESTURES,
+    //     type = SettingType.TOGGLE
+    // )
+    // val doubleTapToLock: Int = Constants.SwipeAction.LOCKSCREEN,
+    // val doubleTapToLock: Boolean = false,
 
     // Search result appearance settings
     @Setting(
@@ -307,7 +308,7 @@ data class AppSettings(
         title = "Swipe Left Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
-        options = ["None", "Search", "Notifications", "App"]
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val swipeLeftAction: Int = Constants.SwipeAction.NULL,
 
@@ -324,7 +325,7 @@ data class AppSettings(
         title = "Swipe Right Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
-        options = ["None", "Search", "Notifications", "App"]
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val swipeRightAction: Int = Constants.SwipeAction.NULL,
 
@@ -342,9 +343,9 @@ data class AppSettings(
         title = "Double Tap Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
-        options = ["None", "Search", "Notifications", "App"]
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
-    val doubleTapAction: Int = Constants.SwipeAction.NULL,
+    val doubleTapAction: Int = Constants.SwipeAction.LOCKSCREEN,
 
 
     @Setting(
