@@ -50,6 +50,21 @@ import app.voidlauncher.ui.dialogs.ResizeWidgetDialog
 import app.voidlauncher.ui.util.detectSwipeGestures
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import kotlin.math.roundToInt
+import app.voidlauncher.helper.isAccessServiceEnabled
+import android.content.Intent
+import android.provider.Settings
+
+private fun checkAccessibilityAndLock(context: android.content.Context, viewModel: MainViewModel) {
+    if (!isAccessServiceEnabled(context)) {
+        Toast.makeText(context, "Enable accessibility permission to lock screen.", Toast.LENGTH_SHORT).show()
+        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    } else {
+        viewModel.lockScreen()
+    }
+}
 
 @Composable
 fun HomeScreen(
@@ -85,7 +100,7 @@ fun HomeScreen(
                     Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
                     Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
                     Constants.SwipeAction.APP -> viewModel.launchSwipeUpApp()
-                    Constants.SwipeAction.LOCKSCREEN -> viewModel.lockScreen()
+                        Constants.SwipeAction.LOCKSCREEN -> checkAccessibilityAndLock(context, viewModel)
                     Constants.SwipeAction.NULL -> {}
                         else -> onNavigateToAppDrawer()
                 } },
@@ -94,7 +109,7 @@ fun HomeScreen(
                         Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
                         Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
                         Constants.SwipeAction.APP -> viewModel.launchSwipeDownApp()
-                        Constants.SwipeAction.LOCKSCREEN -> viewModel.lockScreen()
+                        Constants.SwipeAction.LOCKSCREEN -> checkAccessibilityAndLock(context, viewModel)
                         Constants.SwipeAction.NULL -> {}
                         else -> expandNotificationDrawer(context)
                     }
@@ -104,7 +119,7 @@ fun HomeScreen(
                         Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
                         Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
                         Constants.SwipeAction.APP -> viewModel.launchSwipeLeftApp()
-                        Constants.SwipeAction.LOCKSCREEN -> viewModel.lockScreen()
+                        Constants.SwipeAction.LOCKSCREEN -> checkAccessibilityAndLock(context, viewModel)
                         Constants.SwipeAction.NULL -> { /* Do nothing */ }
                         else -> { /* Do nothing by default */ }
                     }
@@ -114,7 +129,7 @@ fun HomeScreen(
                         Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
                         Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
                         Constants.SwipeAction.APP -> viewModel.launchSwipeRightApp()
-                        Constants.SwipeAction.LOCKSCREEN -> viewModel.lockScreen()
+                        Constants.SwipeAction.LOCKSCREEN -> checkAccessibilityAndLock(context, viewModel)
                         Constants.SwipeAction.NULL -> {}
                         else -> {}
                     }
@@ -130,10 +145,10 @@ fun HomeScreen(
                             Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
                             Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
                             Constants.SwipeAction.APP -> viewModel.launchDoubleTapApp()
-                            Constants.SwipeAction.LOCKSCREEN -> viewModel.lockScreen()
+                            Constants.SwipeAction.LOCKSCREEN -> checkAccessibilityAndLock(context, viewModel)
                             Constants.SwipeAction.NULL -> {}
                             else -> {}
-                    }
+                        }
 
                     },
                     onLongPress = { offset ->

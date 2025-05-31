@@ -979,6 +979,13 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                     val listToFilter = if (settings.showHiddenAppsOnSearch) appListAll else appList
 
                     when (searchType) {
+                        Constants.SearchType.CONTAINS -> {
+                            // Contains search implementation
+                            listToFilter.value.filter { app ->
+                                app.appLabel.contains(query, ignoreCase = true)
+                            }
+                        }
+
                         Constants.SearchType.FUZZY -> {
                             // Fuzzy search implementation
                             listToFilter.value.filter { app ->
@@ -986,17 +993,10 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                             }
                         }
 
-                        Constants.SearchType.STARTS_WITH -> {
-                            // Starts with implementation
+                        else -> {
+                            // Default startswith search
                             listToFilter.value.filter { app ->
                                 app.appLabel.startsWith(query, ignoreCase = true)
-                            }
-                        }
-
-                        else -> {
-                            // Default contains search
-                            listToFilter.value.filter { app ->
-                                app.appLabel.contains(query, ignoreCase = true)
                             }
                         }
                     }

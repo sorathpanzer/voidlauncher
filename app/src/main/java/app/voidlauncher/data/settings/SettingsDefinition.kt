@@ -96,9 +96,9 @@ data class AppSettings(
         title = "Search Type",
         category = SettingCategory.GENERAL,
         type = SettingType.DROPDOWN,
-        options = ["Contains", "Fuzzy Match", "Starts With"]
+        options = ["Starts With", "Contains", "Fuzzy Match"]
     )
-    val searchType: Int = Constants.SearchType.CONTAINS,
+    val searchType: Int = Constants.SearchType.STARTS_WITH,
 
     // Appearance settings
     @Setting(
@@ -171,7 +171,7 @@ data class AppSettings(
         category = SettingCategory.LAYOUT,
         type = SettingType.TOGGLE
     )
-    val scaleHomeApps: Boolean = true,
+    val scaleHomeApps: Boolean = false,
 
     @Setting(
         title = "Home Screen Rows",
@@ -225,9 +225,8 @@ data class AppSettings(
 //        type = SettingType.TOGGLE,
 //        description = "Prevent changes to settings without unlocking"
 //    )
-    val lockSettings: Boolean = false,
-
-    val settingsLockPin: String = "",
+   val lockSettings: Boolean = false,
+   val settingsLockPin: String = "",
 
     @Setting(
         title = "Show App Icons in Landscape",

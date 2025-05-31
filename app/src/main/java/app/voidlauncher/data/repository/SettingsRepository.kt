@@ -154,7 +154,7 @@ class SettingsRepository(private val context: Context) {
             autoShowKeyboard = prefs[AUTO_SHOW_KEYBOARD] ?: true,
             showHiddenAppsOnSearch = prefs[SHOW_HIDDEN_APPS_IN_SEARCH] ?: false,
             autoOpenFilteredApp = prefs[AUTO_OPEN_FILTERED_APP] ?: true,
-            searchType = prefs[SEARCH_TYPE] ?: Constants.SearchType.CONTAINS,
+            searchType = prefs[SEARCH_TYPE] ?: Constants.SearchType.STARTS_WITH,
 
             // Appearance settings
             appTheme = prefs[APP_THEME] ?: AppCompatDelegate.MODE_NIGHT_YES,
