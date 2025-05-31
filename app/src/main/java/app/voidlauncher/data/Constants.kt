@@ -107,17 +107,17 @@ object Constants {
 
     const val MIN_ANIM_REFRESH_RATE = 10f
 
-    const val URL_ABOUT_CCLAUNCHER = "https://github.com/mlm-games/VoidLauncher"
-    const val URL_CCLAUNCHER_PRIVACY = "https://github.com/mlm-games/VoidLauncher"
+    const val URL_ABOUT_CCLAUNCHER = "https://github.com/sorath/voidlauncher"
+    const val URL_CCLAUNCHER_PRIVACY = "https://github.com/sorathpanzer/voidlauncher"
     const val URL_DOUBLE_TAP = ""
-    const val URL_CCLAUNCHER_GITHUB = "https://github.com/mlm-games/VoidLauncher"
+    const val URL_CCLAUNCHER_GITHUB = "https://github.com/sorathpanzer/voidlauncher"
     const val URL_DUCK_SEARCH = "https://duckduckgo.com?q="
 
     // Need to add the comments below as tooltips when long-tap ig?
     object SearchType {
-        const val CONTAINS = 0      // Default substring search
-        const val FUZZY = 1         // Fuzzy search (characters in order anywhere)
-        const val STARTS_WITH = 2   // Only match beginning of app names
+        const val STARTS_WITH = 0   // Only match beginning of app names (Default)
+        const val CONTAINS = 1      // Contains substring search
+        const val FUZZY = 2         // Fuzzy search (characters in order anywhere)
     }
 }
 
