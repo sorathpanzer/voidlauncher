@@ -71,23 +71,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     /**
-     * Check if grid size change will affect existing items
-     */
-    suspend fun willGridChangeAffectItems(propertyName: String, newValue: Int): Boolean {
-        val currentSettings = settingsState.value
-        val currentLayout = settingsRepository.getHomeLayout().first()
-
-        val newRows = if (propertyName == "homeScreenRows") newValue else currentSettings.homeScreenRows
-        val newColumns = if (propertyName == "homeScreenColumns") newValue else currentSettings.homeScreenColumns
-
-        // Check if any items would be out of bounds
-        return currentLayout.items.any { item ->
-            item.row + item.rowSpan > newRows || item.column + item.columnSpan > newColumns
-        }
-    }
-
-
-    /**
      * Emit UI event
      */
     fun emitEvent(event: UiEvent) {

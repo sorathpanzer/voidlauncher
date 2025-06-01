@@ -179,8 +179,7 @@ fun SettingsScreen(
                                 val intValue = newValue.toInt()
 
                                 // Check if this is a grid size change that affects items
-                                if ((propertyName == "homeScreenRows" || propertyName == "homeScreenColumns") &&
-                                    viewModel.willGridChangeAffectItems(propertyName, intValue)) {
+                                if (propertyName == "homeScreenRows" || propertyName == "homeScreenColumns") {
 
                                     // Show warning dialog
                                     pendingGridChange = propertyName to intValue

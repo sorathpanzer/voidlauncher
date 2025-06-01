@@ -164,8 +164,6 @@ class SettingsRepository(private val context: Context) {
             // Layout settings
             statusBar = prefs[STATUS_BAR] ?: false,
             scaleHomeApps = prefs[SCALE_HOME_APPS] ?: true,
-            homeScreenRows = prefs[HOME_SCREEN_ROWS] ?: 8,
-            homeScreenColumns = prefs[HOME_SCREEN_COLUMNS] ?: 4,
 
             // Gestures settings
             swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeAction.NOTIFICATIONS,
@@ -255,8 +253,6 @@ class SettingsRepository(private val context: Context) {
                         "statusBar" -> prefs[STATUS_BAR] = newValue as Boolean
                         "showHomeScreenIcons" -> prefs[SHOW_HOME_SCREEN_ICONS] = newValue as Boolean
                         "scaleHomeApps" -> prefs[SCALE_HOME_APPS] = newValue as Boolean
-                        "homeScreenRows" -> prefs[HOME_SCREEN_ROWS] = newValue as Int
-                        "homeScreenColumns" -> prefs[HOME_SCREEN_COLUMNS] = newValue as Int
 
                         // Gestures settings
                         "swipeDownAction" -> prefs[SWIPE_DOWN_ACTION] = newValue as Int
