@@ -167,28 +167,6 @@ data class AppSettings(
     val scaleHomeApps: Boolean = false,
 
     @Setting(
-        title = "Home Screen Rows",
-        category = SettingCategory.LAYOUT,
-        type = SettingType.SLIDER,
-        min = 4f,
-        max = 12f,
-        step = 1f,
-        description = "Number of rows in the home screen grid"
-    )
-    val homeScreenRows: Int = 8,
-
-    @Setting(
-        title = "Home Screen Columns",
-        category = SettingCategory.LAYOUT,
-        type = SettingType.SLIDER,
-        min = 2f,
-        max = 8f,
-        step = 1f,
-        description = "Number of columns in the home screen grid"
-    )
-    val homeScreenColumns: Int = 4,
-
-    @Setting(
         title = "Icon Pack",
         category = SettingCategory.APPEARANCE,
         type = SettingType.ICON_PACK_PICKER,

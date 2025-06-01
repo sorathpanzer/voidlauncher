@@ -317,7 +317,6 @@ fun AppDrawerScreen(
                         })
                         showContextMenu = false; selectedApp = null
                     }
-                    ContextMenuItem("Add to Home Screen", Icons.Default.Add) { viewModel.addAppToHomeScreen(app); showContextMenu = false; selectedApp = null }
                 }
             },
             confirmButton = { TextButton({ showContextMenu = false; selectedApp = null }) { Text("Close") } }
