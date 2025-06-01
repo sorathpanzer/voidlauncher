@@ -138,9 +138,6 @@ fun HomeScreen(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onDoubleTap = {
-                        // if (settings.doubleTapToLock) {
-                        //     viewModel.lockScreen()
-                        // }
                         when (settings.doubleTapAction) {
                             Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
                             Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()

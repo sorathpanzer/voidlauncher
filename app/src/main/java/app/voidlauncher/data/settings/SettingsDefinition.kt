@@ -64,13 +64,6 @@ data class AppSettings(
     )
     val showAppNames: Boolean = false,
 
-//    @Setting(
-//        title = "Show App Icons",
-//        category = SettingCategory.GENERAL,
-//        type = SettingType.TOGGLE
-//    )
-    val showAppIcons: Boolean = true,
-
     @Setting(
         title = "Auto Show Keyboard",
         category = SettingCategory.GENERAL,
@@ -196,22 +189,6 @@ data class AppSettings(
     val homeScreenColumns: Int = 4,
 
     @Setting(
-        title = "Force Landscape Mode",
-        category = SettingCategory.LAYOUT,
-        type = SettingType.TOGGLE,
-        description = "Force landscape orientation on smartphones"
-    )
-    val forceLandscapeMode: Boolean = false,
-
-    @Setting(
-        title = "Show App Icons on Home Screen",
-        category = SettingCategory.APPEARANCE,
-        type = SettingType.TOGGLE,
-        description = "Display app icons on the home screen"
-    )
-    val showHomeScreenIcons: Boolean = false,
-
-    @Setting(
         title = "Icon Pack",
         category = SettingCategory.APPEARANCE,
         type = SettingType.ICON_PACK_PICKER,
@@ -219,30 +196,8 @@ data class AppSettings(
     )
     val selectedIconPack: String = "default",
 
-//    @Setting( // Already present in SettingsScreen
-//        title = "Lock Settings",
-//        category = SettingCategory.SYSTEM,
-//        type = SettingType.TOGGLE,
-//        description = "Prevent changes to settings without unlocking"
-//    )
    val lockSettings: Boolean = false,
    val settingsLockPin: String = "",
-
-    @Setting(
-        title = "Show App Icons in Landscape",
-        category = SettingCategory.LAYOUT,
-        type = SettingType.TOGGLE,
-//        dependsOn = "showHomeScreenIcons"
-    )
-    val showIconsInLandscape: Boolean = false,
-
-    @Setting(
-        title = "Show App Icons in Portrait",
-        category = SettingCategory.LAYOUT,
-        type = SettingType.TOGGLE,
-//        dependsOn = "showHomeScreenIcons"
-    )
-    val showIconsInPortrait: Boolean = false,
 
     @Setting(
         title = "Swipe Down Action",

@@ -138,17 +138,6 @@ fun SettingsScreen(
         )
     }
 
-    // Handle orientation based on settings
-    LaunchedEffect(uiState.forceLandscapeMode) {
-        (context as? Activity)?.let { activity ->
-            if (uiState.forceLandscapeMode) {
-                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            } else {
-                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-            }
-        }
-    }
-
     if (showGridWarningDialog && pendingGridChange != null) {
         GridSizeWarningDialog(
             title = "Grid Size Change",
@@ -390,15 +379,6 @@ fun SettingsScreen(
                                                                 Toast.makeText(context, "Enable accessibility permission for this functionality.", Toast.LENGTH_SHORT).show()
                                                                 val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                                                                 context.startActivity(intent)
-                                                            }
-                                                        }
-                                                        "forceLandscapeMode" -> {
-                                                            (context as? Activity)?.let { activity ->
-                                                                if (it) {
-                                                                    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                                                                } else {
-                                                                    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                                                                }
                                                             }
                                                         }
                                                     }

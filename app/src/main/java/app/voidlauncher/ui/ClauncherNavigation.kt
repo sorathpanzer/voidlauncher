@@ -46,17 +46,6 @@ fun CLauncherNavigation(
     // Apply system UI settings
     SystemUIController(showStatusBar = settings.statusBar)
 
-    // Force landscape if setting is enabled
-    LaunchedEffect(settings.forceLandscapeMode) {
-        (context as? Activity)?.let { activity ->
-            if (settings.forceLandscapeMode) {
-                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            } else {
-                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-            }
-        }
-    }
-
     var showAppSelectionDialog by remember { mutableStateOf(false) }
     var currentSelectionType by remember { mutableStateOf<AppSelectionType?>(null) }
 
