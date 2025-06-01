@@ -107,11 +107,6 @@ fun AppDrawerScreen(
 
 
     val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-
-    val shouldShowIcons = if (settings.showAppIcons) {
-        if (isLandscape) settings.showIconsInLandscape else settings.showIconsInPortrait
-    } else { false }
 
     val itemSpacing = when (settings.itemSpacing) {
         0 -> 0.dp; 1 -> 4.dp; 2 -> 8.dp; 3 -> 16.dp; else -> 4.dp
@@ -142,15 +137,6 @@ fun AppDrawerScreen(
         focusManager.clearFocus()
         keyboardController?.hide()
         onAppClick(app)
-    }
-
-
-    LaunchedEffect(settings.forceLandscapeMode, context) {
-        (context as? Activity)?.let { activity ->
-            if (settings.forceLandscapeMode) {
-                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-            }
-        }
     }
 
     LaunchedEffect(Unit) { viewModel.loadApps() }
@@ -294,7 +280,7 @@ fun AppDrawerScreen(
                         key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" }
                     ) { app ->
                         AppListItem(
-                            app = app, showAppIcon = shouldShowIcons, showAppNames = settings.showAppNames,
+                            app = app, showAppNames = settings.showAppNames,
                             fontScale = searchResultsFontSize, fontWeight = fontWeight,
                             iconCornerRadius = settings.iconCornerRadius.dp,
                             onClick = { handleAppClick(app) },
@@ -374,7 +360,6 @@ fun AppDrawerScreen(
 private fun AppListItem(
     app: AppModel,
     showAppNames: Boolean,
-    showAppIcon: Boolean,
     fontScale: Float,
     fontWeight: FontWeight,
     iconCornerRadius: Dp,
@@ -390,19 +375,6 @@ private fun AppListItem(
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (showAppIcon && app.appIcon != null) {
-            Surface(
-                shape = RoundedCornerShape(iconCornerRadius),
-                modifier = Modifier.padding(end = 16.dp),
-                color = Color.Transparent
-            ) {
-                Image(
-                    bitmap = app.appIcon,
-                    contentDescription = app.appLabel,
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-        }
         Text(
             text = if (showAppNames) app.appLabel else "",
             style = MaterialTheme.typography.bodyLarge.copy(

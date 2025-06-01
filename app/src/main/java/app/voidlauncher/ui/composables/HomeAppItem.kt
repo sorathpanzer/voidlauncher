@@ -57,26 +57,6 @@ fun HomeAppItem(
 
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    val showHomeIcons = if (settings.showHomeScreenIcons) {
-        if (isLandscape) settings.showIconsInLandscape else settings.showIconsInPortrait
-    } else { false }
-
-    // Load icon asynchronously if needed and not already loaded
-    LaunchedEffect(app.getKey(), showHomeIcons) {
-        if (showHomeIcons && loadedIcon == null) {
-            coroutineScope.launch {
-                val icon = iconCache.getIcon(
-                    packageName = app.appPackage,
-                    className = app.activityClassName,
-                    user = app.user
-                )
-                loadedIcon = icon
-            }
-        }
-    }
-
-    val showIcons = showHomeIcons
-    val showName = if (showHomeIcons) settings.showAppNames else true //TODO: Add a separate setting later? When settings are arranged properly ig
     val fontScale = settings.textSizeScale
     val fontWeight = remember(settings.fontWeight) {
         when (settings.fontWeight) {
@@ -102,51 +82,4 @@ fun HomeAppItem(
         Pair(48.dp, MaterialTheme.typography.bodyMedium.fontSize)
     }
 
-    // Item Layout (Icon next to Text)
-    Column(
-        modifier = modifier
-            .fillMaxSize() // Fill the cell provided by the grid/layout
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = { onClick() },
-                    onLongPress = { onLongClick() }
-                )
-            }
-            .padding(4.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = if (settings.showHomeScreenIcons) Alignment.CenterHorizontally else Alignment.Start
-    ) {
-
-        if (showIcons && loadedIcon != null) {
-            Surface(
-                shape = RoundedCornerShape(iconCornerRadius),
-                modifier = Modifier
-                    .size(iconSize)
-                    .aspectRatio(1f), // Ensure square aspect ratio
-                color = Color.Transparent
-            ) {
-                Image(
-                    bitmap = loadedIcon!!,
-                    contentDescription = "${app.appLabel} icon",
-                )
-            }
-            Spacer(modifier = Modifier.height(if (showName) 4.dp else 0.dp)) // Space between icon and text
-        }
-
-
-        if (showName) {
-            Text(
-                text = app.appLabel,
-                fontSize = scaledFontSize,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontSize = MaterialTheme.typography.bodyMedium.fontSize * fontScale,
-                    fontWeight = fontWeight
-                ),
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = if (settings.showHomeScreenIcons) TextAlign.Center else TextAlign.Start,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-    }
 }

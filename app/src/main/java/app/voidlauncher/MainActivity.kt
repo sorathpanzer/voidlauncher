@@ -141,17 +141,6 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Set up orientation observer
-        lifecycleScope.launch {
-            settingsRepository.settings.collect { settings ->
-                if (settings.forceLandscapeMode) {
-                    requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-                } else if (!isTablet(this@MainActivity) && Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
-                    requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                }
-            }
-        }
-
         window.addFlags(FLAG_LAYOUT_NO_LIMITS)
 
         setContent {

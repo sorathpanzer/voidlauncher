@@ -50,9 +50,6 @@ class SettingsRepository(private val context: Context) {
         val ICON_CORNER_RADIUS = intPreferencesKey("ICON_CORNER_RADIUS")
         val ITEM_SPACING = intPreferencesKey("ITEM_SPACING")
         val STATUS_BAR = booleanPreferencesKey("STATUS_BAR")
-        val FORCE_LANDSCAPE_MODE = booleanPreferencesKey("FORCE_LANDSCAPE_MODE")
-        val SHOW_ICONS_IN_LANDSCAPE = booleanPreferencesKey("SHOW_ICONS_IN_LANDSCAPE")
-        val SHOW_ICONS_IN_PORTRAIT = booleanPreferencesKey("SHOW_ICONS_IN_PORTRAIT")
         val SWIPE_DOWN_ACTION = intPreferencesKey("SWIPE_DOWN_ACTION")
         val SWIPE_UP_ACTION = intPreferencesKey("SWIPE_UP_ACTION")
         val DOUBLE_TAP_TO_LOCK = booleanPreferencesKey("DOUBLE_TAP_TO_LOCK")
@@ -150,7 +147,6 @@ class SettingsRepository(private val context: Context) {
         AppSettings(
             // General settings
             showAppNames = prefs[SHOW_APP_NAMES] ?: false,
-            showAppIcons = prefs[SHOW_APP_ICONS] ?: true,
             autoShowKeyboard = prefs[AUTO_SHOW_KEYBOARD] ?: true,
             showHiddenAppsOnSearch = prefs[SHOW_HIDDEN_APPS_IN_SEARCH] ?: false,
             autoOpenFilteredApp = prefs[AUTO_OPEN_FILTERED_APP] ?: true,
@@ -167,10 +163,6 @@ class SettingsRepository(private val context: Context) {
 
             // Layout settings
             statusBar = prefs[STATUS_BAR] ?: false,
-            forceLandscapeMode = prefs[FORCE_LANDSCAPE_MODE] ?: false,
-            showHomeScreenIcons = prefs[SHOW_HOME_SCREEN_ICONS] ?: false,
-            showIconsInLandscape = prefs[SHOW_ICONS_IN_LANDSCAPE] ?: false,
-            showIconsInPortrait = prefs[SHOW_ICONS_IN_PORTRAIT] ?: false,
             scaleHomeApps = prefs[SCALE_HOME_APPS] ?: true,
             homeScreenRows = prefs[HOME_SCREEN_ROWS] ?: 8,
             homeScreenColumns = prefs[HOME_SCREEN_COLUMNS] ?: 4,
@@ -245,7 +237,6 @@ class SettingsRepository(private val context: Context) {
                     when (name) {
                         // General settings
                         "showAppNames" -> prefs[SHOW_APP_NAMES] = newValue as Boolean
-                        "showAppIcons" -> prefs[SHOW_APP_ICONS] = true // as Boolean
                         "autoShowKeyboard" -> prefs[AUTO_SHOW_KEYBOARD] = newValue as Boolean
                         "showHiddenAppsOnSearch" -> prefs[SHOW_HIDDEN_APPS_IN_SEARCH] = newValue as Boolean
                         "autoOpenFilteredApp" -> prefs[AUTO_OPEN_FILTERED_APP] = newValue as Boolean
@@ -262,10 +253,7 @@ class SettingsRepository(private val context: Context) {
 
                         // Layout settings
                         "statusBar" -> prefs[STATUS_BAR] = newValue as Boolean
-                        "forceLandscapeMode" -> prefs[FORCE_LANDSCAPE_MODE] = newValue as Boolean
                         "showHomeScreenIcons" -> prefs[SHOW_HOME_SCREEN_ICONS] = newValue as Boolean
-                        "showIconsInLandscape" -> prefs[SHOW_ICONS_IN_LANDSCAPE] = newValue as Boolean
-                        "showIconsInPortrait" -> prefs[SHOW_ICONS_IN_PORTRAIT] = newValue as Boolean
                         "scaleHomeApps" -> prefs[SCALE_HOME_APPS] = newValue as Boolean
                         "homeScreenRows" -> prefs[HOME_SCREEN_ROWS] = newValue as Int
                         "homeScreenColumns" -> prefs[HOME_SCREEN_COLUMNS] = newValue as Int

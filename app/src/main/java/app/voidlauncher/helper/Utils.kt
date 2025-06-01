@@ -64,7 +64,6 @@ suspend fun getAppsList(
         try {
             val settings = settingsRepository.settings.first()
             val hiddenApps = settings.hiddenApps
-            val includeIcons = settings.showAppIcons
             val renamedApps = settings.renamedApps
             val selectedIconPack = settings.selectedIconPack
 
@@ -97,18 +96,6 @@ suspend fun getAppsList(
 
                     val appLabelShown = renamedApps[appKey] ?: defaultLabel
 
-                    // Pass the selected icon pack to getIcon
-                    val appIcon = if (includeIcons) {
-                        iconCache.getIcon(
-                            app.applicationInfo.packageName,
-                            app.componentName.className,
-                            app.user,
-                            selectedIconPack
-                        )
-                    } else {
-                        null
-                    }
-
                     val appModel = AppModel(
                         appLabelShown,
                         collator.getCollationKey(app.label.toString()),
@@ -116,7 +103,6 @@ suspend fun getAppsList(
                         app.componentName.className,
                         (System.currentTimeMillis() - app.firstInstallTime) < Constants.ONE_HOUR_IN_MILLIS,
                         profile,
-                        appIcon = appIcon
                     )
 
                     val dupAppKey = "${app.applicationInfo.packageName}/${profile.hashCode()}"

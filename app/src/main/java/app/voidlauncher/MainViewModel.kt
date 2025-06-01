@@ -72,21 +72,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     init {
 
         viewModelScope.launch {
-            combine(
-                settingsRepository.getHomeLayout(),
-                settingsRepository.settings
-            ) { layout, settings ->
-                val updatedLayout = layout.copy(
-                    rows = settings.homeScreenRows,
-                    columns = settings.homeScreenColumns
-                )
-                loadIconsForHomeLayout(updatedLayout, settings)
-            }.collect { updatedLayout ->
-                _homeLayoutState.value = updatedLayout
-            }
-        }
-
-        viewModelScope.launch {
             appRepository.appListAll.collect { apps ->
                 _appListAll.value = apps
                 updateAppDrawerState()
@@ -108,86 +93,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
             }
         }
 
-        viewModelScope.launch {
-            settingsRepository.settings
-                .map { it.selectedIconPack }
-                .distinctUntilChanged()
-                .drop(1) // Skip initial value
-                .collect { newIconPack ->
-                    refreshHomeScreenAppIcons()
-                }
-        }
-    }
-
-    /**
-     * Load icons for all apps in the home layout
-     */
-    private suspend fun loadIconsForHomeLayout(layout: HomeLayout, settings: AppSettings): HomeLayout {
-        if (!settings.showHomeScreenIcons) {
-            return layout // Don't load icons if they're not shown
-        }
-
-        val iconCache = IconCache(appContext)
-
-        val updatedItems = layout.items.map { item ->
-            when (item) {
-                is HomeItem.App -> {
-                    // Load icon with current icon pack
-                    val icon = iconCache.getIcon(
-                        packageName = item.appModel.appPackage,
-                        className = item.appModel.activityClassName,
-                        user = item.appModel.user,
-                        iconPackName = settings.selectedIconPack,
-                    )
-
-                    // Update AppModel with loaded icon
-                    val updatedAppModel = item.appModel.copy(appIcon = icon)
-                    item.copy(appModel = updatedAppModel)
-                }
-                is HomeItem.Widget -> item
-            }
-        }
-
-        return layout.copy(items = updatedItems)
-    }
-
-    /**
-     * Refresh icons for apps on home screen
-     */
-    private suspend fun refreshHomeScreenAppIcons() {
-        val currentLayout = _homeLayoutState.value
-        val settings = settingsRepository.settings.first()
-        val iconCache = IconCache(appContext)
-
-        val updatedItems = currentLayout.items.map { item ->
-            when (item) {
-                is HomeItem.App -> {
-                    // Get updated icon for this app
-                    val updatedIcon = if (settings.showHomeScreenIcons) {
-                        iconCache.getIcon(
-                            packageName = item.appModel.appPackage,
-                            className = item.appModel.activityClassName,
-                            user = item.appModel.user,
-                            iconPackName = settings.selectedIconPack,
-                        )
-                    } else {
-                        null
-                    }
-
-                    // Create updated AppModel with new icon
-                    val updatedAppModel = item.appModel.copy(appIcon = updatedIcon)
-                    item.copy(appModel = updatedAppModel)
-                }
-                is HomeItem.Widget -> item // Widgets don't need icon updates
-            }
-        }
-
-        // Update the layout with new icons
-        val updatedLayout = currentLayout.copy(items = updatedItems)
-        _homeLayoutState.value = updatedLayout
-
-        // Also save to persistence
-        settingsRepository.saveHomeLayout(updatedLayout)
     }
 
     suspend fun updateGridSize(newRows: Int, newColumns: Int) {
