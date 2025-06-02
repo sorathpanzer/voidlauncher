@@ -159,21 +159,6 @@ data class AppSettings(
     )
     val statusBar: Boolean = false,
 
-    @Setting(
-        title = "Scale Home Apps",
-        category = SettingCategory.LAYOUT,
-        type = SettingType.TOGGLE
-    )
-    val scaleHomeApps: Boolean = false,
-
-    @Setting(
-        title = "Icon Pack",
-        category = SettingCategory.APPEARANCE,
-        type = SettingType.ICON_PACK_PICKER,
-        description = "Choose custom icon pack for apps"
-    )
-    val selectedIconPack: String = "default",
-
    val lockSettings: Boolean = false,
    val settingsLockPin: String = "",
 
