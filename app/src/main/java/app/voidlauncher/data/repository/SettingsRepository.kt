@@ -163,7 +163,6 @@ class SettingsRepository(private val context: Context) {
 
             // Layout settings
             statusBar = prefs[STATUS_BAR] ?: false,
-            scaleHomeApps = prefs[SCALE_HOME_APPS] ?: true,
 
             // Gestures settings
             swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeAction.NOTIFICATIONS,
@@ -194,7 +193,6 @@ class SettingsRepository(private val context: Context) {
             shareShownTime = prefs[SHARE_SHOWN_TIME] ?: 0L,
             searchResultsUseHomeFont = prefs[SEARCH_RESULTS_USE_HOME_FONT] ?: false,
             searchResultsFontSize = prefs[SEARCH_RESULTS_FONT_SIZE] ?: 1.0f,
-            selectedIconPack = prefs[SELECTED_ICON_PACK] ?: "default",
 
             homeApps = homeApps,
             swipeLeftApp = swipeLeftApp,
@@ -252,7 +250,6 @@ class SettingsRepository(private val context: Context) {
                         // Layout settings
                         "statusBar" -> prefs[STATUS_BAR] = newValue as Boolean
                         "showHomeScreenIcons" -> prefs[SHOW_HOME_SCREEN_ICONS] = newValue as Boolean
-                        "scaleHomeApps" -> prefs[SCALE_HOME_APPS] = newValue as Boolean
 
                         // Gestures settings
                         "swipeDownAction" -> prefs[SWIPE_DOWN_ACTION] = newValue as Int
@@ -268,7 +265,6 @@ class SettingsRepository(private val context: Context) {
 
                         "lockSettings" -> prefs[LOCK_SETTINGS] = newValue as Boolean
                         "settingsLockPin" -> prefs[SETTINGS_LOCK_PIN] = newValue as String
-                        "selectedIconPack" -> prefs[SELECTED_ICON_PACK] = newValue as String
 
                         // Other properties
                         "firstOpen" -> prefs[FIRST_OPEN] = newValue as Boolean

@@ -500,63 +500,12 @@ fun SettingsScreen(
                                         enabled = isEnabled,
                                         onClick = { showIconPackDialog = true }
                                     )
-
-                                    if (showIconPackDialog) {
-                                        IconPackSelectionDialog(
-                                            iconPacks = availableIconPacks,
-                                            selectedPack = selectedPackName,
-                                            onDismiss = { showIconPackDialog = false },
-                                            onPackSelected = { selectedPack ->
-                                                coroutineScope.launch {
-                                                    viewModel.updateSetting(property.name, selectedPack)
-                                                    iconCache.clearCache()
-                                                    showIconPackDialog = false
-                                                }
-                                            }
-                                        )
-                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-
-            // System section (mostly handled separately)
-            item {
-                SettingsSection(title = "Widgets") {
-//                    SettingsItem(
-//                        title = "Manage Widgets",
-//                        subtitle = "Add, remove, and configure widgets",
-//                        onClick = {
-//                            coroutineScope.launch {
-//                                viewModel.emitEvent(UiEvent.NavigateToWidgetManager)
-//                            }
-//                        }
-//                    )
-
-                    SettingsAction(
-                        title = "Add Widget",
-                        description = "Add a widget to your home screen",
-                        onClick = {
-                            coroutineScope.launch {
-                                viewModel.emitEvent(UiEvent.NavigateToWidgetPicker)
-                            }
-                        }
-                    )
-                }
-            }
-
-//                    SettingsToggle(
-//                        title = "Transparent Widget Background",
-//                        isChecked = uiState.transparentWidgetBackground,
-//                        onCheckedChange = {
-//                            coroutineScope.launch {
-//                                viewModel.prefsDataStore.setTransparentWidgetBackground(it)
-//                                viewModel.updateSettingsState()
-//                            }
-//                        }
-//                    )
 
             item {
                 SettingsSection(title = "System") {
@@ -911,48 +860,3 @@ fun GridSizeWarningDialog(
     )
 }
 
-@Composable
-fun IconPackSelectionDialog(
-    iconPacks: List<IconPackManager.IconPackInfo>,
-    selectedPack: String,
-    onDismiss: () -> Unit,
-    onPackSelected: (String) -> Unit
-) {
-    var selected by remember { mutableStateOf(selectedPack) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Select Icon Pack") },
-        text = {
-            LazyColumn {
-                items(iconPacks.size) { index ->
-                    val pack = iconPacks[index]
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { selected = pack.packageName }
-                            .padding(vertical = 12.dp, horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = selected == pack.packageName,
-                            onClick = { selected = pack.packageName }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(pack.name)
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = { onPackSelected(selected) }) {
-                Text("Apply")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}

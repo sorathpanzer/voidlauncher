@@ -31,21 +31,6 @@ class AppRepository(
     val hiddenApps: StateFlow<List<AppModel>> = _hiddenApps.asStateFlow()
 
 
-    init {
-        // Reload apps when icon pack changes
-        coroutineScope.launch {
-            settingsRepository.settings
-                .map { it.selectedIconPack }
-                .distinctUntilChanged()
-                .drop(1) // Skip initial value
-                .collect {
-                    // Reload apps to get new icons
-                    loadApps()
-                    loadHiddenApps()
-                }
-        }
-    }
-
     /**
      * Load all visible apps
      */

@@ -65,7 +65,6 @@ suspend fun getAppsList(
             val settings = settingsRepository.settings.first()
             val hiddenApps = settings.hiddenApps
             val renamedApps = settings.renamedApps
-            val selectedIconPack = settings.selectedIconPack
 
             val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
             val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
