@@ -64,11 +64,6 @@ data class AppSettings(
     )
     val showAppNames: Boolean = false,
 
-    @Setting(
-        title = "Auto Show Keyboard",
-        category = SettingCategory.GENERAL,
-        type = SettingType.TOGGLE
-    )
     val autoShowKeyboard: Boolean = true,
 
     @Setting(
@@ -77,20 +72,14 @@ data class AppSettings(
         type = SettingType.TOGGLE
     )
     val showHiddenAppsOnSearch: Boolean = false,
-
-    @Setting(
-        title = "Auto Open Single Matches",
-        category = SettingCategory.GENERAL,
-        type = SettingType.TOGGLE
-    )
     val autoOpenFilteredApp: Boolean = true,
 
-    @Setting(
-        title = "Search Type",
-        category = SettingCategory.GENERAL,
-        type = SettingType.DROPDOWN,
-        options = ["Starts With", "Contains", "Fuzzy Match"]
-    )
+    // @Setting(
+    //     title = "Search Type",
+    //     category = SettingCategory.GENERAL,
+    //     type = SettingType.DROPDOWN,
+    //     options = ["Starts With", "Contains", "Fuzzy Match"]
+    // )
     val searchType: Int = Constants.SearchType.STARTS_WITH,
 
     // Appearance settings

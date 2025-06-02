@@ -22,20 +22,6 @@ object Constants {
         const val SHARE = "SHARE"
     }
 
-//    object DateTime {
-//        const val OFF = 0
-//        const val ON = 1
-//        const val DATE_ONLY = 2
-//
-//        fun isTimeVisible(dateTimeVisibility: Int): Boolean {
-//            return dateTimeVisibility == ON
-//        }
-//
-//        fun isDateVisible(dateTimeVisibility: Int): Boolean {
-//            return dateTimeVisibility == ON || dateTimeVisibility == DATE_ONLY
-//        }
-//    }
-
     object SwipeAction {
         const val SEARCH = 1
         const val NOTIFICATIONS = 2
@@ -116,8 +102,6 @@ object Constants {
     // Need to add the comments below as tooltips when long-tap ig?
     object SearchType {
         const val STARTS_WITH = 0   // Only match beginning of app names (Default)
-        const val CONTAINS = 1      // Contains substring search
-        const val FUZZY = 2         // Fuzzy search (characters in order anywhere)
     }
 }
 

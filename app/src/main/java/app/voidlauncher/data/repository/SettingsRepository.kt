@@ -147,9 +147,7 @@ class SettingsRepository(private val context: Context) {
         AppSettings(
             // General settings
             showAppNames = prefs[SHOW_APP_NAMES] ?: false,
-            autoShowKeyboard = prefs[AUTO_SHOW_KEYBOARD] ?: true,
             showHiddenAppsOnSearch = prefs[SHOW_HIDDEN_APPS_IN_SEARCH] ?: false,
-            autoOpenFilteredApp = prefs[AUTO_OPEN_FILTERED_APP] ?: true,
             searchType = prefs[SEARCH_TYPE] ?: Constants.SearchType.STARTS_WITH,
 
             // Appearance settings
@@ -233,9 +231,7 @@ class SettingsRepository(private val context: Context) {
                     when (name) {
                         // General settings
                         "showAppNames" -> prefs[SHOW_APP_NAMES] = newValue as Boolean
-                        "autoShowKeyboard" -> prefs[AUTO_SHOW_KEYBOARD] = newValue as Boolean
                         "showHiddenAppsOnSearch" -> prefs[SHOW_HIDDEN_APPS_IN_SEARCH] = newValue as Boolean
-                        "autoOpenFilteredApp" -> prefs[AUTO_OPEN_FILTERED_APP] = newValue as Boolean
                         "searchType" -> prefs[SEARCH_TYPE] = newValue as Int
 
                         // Appearance settings
