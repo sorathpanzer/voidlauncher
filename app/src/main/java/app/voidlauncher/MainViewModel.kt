@@ -883,28 +883,12 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
                 } else {
                     val listToFilter = if (settings.showHiddenAppsOnSearch) appListAll else appList
 
-                    when (searchType) {
-                        Constants.SearchType.CONTAINS -> {
-                            // Contains search implementation
-                            listToFilter.value.filter { app ->
-                                app.appLabel.contains(query, ignoreCase = true)
-                            }
+                    // if (searchType) {
+                        // Default startswith search
+                        listToFilter.value.filter { app ->
+                            app.appLabel.startsWith(query, ignoreCase = true)
                         }
-
-                        Constants.SearchType.FUZZY -> {
-                            // Fuzzy search implementation
-                            listToFilter.value.filter { app ->
-                                fuzzyMatch(app.appLabel, query)
-                            }
-                        }
-
-                        else -> {
-                            // Default startswith search
-                            listToFilter.value.filter { app ->
-                                app.appLabel.startsWith(query, ignoreCase = true)
-                            }
-                        }
-                    }
+                    // }
                 }
 
                 _appDrawerState.value = _appDrawerState.value.copy(
