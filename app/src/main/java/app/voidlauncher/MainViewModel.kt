@@ -378,9 +378,6 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         }
     }
 
-
-
-
 private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Widget, newRowSpan: Int, newColSpan: Int): Boolean {
         val targetRow = widgetToResize.row
         val targetCol = widgetToResize.column
