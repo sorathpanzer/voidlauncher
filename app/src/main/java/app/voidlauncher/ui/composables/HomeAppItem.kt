@@ -58,17 +58,6 @@ fun HomeAppItem(
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val fontScale = settings.textSizeScale
-    // val fontWeight = remember(settings.fontWeight) {
-    //     when (settings.fontWeight) {
-    //         0 -> FontWeight.Thin
-    //         1 -> FontWeight.Light
-    //         2 -> FontWeight.Normal
-    //         3 -> FontWeight.Medium
-    //         4 -> FontWeight.Bold
-    //         5 -> FontWeight.Black
-    //         else -> FontWeight.Normal
-    //     }
-    // }
     val iconCornerRadius = settings.iconCornerRadius.dp
 
 }
