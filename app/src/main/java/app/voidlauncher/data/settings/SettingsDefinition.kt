@@ -116,24 +116,6 @@ data class AppSettings(
     val useDynamicTheme: Boolean = false,
 
     @Setting(
-        title = "Icon Corner Radius",
-        category = SettingCategory.APPEARANCE,
-        type = SettingType.SLIDER,
-        min = 0f,
-        max = 50f,
-        step = 1f
-    )
-    val iconCornerRadius: Int = 0,
-
-    @Setting(
-        title = "Item Spacing",
-        category = SettingCategory.APPEARANCE,
-        type = SettingType.DROPDOWN,
-        options = ["None", "Small", "Medium", "Large"]
-    )
-    val itemSpacing: Int = 1,
-
-    @Setting(
         title = "Show Status Bar",
         category = SettingCategory.LAYOUT,
         type = SettingType.TOGGLE

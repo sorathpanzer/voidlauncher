@@ -108,10 +108,6 @@ fun AppDrawerScreen(
 
     val configuration = LocalConfiguration.current
 
-    val itemSpacing = when (settings.itemSpacing) {
-        0 -> 0.dp; 1 -> 4.dp; 2 -> 8.dp; 3 -> 16.dp; else -> 4.dp
-    }
-
     val searchResultsFontSize = if (settings.searchResultsUseHomeFont) {
         settings.textSizeScale
     } else { settings.searchResultsFontSize }
@@ -267,7 +263,6 @@ fun AppDrawerScreen(
                 LazyColumn(
                     state = scrollState,
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(itemSpacing)
                 ) {
                     items(
                         items = appsToShow,
@@ -276,7 +271,6 @@ fun AppDrawerScreen(
                         AppListItem(
                             app = app, showAppNames = settings.showAppNames,
                             fontScale = searchResultsFontSize,
-                            iconCornerRadius = settings.iconCornerRadius.dp,
                             onClick = { handleAppClick(app) },
                             onLongClick = { selectedApp = app; showContextMenu = true },
                             modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null, placementSpec = tween(durationMillis = 300))
@@ -354,7 +348,6 @@ private fun AppListItem(
     app: AppModel,
     showAppNames: Boolean,
     fontScale: Float,
-    iconCornerRadius: Dp,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     modifier: Modifier = Modifier

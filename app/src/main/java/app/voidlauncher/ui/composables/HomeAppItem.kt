@@ -58,6 +58,5 @@ fun HomeAppItem(
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val fontScale = settings.textSizeScale
-    val iconCornerRadius = settings.iconCornerRadius.dp
 
 }
