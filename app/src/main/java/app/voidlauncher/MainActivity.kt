@@ -84,9 +84,6 @@ class MainActivity : ComponentActivity() {
         viewModel.handleActivityResult(requestCode, resultCode, data)
     }
 
-
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
 
         // Use hardware acceleration

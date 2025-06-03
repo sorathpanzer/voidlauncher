@@ -101,13 +101,13 @@ data class AppSettings(
     )
     val textSizeScale: Float = 1.0f,
 
-    @Setting(
-        title = "Font Weight",
-        category = SettingCategory.APPEARANCE,
-        type = SettingType.DROPDOWN,
-        options = ["Thin", "Light", "Normal", "Medium", "Bold", "Black"]
-    )
-    val fontWeight: Int = 2,
+    // @Setting(
+    //     title = "Font Weight",
+    //     category = SettingCategory.APPEARANCE,
+    //     type = SettingType.DROPDOWN,
+    //     options = ["Thin", "Light", "Normal", "Medium", "Bold", "Black"]
+    // )
+    // val fontWeight: Int = 2,
 
     @Setting(
         title = "Use System Font",

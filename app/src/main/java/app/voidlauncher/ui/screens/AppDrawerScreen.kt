@@ -116,11 +116,11 @@ fun AppDrawerScreen(
         settings.textSizeScale
     } else { settings.searchResultsFontSize }
 
-    val fontWeight = when (settings.fontWeight) {
-        0 -> FontWeight.Thin; 1 -> FontWeight.Light; 2 -> FontWeight.Normal
-        3 -> FontWeight.Medium; 4 -> FontWeight.Bold; 5 -> FontWeight.Black
-        else -> FontWeight.Normal
-    }
+    // val fontWeight = when (settings.fontWeight) {
+    //     0 -> FontWeight.Thin; 1 -> FontWeight.Light; 2 -> FontWeight.Normal
+    //     3 -> FontWeight.Medium; 4 -> FontWeight.Bold; 5 -> FontWeight.Black
+    //     else -> FontWeight.Normal
+    // }
 
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
     var showContextMenu by remember { mutableStateOf(false) }
@@ -281,7 +281,7 @@ fun AppDrawerScreen(
                     ) { app ->
                         AppListItem(
                             app = app, showAppNames = settings.showAppNames,
-                            fontScale = searchResultsFontSize, fontWeight = fontWeight,
+                            fontScale = searchResultsFontSize,
                             iconCornerRadius = settings.iconCornerRadius.dp,
                             onClick = { handleAppClick(app) },
                             onLongClick = { selectedApp = app; showContextMenu = true },
@@ -360,7 +360,7 @@ private fun AppListItem(
     app: AppModel,
     showAppNames: Boolean,
     fontScale: Float,
-    fontWeight: FontWeight,
+    // fontWeight: FontWeight,
     iconCornerRadius: Dp,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
@@ -378,7 +378,7 @@ private fun AppListItem(
             text = if (showAppNames) app.appLabel else "",
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize * fontScale,
-                fontWeight = fontWeight
+                // fontWeight = fontWeight
             ),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

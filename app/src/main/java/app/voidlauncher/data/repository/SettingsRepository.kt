@@ -153,7 +153,7 @@ class SettingsRepository(private val context: Context) {
             // Appearance settings
             appTheme = prefs[APP_THEME] ?: AppCompatDelegate.MODE_NIGHT_YES,
             textSizeScale = prefs[TEXT_SIZE_SCALE] ?: 1.0f,
-            fontWeight = prefs[FONT_WEIGHT] ?: 2,
+            // fontWeight = prefs[FONT_WEIGHT] ?: 2,
             useSystemFont = prefs[USE_SYSTEM_FONT] ?: true,
             useDynamicTheme = prefs[USE_DYNAMIC_THEME] ?: false,
             iconCornerRadius = prefs[ICON_CORNER_RADIUS] ?: 0,
@@ -237,7 +237,7 @@ class SettingsRepository(private val context: Context) {
                         // Appearance settings
                         "appTheme" -> prefs[APP_THEME] = newValue as Int
                         "textSizeScale" -> prefs[TEXT_SIZE_SCALE] = newValue as Float
-                        "fontWeight" -> prefs[FONT_WEIGHT] = newValue as Int
+                        // "fontWeight" -> prefs[FONT_WEIGHT] = newValue as Int
                         "useSystemFont" -> prefs[USE_SYSTEM_FONT] = newValue as Boolean
                         "useDynamicTheme" -> prefs[USE_DYNAMIC_THEME] = newValue as Boolean
                         "iconCornerRadius" -> prefs[ICON_CORNER_RADIUS] = newValue as Int
