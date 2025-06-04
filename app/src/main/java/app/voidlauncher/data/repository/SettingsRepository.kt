@@ -185,7 +185,6 @@ class SettingsRepository(private val context: Context) {
             aboutClicked = prefs[ABOUT_CLICKED] ?: false,
             rateClicked = prefs[RATE_CLICKED] ?: false,
             shareShownTime = prefs[SHARE_SHOWN_TIME] ?: 0L,
-            // searchResultsUseHomeFont = prefs[SEARCH_RESULTS_USE_HOME_FONT] ?: false,
             searchResultsFontSize = prefs[SEARCH_RESULTS_FONT_SIZE] ?: 1.0f,
 
             homeApps = homeApps,
@@ -248,7 +247,6 @@ class SettingsRepository(private val context: Context) {
                         "doubleTapAction" -> prefs[DOUBLE_TAP_ACTION] = newValue as Int
 
                         // Search result appearance
-                        // "searchResultsUseHomeFont" -> prefs[SEARCH_RESULTS_USE_HOME_FONT] = newValue as Boolean
                         "searchResultsFontSize" -> prefs[SEARCH_RESULTS_FONT_SIZE] = newValue as Float
 
                         "lockSettings" -> prefs[LOCK_SETTINGS] = newValue as Boolean
