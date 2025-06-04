@@ -152,7 +152,6 @@ class SettingsRepository(private val context: Context) {
 
             // Appearance settings
             appTheme = prefs[APP_THEME] ?: AppCompatDelegate.MODE_NIGHT_YES,
-            textSizeScale = prefs[TEXT_SIZE_SCALE] ?: 1.0f,
             useDynamicTheme = prefs[USE_DYNAMIC_THEME] ?: false,
 
             // Layout settings
@@ -231,7 +230,6 @@ class SettingsRepository(private val context: Context) {
 
                         // Appearance settings
                         "appTheme" -> prefs[APP_THEME] = newValue as Int
-                        "textSizeScale" -> prefs[TEXT_SIZE_SCALE] = newValue as Float
                         "useDynamicTheme" -> prefs[USE_DYNAMIC_THEME] = newValue as Boolean
 
                         // Layout settings
