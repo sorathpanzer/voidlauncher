@@ -105,12 +105,8 @@ fun AppDrawerScreen(
 
     var isSearchFocused by remember { mutableStateOf(false) }
 
-
     val configuration = LocalConfiguration.current
-
-    val searchResultsFontSize = if (settings.searchResultsUseHomeFont) {
-        settings.textSizeScale
-    } else { settings.searchResultsFontSize }
+    val searchResultsFontSize = settings.searchResultsFontSize
 
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
     var showContextMenu by remember { mutableStateOf(false) }

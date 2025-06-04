@@ -153,7 +153,6 @@ class SettingsRepository(private val context: Context) {
             // Appearance settings
             appTheme = prefs[APP_THEME] ?: AppCompatDelegate.MODE_NIGHT_YES,
             textSizeScale = prefs[TEXT_SIZE_SCALE] ?: 1.0f,
-            useSystemFont = prefs[USE_SYSTEM_FONT] ?: true,
             useDynamicTheme = prefs[USE_DYNAMIC_THEME] ?: false,
 
             // Layout settings
@@ -186,7 +185,7 @@ class SettingsRepository(private val context: Context) {
             aboutClicked = prefs[ABOUT_CLICKED] ?: false,
             rateClicked = prefs[RATE_CLICKED] ?: false,
             shareShownTime = prefs[SHARE_SHOWN_TIME] ?: 0L,
-            searchResultsUseHomeFont = prefs[SEARCH_RESULTS_USE_HOME_FONT] ?: false,
+            // searchResultsUseHomeFont = prefs[SEARCH_RESULTS_USE_HOME_FONT] ?: false,
             searchResultsFontSize = prefs[SEARCH_RESULTS_FONT_SIZE] ?: 1.0f,
 
             homeApps = homeApps,
@@ -234,7 +233,6 @@ class SettingsRepository(private val context: Context) {
                         // Appearance settings
                         "appTheme" -> prefs[APP_THEME] = newValue as Int
                         "textSizeScale" -> prefs[TEXT_SIZE_SCALE] = newValue as Float
-                        "useSystemFont" -> prefs[USE_SYSTEM_FONT] = newValue as Boolean
                         "useDynamicTheme" -> prefs[USE_DYNAMIC_THEME] = newValue as Boolean
 
                         // Layout settings
@@ -250,7 +248,7 @@ class SettingsRepository(private val context: Context) {
                         "doubleTapAction" -> prefs[DOUBLE_TAP_ACTION] = newValue as Int
 
                         // Search result appearance
-                        "searchResultsUseHomeFont" -> prefs[SEARCH_RESULTS_USE_HOME_FONT] = newValue as Boolean
+                        // "searchResultsUseHomeFont" -> prefs[SEARCH_RESULTS_USE_HOME_FONT] = newValue as Boolean
                         "searchResultsFontSize" -> prefs[SEARCH_RESULTS_FONT_SIZE] = newValue as Float
 
                         "lockSettings" -> prefs[LOCK_SETTINGS] = newValue as Boolean
