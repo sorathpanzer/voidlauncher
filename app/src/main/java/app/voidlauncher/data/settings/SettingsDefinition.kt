@@ -86,16 +86,6 @@ data class AppSettings(
     val appTheme: Int = AppCompatDelegate.MODE_NIGHT_YES,
 
     @Setting(
-        title = "Text Size",
-        category = SettingCategory.APPEARANCE,
-        type = SettingType.SLIDER,
-        min = 0.5f,
-        max = 2.0f,
-        step = 0.1f
-    )
-    val textSizeScale: Float = 1.0f,
-
-    @Setting(
         title = "Use Dynamic Theme",
         category = SettingCategory.APPEARANCE,
         type = SettingType.TOGGLE

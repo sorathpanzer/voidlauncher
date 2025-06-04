@@ -56,7 +56,4 @@ fun HomeAppItem(
     var loadedIcon by remember(app.getKey()) { mutableStateOf(app.appIcon) }
 
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-
-    val fontScale = settings.textSizeScale
-
 }

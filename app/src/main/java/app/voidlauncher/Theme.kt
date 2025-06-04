@@ -193,8 +193,6 @@ fun CLauncherTheme(
 
     val settings = settingsRepository.settings.collectAsState(initial = AppSettings()).value
 
-    val textSizeScale = settings.textSizeScale
-
     val appTheme = settings.appTheme
     val darkTheme = when (appTheme) {
         AppCompatDelegate.MODE_NIGHT_YES -> true
@@ -223,11 +221,8 @@ fun CLauncherTheme(
         }
     }
 
-    val typography = scaledTypography(textSizeScale)
-
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = typography,
         content = content
     )
 }
