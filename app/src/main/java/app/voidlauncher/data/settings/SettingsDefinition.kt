@@ -74,12 +74,6 @@ data class AppSettings(
     val showHiddenAppsOnSearch: Boolean = false,
     val autoOpenFilteredApp: Boolean = true,
 
-    // @Setting(
-    //     title = "Search Type",
-    //     category = SettingCategory.GENERAL,
-    //     type = SettingType.DROPDOWN,
-    //     options = ["Starts With", "Contains", "Fuzzy Match"]
-    // )
     val searchType: Int = Constants.SearchType.STARTS_WITH,
 
     // Appearance settings
@@ -100,13 +94,6 @@ data class AppSettings(
         step = 0.1f
     )
     val textSizeScale: Float = 1.0f,
-
-    @Setting(
-        title = "Use System Font",
-        category = SettingCategory.APPEARANCE,
-        type = SettingType.TOGGLE
-    )
-    val useSystemFont: Boolean = true,
 
     @Setting(
         title = "Use Dynamic Theme",
@@ -155,24 +142,6 @@ data class AppSettings(
         type = SettingType.APP_PICKER
     )
     val swipeUpApp: AppPreference = AppPreference(),
-
-
-    // @Setting(
-    //     title = "Double Tap to Lock Screen",
-    //     category = SettingCategory.GESTURES,
-    //     type = SettingType.TOGGLE
-    // )
-    // val doubleTapToLock: Int = Constants.SwipeAction.LOCKSCREEN,
-    // val doubleTapToLock: Boolean = false,
-
-    // Search result appearance settings
-    @Setting(
-        title = "Search Results Use Home Font Size",
-        category = SettingCategory.APPEARANCE,
-        type = SettingType.TOGGLE,
-        description = "Use the same font size for search results as home screen"
-    )
-    val searchResultsUseHomeFont: Boolean = false,
 
     @Setting(
         title = "Search Results Font Size",
