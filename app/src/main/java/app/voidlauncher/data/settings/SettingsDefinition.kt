@@ -63,7 +63,6 @@ data class AppSettings(
         type = SettingType.TOGGLE
     )
     val showAppNames: Boolean = false,
-
     val autoShowKeyboard: Boolean = true,
 
     @Setting(

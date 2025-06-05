@@ -264,13 +264,15 @@ fun AppDrawerScreen(
                         items = appsToShow,
                         key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" }
                     ) { app ->
-                        AppListItem(
-                            app = app, showAppNames = settings.showAppNames,
-                            fontScale = searchResultsFontSize,
-                            onClick = { handleAppClick(app) },
-                            onLongClick = { selectedApp = app; showContextMenu = true },
-                            modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null, placementSpec = tween(durationMillis = 300))
-                        )
+                         if (settings.showAppNames) {
+                            AppListItem(
+                                app = app, showAppNames = settings.showAppNames,
+                                fontScale = searchResultsFontSize,
+                                onClick = { handleAppClick(app) },
+                                onLongClick = { selectedApp = app; showContextMenu = true },
+                                modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null, placementSpec = tween(durationMillis = 300))
+                            )
+                         }
                     }
                 }
             }
