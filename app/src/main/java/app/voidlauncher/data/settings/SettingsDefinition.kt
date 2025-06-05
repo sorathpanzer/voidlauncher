@@ -47,7 +47,6 @@ enum class SettingType {
     SLIDER,
     DROPDOWN,
     BUTTON,
-//    COLOR_PICKER,
     APP_PICKER,
     ICON_PACK_PICKER
 }
