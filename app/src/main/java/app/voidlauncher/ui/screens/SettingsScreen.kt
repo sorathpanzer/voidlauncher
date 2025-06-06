@@ -541,17 +541,6 @@ fun SettingsScreen(
                     )
 
                     SettingsItem(
-                        title = "App Info",
-                        onClick = {
-                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                data = Uri.fromParts("package", context.packageName, null)
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            }
-                            context.startActivity(intent)
-                        }
-                    )
-
-                    SettingsItem(
                         title = "About VoidLauncher",
                         subtitle = "Version ${context.packageManager.getPackageInfo(context.packageName, 0).versionName}",
                         onClick = {

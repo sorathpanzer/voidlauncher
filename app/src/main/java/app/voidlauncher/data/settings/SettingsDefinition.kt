@@ -75,24 +75,12 @@ data class AppSettings(
     val searchType: Int = Constants.SearchType.STARTS_WITH,
 
     // Appearance settings
-    @Setting(
-        title = "Theme",
-        category = SettingCategory.APPEARANCE,
-        type = SettingType.DROPDOWN,
-        options = ["System", "Light", "Dark"]
-    )
     val appTheme: Int = AppCompatDelegate.MODE_NIGHT_YES,
-
-    @Setting(
-        title = "Use Dynamic Theme",
-        category = SettingCategory.APPEARANCE,
-        type = SettingType.TOGGLE
-    )
     val useDynamicTheme: Boolean = false,
 
     @Setting(
         title = "Show Status Bar",
-        category = SettingCategory.LAYOUT,
+        category = SettingCategory.GENERAL,
         type = SettingType.TOGGLE
     )
     val statusBar: Boolean = false,
@@ -127,7 +115,7 @@ data class AppSettings(
     @Setting(
         title = "Swipe Up App",
         category = SettingCategory.GESTURES,
-        type = SettingType.APP_PICKER
+        type = SettingType.APP_PICKER,
     )
     val swipeUpApp: AppPreference = AppPreference(),
 
