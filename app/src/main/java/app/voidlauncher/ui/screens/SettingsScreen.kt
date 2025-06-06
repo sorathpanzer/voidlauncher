@@ -66,8 +66,6 @@ import app.voidlauncher.data.settings.Setting
 import app.voidlauncher.data.settings.SettingCategory
 import app.voidlauncher.data.settings.SettingType
 import app.voidlauncher.data.settings.SettingsManager
-import app.voidlauncher.helper.IconCache
-import app.voidlauncher.helper.iconpack.IconPackManager
 import app.voidlauncher.helper.isAccessServiceEnabled
 import app.voidlauncher.helper.isClauncherDefault
 import app.voidlauncher.helper.setPlainWallpaperByTheme
@@ -477,28 +475,6 @@ fun SettingsScreen(
                                                 }
                                             }
                                         }
-                                    )
-                                }
-                                SettingType.ICON_PACK_PICKER -> {
-                                    val iconCache = remember { IconCache(context) }
-                                    var availableIconPacks by remember { mutableStateOf<List<IconPackManager.IconPackInfo>>(emptyList()) }
-                                    var showIconPackDialog by remember { mutableStateOf(false) }
-
-                                    LaunchedEffect(Unit) {
-                                        availableIconPacks = iconCache.getAvailableIconPacks()
-                                    }
-
-                                    val selectedPackName = property.get(uiState) as String
-                                    val selectedPackDisplayName = availableIconPacks.find {
-                                        it.packageName == selectedPackName
-                                    }?.name ?: "Default Icons"
-
-                                    SettingsItem(
-                                        title = annotation.title,
-                                        subtitle = selectedPackDisplayName,
-                                        description = annotation.description.takeIf { it.isNotEmpty() },
-                                        enabled = isEnabled,
-                                        onClick = { showIconPackDialog = true }
                                     )
                                 }
                             }

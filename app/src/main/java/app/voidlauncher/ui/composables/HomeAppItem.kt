@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.voidlauncher.data.AppModel
 import app.voidlauncher.data.settings.AppSettings
-import app.voidlauncher.helper.IconCache
 import kotlinx.coroutines.launch
 
 @Composable
@@ -52,7 +51,6 @@ fun HomeAppItem(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val iconCache = remember { IconCache(context) }
     var loadedIcon by remember(app.getKey()) { mutableStateOf(app.appIcon) }
 
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE

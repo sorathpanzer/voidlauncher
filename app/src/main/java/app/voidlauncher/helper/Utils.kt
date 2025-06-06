@@ -70,8 +70,6 @@ suspend fun getAppsList(
             val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
             val collator = Collator.getInstance()
 
-            val iconCache = IconCache(context)
-
             for (profile in userManager.userProfiles) {
                 for (app in launcherApps.getActivityList(null, profile)) {
                     // Skip VoidLauncher itself
@@ -128,21 +126,6 @@ suspend fun getAppsList(
         appList
     }
 }
-
-
-
-// This is to ensure backward compatibility with older app versions
-// which did not support multiple user profiles
-//private fun upgradeHiddenApps(prefs: Prefs) {
-//    val hiddenAppsSet = prefs.hiddenApps
-//    val newHiddenAppsSet = mutableSetOf<String>()
-//    for (hiddenPackage in hiddenAppsSet) {
-//        if (hiddenPackage.contains("|")) newHiddenAppsSet.add(hiddenPackage)
-//        else newHiddenAppsSet.add(hiddenPackage + android.os.Process.myUserHandle().toString())
-//    }
-//    prefs.hiddenApps = newHiddenAppsSet
-//    prefs.hiddenAppsUpdated = true
-//}
 
 fun isPackageInstalled(context: Context, packageName: String, userString: String): Boolean {
     val launcher = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
@@ -249,13 +232,6 @@ fun openSearch(context: Context) {
 @SuppressLint("WrongConstant")
 fun expandNotificationDrawer(context: Context) {
     try {
-        //  (Android 12+)
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//            val statusBarManager = context.getSystemService(Context.STATUS_BAR_SERVICE) as StatusBarManager
-//            statusBarManager.expandNotificationsPanel()
-//            return
-//        }
-
         // Fall back -> reflection for older versions
         val statusBarService = context.getSystemService("statusbar")
         val statusBarManager = Class.forName("android.app.StatusBarManager")

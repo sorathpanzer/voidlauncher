@@ -15,7 +15,6 @@ import app.voidlauncher.data.repository.SettingsRepository
 import app.voidlauncher.data.settings.AppPreference
 import app.voidlauncher.data.settings.AppSettings
 import app.voidlauncher.data.settings.HomeAppPreference
-import app.voidlauncher.helper.IconCache
 import app.voidlauncher.helper.MyAccessibilityService
 import app.voidlauncher.helper.getScreenDimensions
 import app.voidlauncher.helper.getUserHandleFromString
@@ -637,9 +636,6 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         viewModelScope.launch {
             try {
                 appRepository.toggleAppHidden(app)
-                // No need to reload the app list as changes are already reflected
-//                loadApps()
-//                getHiddenApps()
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to toggle app visibility: ${e.message}"
             }
