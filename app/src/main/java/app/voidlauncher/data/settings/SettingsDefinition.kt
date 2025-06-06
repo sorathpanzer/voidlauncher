@@ -48,7 +48,6 @@ enum class SettingType {
     DROPDOWN,
     BUTTON,
     APP_PICKER,
-    ICON_PACK_PICKER
 }
 
 /**
