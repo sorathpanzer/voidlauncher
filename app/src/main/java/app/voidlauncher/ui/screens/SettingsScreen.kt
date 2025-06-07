@@ -81,7 +81,7 @@ import app.voidlauncher.ui.dialogs.SettingsLockDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(
+internal fun SettingsScreen(
     viewModel: SettingsViewModel = viewModel(),
     onNavigateBack: () -> Unit,
     onNavigateToHiddenApps: () -> Unit = {}
@@ -532,12 +532,12 @@ fun SettingsScreen(
 }
 
 // Helper functions
-fun String.capitalize(locale: Locale): String {
+private fun String.capitalize(locale: Locale): String {
     return replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
 }
 
 @Composable
-fun SettingsSection(
+private fun SettingsSection(
     title: String,
     content: @Composable () -> Unit
 ) {
@@ -563,7 +563,7 @@ fun SettingsSection(
 }
 
 @Composable
-fun SettingsItem(
+private fun SettingsItem(
     title: String,
     subtitle: String? = null,
     description: String? = null,
@@ -603,7 +603,7 @@ fun SettingsItem(
 }
 
 @Composable
-fun SettingsToggle(
+private fun SettingsToggle(
     title: String,
     description: String? = null,
     isChecked: Boolean,
@@ -656,7 +656,7 @@ fun SettingsToggle(
 }
 
 @Composable
-fun SettingsAction(
+private fun SettingsAction(
     title: String,
     description: String? = null,
     enabled: Boolean = true,
@@ -706,7 +706,7 @@ fun SettingsAction(
 }
 
 @Composable
-fun SliderSettingDialog(
+private fun SliderSettingDialog(
     title: String,
     currentValue: Float,
     min: Float,
@@ -753,7 +753,7 @@ fun SliderSettingDialog(
 }
 
 @Composable
-fun DropdownSettingDialog(
+private fun DropdownSettingDialog(
     title: String,
     options: List<String>,
     selectedIndex: Int,
@@ -802,7 +802,7 @@ fun DropdownSettingDialog(
 }
 
 @Composable
-fun GridSizeWarningDialog(
+private fun GridSizeWarningDialog(
     title: String,
     message: String,
     onConfirm: () -> Unit,

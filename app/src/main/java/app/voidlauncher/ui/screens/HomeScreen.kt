@@ -67,7 +67,7 @@ private fun checkAccessibilityAndLock(context: android.content.Context, viewMode
 }
 
 @Composable
-fun HomeScreen(
+internal fun HomeScreen(
     viewModel: MainViewModel,
     settingsViewModel: SettingsViewModel,
     appWidgetHost: AppWidgetHost,
@@ -342,7 +342,7 @@ private fun calculateGridPosition(
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
-fun HomeScreenContent(
+private fun HomeScreenContent(
     homeLayout: HomeLayout,
     settings: AppSettings,
     appWidgetHost: AppWidgetHost,
@@ -463,7 +463,7 @@ fun HomeScreenContent(
 }
 
 @Composable
-fun WidgetContextMenu(
+private fun WidgetContextMenu(
     widgetItem: HomeItem.Widget?,
     onDismiss: () -> Unit,
     onRemove: (HomeItem.Widget) -> Unit,
@@ -502,7 +502,7 @@ fun WidgetContextMenu(
 }
 
 @Composable
-fun HomeAppContextMenu(
+private fun HomeAppContextMenu(
     appItem: HomeItem.App,
     onDismiss: () -> Unit,
     onRemove: (HomeItem.App) -> Unit,

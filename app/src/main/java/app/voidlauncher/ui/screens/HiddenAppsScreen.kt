@@ -20,7 +20,7 @@ import app.voidlauncher.ui.components.AppItem
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun HiddenAppsScreen(
+internal fun HiddenAppsScreen(
     viewModel: MainViewModel,
     onNavigateBack: () -> Unit
 ) {

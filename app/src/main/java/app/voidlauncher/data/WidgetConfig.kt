@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
  */
 @Parcelize
 @Serializable
-data class WidgetConfig(
+internal data class WidgetConfig(
     val backgroundColor: Long = 0x33000000,  // Default: semi-transparent black
     val cornerRadius: Float = 16f,
     val padding: Int = 8,

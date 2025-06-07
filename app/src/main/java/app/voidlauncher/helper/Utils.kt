@@ -43,16 +43,16 @@ import java.text.Collator
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-fun Context.showToast(message: String?, duration: Int = Toast.LENGTH_SHORT) {
+private fun Context.showToast(message: String?, duration: Int = Toast.LENGTH_SHORT) {
     if (message.isNullOrBlank()) return
     Toast.makeText(this, message, duration).show()
 }
 
-fun Context.showToast(stringResource: Int, duration: Int = Toast.LENGTH_SHORT) {
+private fun Context.showToast(stringResource: Int, duration: Int = Toast.LENGTH_SHORT) {
     Toast.makeText(this, getString(stringResource), duration).show()
 }
 
-suspend fun getAppsList(
+internal suspend fun getAppsList(
     context: Context,
     settingsRepository: SettingsRepository,
     includeRegularApps: Boolean = true,
@@ -127,13 +127,13 @@ suspend fun getAppsList(
     }
 }
 
-fun isPackageInstalled(context: Context, packageName: String, userString: String): Boolean {
+private fun isPackageInstalled(context: Context, packageName: String, userString: String): Boolean {
     val launcher = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
     val activityInfo = launcher.getActivityList(packageName, getUserHandleFromString(context, userString))
     return activityInfo.isNotEmpty()
 }
 
-fun getUserHandleFromString(context: Context, userHandleString: String): UserHandle {
+internal fun getUserHandleFromString(context: Context, userHandleString: String): UserHandle {
     val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
     for (userHandle in userManager.userProfiles) {
         if (userHandle.toString() == userHandleString) {
@@ -143,12 +143,12 @@ fun getUserHandleFromString(context: Context, userHandleString: String): UserHan
     return android.os.Process.myUserHandle()
 }
 
-fun isClauncherDefault(context: Context): Boolean {
+internal fun isClauncherDefault(context: Context): Boolean {
     val launcherPackageName = getDefaultLauncherPackage(context)
     return context.packageName == launcherPackageName
 }
 
-fun getDefaultLauncherPackage(context: Context): String {
+private fun getDefaultLauncherPackage(context: Context): String {
     val intent = Intent()
     intent.action = Intent.ACTION_MAIN
     intent.addCategory(Intent.CATEGORY_HOME)
@@ -159,7 +159,7 @@ fun getDefaultLauncherPackage(context: Context): String {
     } else "android"
 }
 
-fun setPlainWallpaperByTheme(context: Context, appTheme: Int) {
+internal fun setPlainWallpaperByTheme(context: Context, appTheme: Int) {
     when (appTheme) {
         AppCompatDelegate.MODE_NIGHT_YES -> setPlainWallpaper(context, android.R.color.black)
         AppCompatDelegate.MODE_NIGHT_NO -> setPlainWallpaper(context, android.R.color.white)
@@ -171,7 +171,7 @@ fun setPlainWallpaperByTheme(context: Context, appTheme: Int) {
     }
 }
 
-fun setPlainWallpaper(context: Context, color: Int) {
+internal fun setPlainWallpaper(context: Context, color: Int) {
     try {
         val bitmap = createBitmap(1000, 2000)
         bitmap.eraseColor(context.getColor(color))
@@ -183,7 +183,7 @@ fun setPlainWallpaper(context: Context, color: Int) {
     }
 }
 
-fun getChangedAppTheme(context: Context, currentAppTheme: Int): Int {
+private fun getChangedAppTheme(context: Context, currentAppTheme: Int): Int {
     return when (currentAppTheme) {
         AppCompatDelegate.MODE_NIGHT_YES -> AppCompatDelegate.MODE_NIGHT_NO
         AppCompatDelegate.MODE_NIGHT_NO -> AppCompatDelegate.MODE_NIGHT_YES
@@ -195,7 +195,7 @@ fun getChangedAppTheme(context: Context, currentAppTheme: Int): Int {
     }
 }
 
-fun openAppInfo(context: Context, userHandle: UserHandle, packageName: String) {
+private fun openAppInfo(context: Context, userHandle: UserHandle, packageName: String) {
     val launcher = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
     val intent: Intent? = context.packageManager.getLaunchIntentForPackage(packageName)
 
@@ -204,7 +204,7 @@ fun openAppInfo(context: Context, userHandle: UserHandle, packageName: String) {
     } ?: context.showToast(context.getString(R.string.unable_to_open_app))
 }
 
-fun getScreenDimensions(context: Context): Pair<Int, Int> {
+internal fun getScreenDimensions(context: Context): Pair<Int, Int> {
     val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -223,14 +223,14 @@ fun getScreenDimensions(context: Context): Pair<Int, Int> {
 }
 
 
-fun openSearch(context: Context) {
+internal fun openSearch(context: Context) {
     val intent = Intent(Intent.ACTION_WEB_SEARCH)
     intent.putExtra(SearchManager.QUERY, "")
     context.startActivity(intent)
 }
 
 @SuppressLint("WrongConstant")
-fun expandNotificationDrawer(context: Context) {
+internal fun expandNotificationDrawer(context: Context) {
     try {
         // Fall back -> reflection for older versions
         val statusBarService = context.getSystemService("statusbar")
@@ -248,7 +248,7 @@ fun expandNotificationDrawer(context: Context) {
     }
 }
 
-fun openAlarmApp(context: Context) {
+internal fun openAlarmApp(context: Context) {
     try {
         val intent = Intent(AlarmClock.ACTION_SHOW_ALARMS)
         context.startActivity(intent)
@@ -257,7 +257,7 @@ fun openAlarmApp(context: Context) {
     }
 }
 
-fun openCalendar(context: Context) {
+internal fun openCalendar(context: Context) {
     try {
         val calendarUri = CalendarContract.CONTENT_URI
             .buildUpon()
@@ -279,7 +279,7 @@ fun openCalendar(context: Context) {
     }
 }
 
-fun isAccessServiceEnabled(context: Context): Boolean {
+internal fun isAccessServiceEnabled(context: Context): Boolean {
     val enabled = try {
         Settings.Secure.getInt(context.applicationContext.contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED)
     } catch (e: Exception) {
@@ -293,7 +293,7 @@ fun isAccessServiceEnabled(context: Context): Boolean {
     return false
 }
 
-fun isTablet(context: Context): Boolean {
+internal fun isTablet(context: Context): Boolean {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val metrics = context.resources.displayMetrics
@@ -322,26 +322,26 @@ fun isTablet(context: Context): Boolean {
 }
 
 
-fun Context.isDarkThemeOn(): Boolean {
+internal fun Context.isDarkThemeOn(): Boolean {
     return resources.configuration.uiMode and
             Configuration.UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
 }
 
-fun Context.copyToClipboard(text: String) {
+internal fun Context.copyToClipboard(text: String) {
     val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     val clipData = ClipData.newPlainText(getString(R.string.app_name), text)
     clipboardManager.setPrimaryClip(clipData)
     showToast("")
 }
 
-fun Context.openUrl(url: String) {
+internal fun Context.openUrl(url: String) {
     if (url.isEmpty()) return
     val intent = Intent(Intent.ACTION_VIEW)
     intent.data = url.toUri()
     startActivity(intent)
 }
 
-fun Context.isSystemApp(packageName: String): Boolean {
+internal fun Context.isSystemApp(packageName: String): Boolean {
     if (packageName.isBlank()) return true
     return try {
         val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
@@ -353,14 +353,14 @@ fun Context.isSystemApp(packageName: String): Boolean {
     }
 }
 
-fun Context.uninstall(packageName: String) {
+internal fun Context.uninstall(packageName: String) {
     val intent = Intent(Intent.ACTION_DELETE)
     intent.data = "package:$packageName".toUri()
     startActivity(intent)
 }
 
 @ColorInt
-fun Context.getColorFromAttr(
+internal fun Context.getColorFromAttr(
     @AttrRes attrColor: Int,
     typedValue: TypedValue = TypedValue(),
     resolveRefs: Boolean = true,
@@ -369,7 +369,7 @@ fun Context.getColorFromAttr(
     return typedValue.data
 }
 
-fun View.animateAlpha(alpha: Float = 1.0f) {
+internal fun View.animateAlpha(alpha: Float = 1.0f) {
     this.animate().apply {
         interpolator = LinearInterpolator()
         duration = 200
@@ -378,7 +378,7 @@ fun View.animateAlpha(alpha: Float = 1.0f) {
     }
 }
 
-fun Context.shareApp() {
+internal fun Context.shareApp() {
     val message = getString(R.string.are_you_using_your_phone_or_is_your_phone_using_you) +
             "\n" + Constants.URL_CCLAUNCHER_GITHUB
     val sendIntent: Intent = Intent().apply {
@@ -391,7 +391,7 @@ fun Context.shareApp() {
     startActivity(shareIntent)
 }
 
-fun Context.starApp() {
+internal fun Context.starApp() {
     val intent = Intent(
         Intent.ACTION_VIEW,
         Constants.URL_CCLAUNCHER_GITHUB.toUri()

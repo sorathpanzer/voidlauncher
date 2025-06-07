@@ -2,7 +2,7 @@
 
 package app.voidlauncher.data
 
-object Constants {
+internal object Constants {
 
     const val REQUEST_CODE_BIND_WIDGET = 102
 
@@ -105,7 +105,7 @@ object Constants {
     }
 }
 
-object Navigation {
+internal object Navigation {
     const val HOME = "home"
     const val APP_DRAWER = "app_drawer"
     const val SETTINGS = "settings"

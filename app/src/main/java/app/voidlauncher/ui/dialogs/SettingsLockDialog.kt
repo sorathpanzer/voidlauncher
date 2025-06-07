@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 
 @Composable
-fun SettingsLockDialog(
+internal fun SettingsLockDialog(
     isSettingPin: Boolean = false,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit

@@ -6,7 +6,7 @@ import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.descriptors.element
 import kotlinx.serialization.encoding.*
 
-object HomeItemAppSerializer : KSerializer<HomeItem.App> {
+internal object HomeItemAppSerializer : KSerializer<HomeItem.App> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("HomeItem.App") {
         element<String>("id")
         element<Int>("row")
@@ -86,7 +86,7 @@ object HomeItemAppSerializer : KSerializer<HomeItem.App> {
     }
 }
 
-object HomeItemWidgetSerializer : KSerializer<HomeItem.Widget> {
+internal object HomeItemWidgetSerializer : KSerializer<HomeItem.Widget> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("HomeItem.Widget") {
         element<String>("id")
         element<Int>("appWidgetId")

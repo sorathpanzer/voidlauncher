@@ -9,7 +9,7 @@ import app.voidlauncher.data.HomeItem
 import kotlin.math.roundToInt
 
 @Composable
-fun ResizeWidgetDialog(
+internal fun ResizeWidgetDialog(
     widgetItem: HomeItem.Widget?,
     currentRows: Int,
     currentColumns: Int,
@@ -71,7 +71,7 @@ fun ResizeWidgetDialog(
 }
 
 @Composable
-fun ResizeAppDialog(
+internal fun ResizeAppDialog(
     appItem: HomeItem.App?,
     currentRows: Int,
     currentColumns: Int,

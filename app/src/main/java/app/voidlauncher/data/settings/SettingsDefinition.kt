@@ -16,7 +16,7 @@ import kotlin.reflect.full.memberProperties
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class Setting(
+internal annotation class Setting(
     val title: String,
     val description: String = "",
     val category: SettingCategory,
@@ -31,7 +31,7 @@ annotation class Setting(
 /**
  * Categories for organizing settings
  */
-enum class SettingCategory {
+internal enum class SettingCategory {
     GENERAL,
     APPEARANCE,
     LAYOUT,
@@ -42,7 +42,7 @@ enum class SettingCategory {
 /**
  * Types of settings
  */
-enum class SettingType {
+internal enum class SettingType {
     TOGGLE,
     SLIDER,
     DROPDOWN,
@@ -53,7 +53,7 @@ enum class SettingType {
 /**
  * Central data class for all application settings
  */
-data class AppSettings(
+internal data class AppSettings(
 
     @Setting(
         title = "Show App Names",
@@ -213,18 +213,18 @@ data class AppSettings(
 ) {
     companion object {
         // Helper method to get default settings
-        fun getDefault(): AppSettings = AppSettings()
+        internal fun getDefault(): AppSettings = AppSettings()
     }
 }
 
 /**
  * Manager class that handles settings reflection and organization
  */
-class SettingsManager {
+internal class SettingsManager {
     /**
      * Get all settings properties with their annotations
      */
-    fun getAllSettings(): List<Pair<KProperty1<AppSettings, *>, Setting>> {
+    private fun getAllSettings(): List<Pair<KProperty1<AppSettings, *>, Setting>> {
         return AppSettings::class.memberProperties
             .mapNotNull { property ->
                 val annotation = property.findAnnotation<Setting>()
@@ -239,7 +239,7 @@ class SettingsManager {
     /**
      * Get settings grouped by category
      */
-    fun getSettingsByCategory(): Map<SettingCategory, List<Pair<KProperty1<AppSettings, *>, Setting>>> {
+    internal fun getSettingsByCategory(): Map<SettingCategory, List<Pair<KProperty1<AppSettings, *>, Setting>>> {
         return getAllSettings().groupBy { it.second.category }
     }
 
@@ -247,14 +247,14 @@ class SettingsManager {
      * Get a setting value from an AppSettings instance
      */
     @Suppress("unused")
-    fun getSettingValue(settings: AppSettings, property: KProperty1<AppSettings, *>): Any? {
+    private fun getSettingValue(settings: AppSettings, property: KProperty1<AppSettings, *>): Any? {
         return property.get(settings)
     }
 
     /**
      * Create a new AppSettings instance with an updated value for a property
      */
-    fun updateSetting(settings: AppSettings, propertyName: String, value: Any): AppSettings {
+    internal fun updateSetting(settings: AppSettings, propertyName: String, value: Any): AppSettings {
         // Create a mutable map of all current property values
         val propertyMap = mutableMapOf<String, Any?>()
 
@@ -282,7 +282,7 @@ class SettingsManager {
     /**
      * Check if a setting is enabled based on its dependencies
      */
-    fun isSettingEnabled(
+    internal fun isSettingEnabled(
         settings: AppSettings,
         property: KProperty1<AppSettings, *>,
         annotation: Setting
@@ -307,7 +307,7 @@ class SettingsManager {
 }
 
 @Serializable
-data class HomeAppPreference(
+internal data class HomeAppPreference(
     val label: String = "",
     val packageName: String = "",
     val activityClassName: String? = null,
@@ -315,7 +315,7 @@ data class HomeAppPreference(
 )
 
 @Serializable
-data class AppPreference(
+internal data class AppPreference(
     val label: String = "",
     val packageName: String = "",
     val activityClassName: String? = null,

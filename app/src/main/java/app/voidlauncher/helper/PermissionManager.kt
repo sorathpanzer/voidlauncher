@@ -10,12 +10,12 @@ import android.provider.Settings
 /**
  * Manager for handling permission-related operations
  */
-class PermissionManager(private val context: Context) {
+internal class PermissionManager(private val context: Context) {
 
     /**
      * Check if the app has usage stats permission
      */
-    fun hasUsageStatsPermission(): Boolean {
+    private fun hasUsageStatsPermission(): Boolean {
         val appOps = context.getSystemService(Context.APP_OPS_SERVICE)
                 as AppOpsManager
 
@@ -38,14 +38,14 @@ class PermissionManager(private val context: Context) {
     /**
      * Check if the app has accessibility service permission
      */
-    fun hasAccessibilityPermission(): Boolean {
+    private fun hasAccessibilityPermission(): Boolean {
         return isAccessServiceEnabled(context)
     }
 
     /**
      * Open the usage access settings screen
      */
-    fun openUsageAccessSettings() {
+    private fun openUsageAccessSettings() {
         try {
             val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -59,7 +59,7 @@ class PermissionManager(private val context: Context) {
     /**
      * Open the accessibility settings screen
      */
-    fun openAccessibilitySettings() {
+    private fun openAccessibilitySettings() {
         try {
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

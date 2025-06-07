@@ -6,7 +6,7 @@ import kotlinx.serialization.Transient
 
 @Serializable
 @Immutable
-sealed class HomeItem {
+internal sealed class HomeItem {
     abstract val id: String
     abstract val row: Int
     abstract val column: Int
@@ -14,7 +14,7 @@ sealed class HomeItem {
     abstract val columnSpan: Int
 
     @Serializable(with = HomeItemAppSerializer::class)
-    data class App(
+    internal data class App(
         val appModel: AppModel,
         override val id: String = appModel.getKey(),
         override val row: Int,
@@ -24,7 +24,7 @@ sealed class HomeItem {
     ) : HomeItem()
 
     @Serializable(with = HomeItemWidgetSerializer::class)
-    data class Widget(
+    internal data class Widget(
         val appWidgetId: Int,
         @Transient
         val providerInfo: android.appwidget.AppWidgetProviderInfo? = null,
@@ -39,7 +39,7 @@ sealed class HomeItem {
 }
 
 @Serializable
-data class HomeLayout(
+internal data class HomeLayout(
     val items: List<HomeItem> = emptyList(),
     val rows: Int = 8, // Will be overridden
     val columns: Int = 4

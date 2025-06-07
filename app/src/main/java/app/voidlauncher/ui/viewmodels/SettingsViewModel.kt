@@ -12,8 +12,8 @@ import app.voidlauncher.ui.UiEvent
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class SettingsViewModel(application: Application) : AndroidViewModel(application) {
-    internal val settingsRepository = SettingsRepository(application.applicationContext)
+internal class SettingsViewModel(application: Application) : AndroidViewModel(application) {
+    val settingsRepository = SettingsRepository(application.applicationContext)
 
     // UI state for settings
     private val _settingsState = MutableStateFlow(AppSettings())
@@ -59,11 +59,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     /**
      * Update a setting by property name
      */
-    suspend fun updateSetting(propertyName: String, value: Any) {
+    internal suspend fun updateSetting(propertyName: String, value: Any) {
         settingsRepository.updateSetting(propertyName, value)
     }
 
-    suspend fun updateGridSize(propertyName: String, newValue: Int) {
+    internal suspend fun updateGridSize(propertyName: String, newValue: Int) {
         val currentSettings = settingsState.value
 
         updateSetting(propertyName, newValue)
@@ -73,18 +73,18 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     /**
      * Emit UI event
      */
-    fun emitEvent(event: UiEvent) {
+    internal fun emitEvent(event: UiEvent) {
         viewModelScope.launch {
             _eventsFlow.emit(event)
         }
     }
 
-    fun setShowLockDialog(show: Boolean, isSettingPin: Boolean = false) {
+    internal fun setShowLockDialog(show: Boolean, isSettingPin: Boolean = false) {
         _showLockDialog.value = show
         _isSettingPin.value = isSettingPin
     }
 
-    fun validatePin(pin: String): Boolean {
+    internal fun validatePin(pin: String): Boolean {
         var isValid = false
         viewModelScope.launch {
             isValid = settingsRepository.validateSettingsPin(pin)
@@ -97,13 +97,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         return isValid
     }
 
-    fun setPin(pin: String) {
+    internal fun setPin(pin: String) {
         viewModelScope.launch {
             settingsRepository.setSettingsLockPin(pin)
         }
     }
 
-    fun toggleLockSettings(locked: Boolean) {
+    internal fun toggleLockSettings(locked: Boolean) {
         viewModelScope.launch {
             settingsRepository.setSettingsLock(locked)
             if (!locked) {
@@ -113,7 +113,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun resetUnlockState() {
+    internal fun resetUnlockState() {
         _isTemporarilyUnlocked.value = false
     }
 }

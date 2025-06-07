@@ -8,7 +8,7 @@ import kotlin.math.abs
 /**
  * Adds swipe gesture detection to a composable
  */
-fun Modifier.detectSwipeGestures(
+internal fun Modifier.detectSwipeGestures(
     onSwipeUp: () -> Unit = {},
     onSwipeDown: () -> Unit = {},
     onSwipeLeft: () -> Unit = {},

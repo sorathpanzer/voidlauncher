@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
  */
 @Parcelize
 @Serializable
-data class ExternalWidgetModel(
+internal data class ExternalWidgetModel(
     val id: String = "",
     val appWidgetId: Int = -1,
     val providerClassName: String = "",
@@ -22,7 +22,7 @@ data class ExternalWidgetModel(
     val config: WidgetConfig = WidgetConfig(),
     val specialType: String = ""
 ) : Parcelable {
-    override fun equals(other: Any?): Boolean {
+    public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
@@ -36,7 +36,7 @@ data class ExternalWidgetModel(
         return true
     }
 
-    override fun hashCode(): Int {
+    public override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + appWidgetId
         result = 31 * result + providerClassName.hashCode()

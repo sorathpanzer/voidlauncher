@@ -9,7 +9,7 @@ import java.text.CollationKey
 
 @Serializable
 @Immutable
-data class AppModel(
+internal data class AppModel(
     val appLabel: String,
     @Transient
     val key: CollationKey? = null,
@@ -28,5 +28,5 @@ data class AppModel(
         else -> appLabel.compareTo(other.appLabel, true)
     }
 
-    fun getKey(): String = "$appPackage/${userString}"
+    internal fun getKey(): String = "$appPackage/${userString}"
 }
