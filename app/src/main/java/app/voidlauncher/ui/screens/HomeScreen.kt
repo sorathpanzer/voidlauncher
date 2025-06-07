@@ -151,138 +151,23 @@ internal fun HomeScreen(
                     onLongPress = { offset ->
                         // Store the touch position for hit testing
                         lastTouchPosition = offset
-
-                        // Check if we're in widget movement mode
-                        if (widgetBeingMoved != null) {
-                            // End movement mode
-                            widgetBeingMoved = null
-                            return@detectTapGestures
-                        }
-
-                        // Find which widget was long-pressed
-                        val widget = findWidgetAtPosition(homeLayoutState, offset, this.size)
-                        if (widget != null) {
-                            // Show context menu for this widget
-                            showWidgetContextMenu = widget
-                        } else {
-                            // Long press on empty space, go to settings
-                            onNavigateToSettings()
-                        }
+                        onNavigateToSettings()
                     },
                     onTap = { offset ->
-                        // If we're in widget movement mode, handle the tap as a move destination
-                        if (widgetBeingMoved != null) {
-                            // Calculate the grid position from the tap location
-                            val gridPosition = calculateGridPosition(offset, homeLayoutState, this.size)
-                            if (gridPosition != null) {
-                                // Move the widget to this position
-                                viewModel.moveWidget(widgetBeingMoved!!, gridPosition.first, gridPosition.second)
-                                // Exit movement mode
-                                widgetBeingMoved = null
-                            }
-                        }
-                         if (appBeingMoved != null) {
-                                val gridPosition = calculateGridPosition(offset, homeLayoutState, this.size)
-                                if (gridPosition != null) {
-                                    viewModel.moveApp(appBeingMoved!!, gridPosition.first, gridPosition.second)
-                                    appBeingMoved = null
-                                }
+                        when (settings.doubleTapAction) {
+                            Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+                            Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
+                            Constants.SwipeAction.APP -> viewModel.launchDoubleTapApp()
+                            Constants.SwipeAction.LOCKSCREEN -> checkAccessibilityAndLock(context, viewModel)
+                            Constants.SwipeAction.NULL -> {}
+                            else -> {}
                         }
                     }
                 )
             }
     ) {
-        HomeScreenContent(
-            homeLayout = homeLayoutState,
-            settings = settings,
-            appWidgetHost = appWidgetHost,
-            onAppClick = { item -> viewModel.launchApp(item.appModel) },
-            onAppLongPress = { item -> showAppContextMenu = item },
-            onWidgetLongPress = { item -> showWidgetContextMenu = item },
-            widgetBeingMoved = widgetBeingMoved
-        )
-
-        // Show visual indicator if a widget is being moved
-        if (widgetBeingMoved != null) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    "Tap where you want to move the widget",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .background(
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-                            shape = RoundedCornerShape(8.dp)
-                        )
-                        .padding(16.dp)
-                )
-            }
-        }
-
-        showAppContextMenu?.let {
-            HomeAppContextMenu(
-                appItem = it,
-                onDismiss = { showAppContextMenu = null },
-                onRemove = { app ->
-                    viewModel.removeAppFromHomeScreen(app)
-                    showAppContextMenu = null
-                },
-                onResize = { app ->
-                    resizeAppDialog = app
-                    showAppContextMenu = null
-                },
-                onMove = { app ->
-                    appBeingMoved = app
-                    showAppContextMenu = null
-                    Toast.makeText(context, "Tap where you want to move the app", Toast.LENGTH_SHORT).show()
-                }
-            )
-        }
 
     }
-
-    WidgetContextMenu(
-        widgetItem = showWidgetContextMenu,
-        onDismiss = { showWidgetContextMenu = null },
-        onRemove = { widget ->
-            appWidgetHost.deleteAppWidgetId(widget.appWidgetId)
-            viewModel.removeWidget(widget)
-            showWidgetContextMenu = null
-        },
-        onResize = { widget ->
-            showResizeDialog = widget
-            showWidgetContextMenu = null
-        },
-        onConfigure = { widget ->
-            viewModel.requestWidgetReconfigure(widget)
-            showWidgetContextMenu = null
-        },
-        onMove = { widget ->
-            widgetBeingMoved = widget
-            showWidgetContextMenu = null
-            Toast.makeText(context, "Tap where you want to move the widget", Toast.LENGTH_SHORT).show()
-        }
-    )
-
-    ResizeWidgetDialog(
-        widgetItem = showResizeDialog,
-        currentRows = homeLayoutState.rows,
-        currentColumns = homeLayoutState.columns,
-        onDismiss = { showResizeDialog = null },
-        onResize = { widget, newRowSpan, newColSpan ->
-            val options = Bundle().apply {
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, newColSpan)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, newColSpan)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, newRowSpan)
-                putInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, newRowSpan)
-            }
-            viewModel.appWidgetManager.updateAppWidgetOptions(widget.appWidgetId, options)
-            viewModel.resizeWidget(widget, newRowSpan, newColSpan)
-        }
-    )
 
     ResizeAppDialog(
         appItem = resizeAppDialog,

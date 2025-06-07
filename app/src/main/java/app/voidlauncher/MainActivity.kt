@@ -44,32 +44,6 @@ internal class MainActivity : ComponentActivity() {
     private val APPWIDGET_HOST_ID = 1024
     private val REQUEST_CONFIGURE_WIDGET = 1001
 
-    private val appWidgetManagerInstance: AppWidgetManager by lazy {
-        AppWidgetManager.getInstance(applicationContext)
-    }
-
-    val widgetRequestLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        Log.d("MainActivity", "Widget request result: ${result.resultCode}")
-        if (result.resultCode == RESULT_OK) {
-            val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
-            Log.d("MainActivity", "Widget ID from result: $appWidgetId")
-            if (appWidgetId != -1) {
-            }
-        }
-    }
-
-    private val configureWidgetLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val requestCode = REQUEST_CONFIGURE_WIDGET
-        val resultCode = result.resultCode
-        val data = result.data
-
-        viewModel.handleActivityResult(requestCode, resultCode, data)
-    }
-
     protected override fun onCreate(savedInstanceState: Bundle?) {
 
         // Use hardware acceleration

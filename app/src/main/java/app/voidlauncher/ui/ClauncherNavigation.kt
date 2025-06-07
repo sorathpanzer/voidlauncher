@@ -62,29 +62,6 @@ internal fun CLauncherNavigation(
                 onScreenChange(Navigation.HOME)
                 settingsViewModel.resetUnlockState()
             }
-            is UiEvent.NavigateToWidgetPicker -> {
-                onScreenChange(Navigation.WIDGET_PICKER)
-            }
-            is UiEvent.LaunchWidgetBindIntent -> {
-                try {
-                    (context as? MainActivity)?.widgetRequestLauncher?.launch(event.intent)
-                } catch (e: Exception) {
-                    Log.e("Navigation", "Failed to launch widget bind intent", e)
-                    Toast.makeText(
-                        context,
-                        "Failed to request widget permission: ${e.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-            is UiEvent.ConfigureWidget -> {
-                val activity = context as? Activity
-                // if (activity != null) {
-                //     val REQUEST_CODE_CONFIGURE_WIDGET = 1001
-                //     widgetHelper.startWidgetConfiguration(activity, event.widgetId, REQUEST_CODE_CONFIGURE_WIDGET)
-                // }
-            }
-
 
             is UiEvent.StartActivityForResult -> {
                 try {
@@ -356,15 +333,6 @@ internal fun CLauncherNavigation(
                         onNavigateBack = {
                             onScreenChange(Navigation.SETTINGS)
                         }
-                    )
-                }
-                Navigation.WIDGET_PICKER -> {
-                    WidgetPickerScreen(
-                        onWidgetSelected = { providerInfo ->
-                            viewModel.startWidgetConfiguration(providerInfo)
-                                           onScreenChange(Navigation.HOME)
-                        },
-                        onDismiss = { onScreenChange(Navigation.HOME) }
                     )
                 }
             }
