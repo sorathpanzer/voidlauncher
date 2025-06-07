@@ -23,8 +23,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import app.voidlauncher.data.Navigation
 import app.voidlauncher.data.repository.SettingsRepository
-import app.voidlauncher.helper.WidgetHelper
-import app.voidlauncher.helper.isEinkDisplay
 import app.voidlauncher.helper.isDarkThemeOn
 import app.voidlauncher.helper.isTablet
 import app.voidlauncher.helper.setPlainWallpaper
@@ -50,11 +48,6 @@ class MainActivity : ComponentActivity() {
         AppWidgetManager.getInstance(applicationContext)
     }
 
-    val widgetHelper by lazy {
-        WidgetHelper(this, appWidgetManagerInstance, appWidgetHost)
-    }
-
-
     val widgetRequestLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -63,13 +56,6 @@ class MainActivity : ComponentActivity() {
             val appWidgetId = result.data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
             Log.d("MainActivity", "Widget ID from result: $appWidgetId")
             if (appWidgetId != -1) {
-                if (widgetHelper.needsConfiguration(appWidgetId)) {
-                    Log.d("MainActivity", "Widget needs configuration after binding")
-                    val configIntent = widgetHelper.createConfigurationIntent(appWidgetId)
-                    if (configIntent != null) {
-                        configureWidgetLauncher.launch(configIntent)
-                    }
-                }
             }
         }
     }
@@ -105,12 +91,6 @@ class MainActivity : ComponentActivity() {
         // Initialize theme based on settings
         lifecycleScope.launch {
             val settings = settingsRepository.settings.first()
-            if (isEinkDisplay()) {
-                settingsRepository.setAppTheme(AppCompatDelegate.MODE_NIGHT_NO)
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            } else {
-                AppCompatDelegate.setDefaultNightMode(settings.appTheme)
-            }
         }
 
         super.onCreate(savedInstanceState)
@@ -152,7 +132,6 @@ class MainActivity : ComponentActivity() {
                         currentScreen = screen
                     },
                     appWidgetHost = appWidgetHost,
-                    widgetHelper = widgetHelper
                 )
             }
         }
