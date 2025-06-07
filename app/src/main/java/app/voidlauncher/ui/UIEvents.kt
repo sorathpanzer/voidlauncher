@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.SharedFlow
 /**
  * UI Events for navigation and actions
  */
-sealed class UiEvent {
+internal sealed class UiEvent {
     // Navigation events
     object NavigateToAppDrawer : UiEvent()
     object NavigateToSettings : UiEvent()
@@ -40,16 +40,16 @@ sealed class UiEvent {
 /**
  * Class to manage events
  */
-class EventsManager {
+internal class EventsManager {
     private val _events = MutableSharedFlow<UiEvent>()
     val events: SharedFlow<UiEvent> = _events
 
-    suspend fun emitEvent(event: UiEvent) {
+    private suspend fun emitEvent(event: UiEvent) {
         _events.emit(event)
     }
 }
 
-enum class AppSelectionType {
+internal enum class AppSelectionType {
     HOME_APP_1,
     HOME_APP_2,
     HOME_APP_3,

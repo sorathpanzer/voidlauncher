@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
 import android.appwidget.AppWidgetHost
 import androidx.lifecycle.ViewModel
 
-class MainActivity : ComponentActivity() {
+internal class MainActivity : ComponentActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var settingsRepository: SettingsRepository
@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
         viewModel.handleActivityResult(requestCode, resultCode, data)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    protected override fun onCreate(savedInstanceState: Bundle?) {
 
         // Use hardware acceleration
         window.setFlags(
@@ -140,7 +140,7 @@ class MainActivity : ComponentActivity() {
         viewModel.loadApps()
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
+            public override fun handleOnBackPressed() {
                 lifecycleScope.launch {
                     viewModel.emitEvent(UiEvent.NavigateBack)
                 }
@@ -148,7 +148,7 @@ class MainActivity : ComponentActivity() {
         })
     }
 
-    override fun onStart() {
+    protected override fun onStart() {
         super.onStart()
         try {
             appWidgetHost.startListening()
@@ -157,7 +157,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onStop() {
+    protected override fun onStop() {
         super.onStop()
         try {
             appWidgetHost.stopListening() // Stop listening to save resources
@@ -190,7 +190,7 @@ class MainActivity : ComponentActivity() {
         else setPlainWallpaper(this, android.R.color.white)
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
+    public override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         lifecycleScope.launch {
             val settings = settingsRepository.settings.first()
@@ -203,7 +203,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent) {
+    protected override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
 
         if (intent.action == Intent.ACTION_MAIN &&
@@ -215,7 +215,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onResume() {
+    protected override fun onResume() {
         super.onResume()
         // Force hardware acceleration
         window.setFlags(
@@ -224,13 +224,13 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    override fun onDestroy() {
+    protected override fun onDestroy() {
         super.onDestroy()
     }
 
 }
 
-class MainViewModelFactory(
+private class MainViewModelFactory(
     private val application: Application,
     private val appWidgetHost: AppWidgetHost
 ) : ViewModelProvider.Factory {

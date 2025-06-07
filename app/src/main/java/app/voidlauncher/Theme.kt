@@ -161,7 +161,7 @@ private fun defaultTypography() = Typography(
 )
 
 @Composable
-fun scaledTypography(scaleFactor: Float): Typography {
+private fun scaledTypography(scaleFactor: Float): Typography {
     val defaultTypo = defaultTypography()
 
     return Typography(
@@ -184,7 +184,7 @@ fun scaledTypography(scaleFactor: Float): Typography {
 }
 
 @Composable
-fun CLauncherTheme(
+internal fun CLauncherTheme(
     content: @Composable () -> Unit,
 ) {
 

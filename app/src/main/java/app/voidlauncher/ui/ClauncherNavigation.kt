@@ -31,7 +31,7 @@ import app.voidlauncher.MainActivity
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun CLauncherNavigation(
+internal fun CLauncherNavigation(
     viewModel: MainViewModel,
     settingsViewModel: SettingsViewModel,
     currentScreen: String,
@@ -374,13 +374,13 @@ fun CLauncherNavigation(
 
 
 @Composable
-fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {
+internal fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {
     // Safely update the current `onBack` lambda when a new one is provided
     val currentOnBack by rememberUpdatedState(onBack)
     // Remember in Composition a back callback that calls the `onBack` lambda
     val backCallback = remember {
         object : OnBackPressedCallback(enabled) {
-            override fun handleOnBackPressed() {
+            public override fun handleOnBackPressed() {
                 currentOnBack()
             }
         }

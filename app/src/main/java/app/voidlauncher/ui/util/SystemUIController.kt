@@ -15,7 +15,7 @@ import androidx.compose.ui.platform.LocalView
  * Controls system UI elements like status bar
  */
 @Composable
-fun SystemUIController(
+internal fun SystemUIController(
     showStatusBar: Boolean
 ) {
     val view = LocalView.current
@@ -38,7 +38,7 @@ fun SystemUIController(
 /**
  * Non-composable function to safely update status bar visibility
  */
-fun updateStatusBarVisibility(activity: Activity?, showStatusBar: Boolean) {
+internal fun updateStatusBarVisibility(activity: Activity?, showStatusBar: Boolean) {
     if (activity == null || !activity.window.isActive) return
 
     try {

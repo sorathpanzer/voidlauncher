@@ -28,7 +28,7 @@ import kotlin.math.ceil
 /**
  * MainViewModel is the primary ViewModel for VoidLauncher that manages app state and user interactions.
  */
-class MainViewModel(application: Application, private val appWidgetHost: AppWidgetHost) : AndroidViewModel(application) {
+internal class MainViewModel(application: Application, private val appWidgetHost: AppWidgetHost) : AndroidViewModel(application) {
     private val appContext = application.applicationContext
     val settingsRepository = SettingsRepository(appContext)
     private val appRepository = AppRepository(appContext, settingsRepository, viewModelScope)
@@ -94,7 +94,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
 
     }
 
-    suspend fun updateGridSize(newRows: Int, newColumns: Int) {
+    private suspend fun updateGridSize(newRows: Int, newColumns: Int) {
         val currentLayout = _homeLayoutState.value
 
         // Check if any items would be out of bounds with new grid size
@@ -142,7 +142,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         }
     }
 
-    fun addAppToHomeScreen(appModel: AppModel) {
+    private fun addAppToHomeScreen(appModel: AppModel) {
         viewModelScope.launch {
             Log.d("HomeScreen", "Attempting to add app: ${appModel.appLabel}")
             val currentLayout = _homeLayoutState.value
@@ -182,7 +182,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
     }
 
     // Function to remove an app from the home screen layout
-    fun removeAppFromHomeScreen(appItem: HomeItem.App) {
+    internal fun removeAppFromHomeScreen(appItem: HomeItem.App) {
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value
             val newItems = currentLayout.items.filterNot { it.id == appItem.id }
@@ -244,7 +244,7 @@ class MainViewModel(application: Application, private val appWidgetHost: AppWidg
         )
     }
 
-    fun startWidgetConfiguration(providerInfo: android.appwidget.AppWidgetProviderInfo) {
+    internal fun startWidgetConfiguration(providerInfo: android.appwidget.AppWidgetProviderInfo) {
         viewModelScope.launch {
             try {
                 @Suppress("SENSELESS_COMPARISON")
@@ -398,7 +398,7 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         return true
     }
 
-    fun renameApp(app: AppModel, newName: String) {
+    internal fun renameApp(app: AppModel, newName: String) {
         viewModelScope.launch {
             val appKey = app.getKey()
             if (newName.isBlank() || newName == app.appLabel) {
@@ -412,7 +412,7 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
     }
 
 
-    fun resizeWidget(widgetItem: HomeItem.Widget, newRowSpan: Int, newColSpan: Int) {
+    internal fun resizeWidget(widgetItem: HomeItem.Widget, newRowSpan: Int, newColSpan: Int) {
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value
 
@@ -464,7 +464,7 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         }
     }
 
-    fun removeWidget(widgetItem: HomeItem.Widget) {
+    internal fun removeWidget(widgetItem: HomeItem.Widget) {
         viewModelScope.launch {
             try {
                 // First, remove from layout
@@ -490,7 +490,7 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
     }
 
 
-    fun requestWidgetReconfigure(widgetItem: HomeItem.Widget) {
+    internal fun requestWidgetReconfigure(widgetItem: HomeItem.Widget) {
         viewModelScope.launch {
             val providerInfo = getAppWidgetInfo(widgetItem.packageName, widgetItem.providerClassName)
             if (providerInfo?.configure != null) {
@@ -519,7 +519,7 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         }
     }
 
-    fun moveApp(appItem: HomeItem.App, newRow: Int, newColumn: Int) {
+    internal fun moveApp(appItem: HomeItem.App, newRow: Int, newColumn: Int) {
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value
             if (newRow + appItem.rowSpan > currentLayout.rows ||
@@ -540,7 +540,7 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
         }
     }
 
-    fun resizeApp(appItem: HomeItem.App, newRowSpan: Int, newColSpan: Int) {
+    internal fun resizeApp(appItem: HomeItem.App, newRowSpan: Int, newColSpan: Int) {
         viewModelScope.launch {
             val currentLayout = _homeLayoutState.value
             val updatedItems = currentLayout.items.map { item ->
@@ -556,7 +556,7 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
     }
 
     // Handle result from widget configuration Activity
-    fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    internal fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_CODE_CONFIGURE_WIDGET) {
             val widgetId = pendingWidgetInfo?.appWidgetId ?: data?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID) ?: AppWidgetManager.INVALID_APPWIDGET_ID
 
@@ -590,7 +590,7 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
     /**
      * Handle first open of the app
      */
-    fun firstOpen(value: Boolean) {
+    internal fun firstOpen(value: Boolean) {
         viewModelScope.launch {
             settingsRepository.setFirstOpen(value)
         }
@@ -599,7 +599,7 @@ private fun checkResizeValidity(layout: HomeLayout, widgetToResize: HomeItem.Wid
     /**
      * Load all apps and visible apps
      */
-    fun loadApps() {
+    internal fun loadApps() {
         viewModelScope.launch {
             try {
                 _appDrawerState.value = _appDrawerState.value.copy(isLoading = true)

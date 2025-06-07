@@ -17,7 +17,7 @@ import app.voidlauncher.data.AppModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun AppItem(
+internal fun AppItem(
     modifier: Modifier = Modifier,
     app: AppModel,
     onClick: () -> Unit,

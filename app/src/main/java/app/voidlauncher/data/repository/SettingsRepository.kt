@@ -22,13 +22,13 @@ import kotlinx.serialization.json.Json
 import kotlinx.coroutines.flow.catch
 
 // Extension property for Context to access the DataStore instance
-val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "app.voidlauncher.settings")
+internal val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "app.voidlauncher.settings")
 
 /**
  * Repository for managing application settings
  */
 @Suppress("NullableBooleanElvis")
-class SettingsRepository(private val context: Context) {
+internal class SettingsRepository(private val context: Context) {
 
     private val json = Json { ignoreUnknownKeys = true; prettyPrint = false } // Configure Json instance
 
@@ -209,7 +209,7 @@ class SettingsRepository(private val context: Context) {
     /**
      * Update a specific setting using reflection
      */
-    suspend fun updateSetting(update: (AppSettings) -> AppSettings) {
+    internal suspend fun updateSetting(update: (AppSettings) -> AppSettings) {
         val currentSettings = settings.first()
         val updatedSettings = update(currentSettings)
 
@@ -282,7 +282,7 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    fun getHomeLayout(): Flow<HomeLayout> = context.settingsDataStore.data
+    private fun getHomeLayout(): Flow<HomeLayout> = context.settingsDataStore.data
         .map { prefs ->
             prefs[HOME_LAYOUT]?.let { jsonString ->
                 try {
@@ -298,7 +298,7 @@ class SettingsRepository(private val context: Context) {
             emit(HomeLayout()) // Emit default on error
         }
 
-    suspend fun saveHomeLayout(layout: HomeLayout) {
+    internal suspend fun saveHomeLayout(layout: HomeLayout) {
         try {
             val jsonString = Json.encodeToString(layout)
             context.settingsDataStore.edit { prefs ->
@@ -310,7 +310,7 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    suspend fun triggerHomeLayoutRefresh() {
+    internal suspend fun triggerHomeLayoutRefresh() {
         // Read the current value and write it back to trigger the flow
         val currentLayout = getHomeLayout().first()
         saveHomeLayout(currentLayout)
@@ -320,7 +320,7 @@ class SettingsRepository(private val context: Context) {
     /**
      * Update a setting by property name
      */
-    suspend fun updateSetting(propertyName: String, value: Any) {
+    internal suspend fun updateSetting(propertyName: String, value: Any) {
         val currentSettings = settings.first()
         val updatedSettings = settingsManager.updateSetting(currentSettings, propertyName, value)
         updateSetting { updatedSettings }
@@ -329,7 +329,7 @@ class SettingsRepository(private val context: Context) {
     /**
      * Methods for managing home apps
      */
-    suspend fun setHomeApp(position: Int, app: HomeAppPreference) {
+    internal suspend fun setHomeApp(position: Int, app: HomeAppPreference) {
         updateSetting { currentSettings ->
             // Create a mutable copy since AppSettings.homeApps is immutable.
             val newHomeApps = currentSettings.homeApps.toMutableList()
@@ -343,64 +343,64 @@ class SettingsRepository(private val context: Context) {
     /**
      * Methods for managing other settable apps
      */
-    suspend fun setSwipeLeftApp(app: AppPreference) {
+    internal suspend fun setSwipeLeftApp(app: AppPreference) {
         context.settingsDataStore.edit { prefs ->
             prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(app)
         }
     }
 
-    suspend fun setSwipeRightApp(app: AppPreference) {
+    internal suspend fun setSwipeRightApp(app: AppPreference) {
         context.settingsDataStore.edit { prefs ->
             prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(app)
         }
     }
 
-    suspend fun setDoubleTapApp(app: AppPreference) {
+    internal suspend fun setDoubleTapApp(app: AppPreference) {
         context.settingsDataStore.edit { prefs ->
             prefs[DOUBLE_TAP_APP_JSON] = json.encodeToString(app)
         }
     }
 
-    suspend fun setSwipeUpApp(app: AppPreference) {
+    internal suspend fun setSwipeUpApp(app: AppPreference) {
         context.settingsDataStore.edit { prefs ->
             prefs[SWIPE_UP_APP_JSON] = json.encodeToString(app)
         }
     }
 
-    suspend fun setSwipeDownApp(app: AppPreference) {
+    internal suspend fun setSwipeDownApp(app: AppPreference) {
         context.settingsDataStore.edit { prefs ->
             prefs[SWIPE_DOWN_APP_JSON] = json.encodeToString(app)
         }
     }
 
-    suspend fun getSwipeLeftApp(): AppPreference {
+    internal suspend fun getSwipeLeftApp(): AppPreference {
         return settings.first().swipeLeftApp
     }
 
-    suspend fun getSwipeRightApp(): AppPreference {
+    internal suspend fun getSwipeRightApp(): AppPreference {
         return settings.first().swipeRightApp
     }
 
-    suspend fun getDoubleTapApp(): AppPreference {
+    internal suspend fun getDoubleTapApp(): AppPreference {
         return settings.first().doubleTapApp
     }
 
-    suspend fun setSettingsLock(locked: Boolean) {
+    internal suspend fun setSettingsLock(locked: Boolean) {
         updateSetting { it.copy(lockSettings = locked) }
     }
 
-    suspend fun setSettingsLockPin(pin: String) {
+    internal suspend fun setSettingsLockPin(pin: String) {
         updateSetting { it.copy(settingsLockPin = pin) }
     }
 
-    suspend fun validateSettingsPin(pin: String): Boolean {
+    internal suspend fun validateSettingsPin(pin: String): Boolean {
         return settings.first().settingsLockPin == pin
     }
 
     /**
      * Methods for managing hidden apps
      */
-    suspend fun toggleAppHidden(packageKey: String) {
+    internal suspend fun toggleAppHidden(packageKey: String) {
         updateSetting {
             val updatedHiddenApps = it.hiddenApps.toMutableSet()
             if (updatedHiddenApps.contains(packageKey)) {
@@ -412,15 +412,15 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    suspend fun setFirstOpen(value: Boolean) {
+    internal suspend fun setFirstOpen(value: Boolean) {
         updateSetting { it.copy(firstOpen = value) }
     }
 
-    suspend fun setAppTheme(value: Int) {
+    private suspend fun setAppTheme(value: Int) {
         updateSetting { it.copy(appTheme = value) }
     }
 
-    suspend fun setAppCustomName(appKey: String, customName: String) {
+    internal suspend fun setAppCustomName(appKey: String, customName: String) {
         val currentSettings = settings.first()
         val updatedRenamedApps = currentSettings.renamedApps.toMutableMap()
 
@@ -435,7 +435,7 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
-    suspend fun removeAppCustomName(appKey: String) {
+    internal suspend fun removeAppCustomName(appKey: String) {
         val currentSettings = settings.first()
         val updatedRenamedApps = currentSettings.renamedApps.toMutableMap()
         updatedRenamedApps.remove(appKey)

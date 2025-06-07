@@ -24,7 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.core.graphics.createBitmap
 
-data class WidgetListItem(
+internal data class WidgetListItem(
     val appName: String,
     val appPackage: String,
     val widgets: List<AppWidgetProviderInfo>
@@ -32,7 +32,7 @@ data class WidgetListItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WidgetPickerScreen(
+internal fun WidgetPickerScreen(
     onWidgetSelected: (AppWidgetProviderInfo) -> Unit,
     onDismiss: () -> Unit
 ) {

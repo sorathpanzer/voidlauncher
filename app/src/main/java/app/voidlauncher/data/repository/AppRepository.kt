@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
 /**
  * Repository for app-related operations
  */
-class AppRepository(
+internal class AppRepository(
     private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val coroutineScope: CoroutineScope
@@ -34,7 +34,7 @@ class AppRepository(
     /**
      * Load all visible apps
      */
-    suspend fun loadApps() {
+    internal suspend fun loadApps() {
         withContext(Dispatchers.IO) {
             try {
                 val apps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = false)
@@ -48,7 +48,7 @@ class AppRepository(
     /**
      * Load hidden apps
      */
-    suspend fun loadHiddenApps() {
+    internal suspend fun loadHiddenApps() {
         withContext(Dispatchers.IO) {
             try {
                 val hiddenApps = getAppsList(context, settingsRepository, includeRegularApps = false, includeHiddenApps = true)
@@ -62,7 +62,7 @@ class AppRepository(
     /**
      * Toggle app hidden state
      */
-    suspend fun toggleAppHidden(app: AppModel) {
+    internal suspend fun toggleAppHidden(app: AppModel) {
         withContext(Dispatchers.IO) {
             try {
                 val appKey = "${app.appPackage}/${app.user.hashCode()}"
@@ -82,7 +82,7 @@ class AppRepository(
     /**
      * Launch an app
      */
-    suspend fun launchApp(appModel: AppModel) {
+    internal suspend fun launchApp(appModel: AppModel) {
         withContext(Dispatchers.Main) {
             try {
                 val component = ComponentName(

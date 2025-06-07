@@ -33,7 +33,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun WidgetHostViewContainer(
+internal fun WidgetHostViewContainer(
     modifier: Modifier = Modifier,
     appWidgetId: Int,
     providerInfo: AppWidgetProviderInfo,
@@ -192,7 +192,7 @@ fun WidgetHostViewContainer(
 }
 
 // Helper class to bundle widget size info
-data class WidgetSizeData(
+internal data class WidgetSizeData(
     val width: Int, // Size in pixels for layout
     val height: Int,
     val minWidthDp: Dp,

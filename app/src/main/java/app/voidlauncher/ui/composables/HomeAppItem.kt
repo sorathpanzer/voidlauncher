@@ -40,7 +40,7 @@ import app.voidlauncher.data.settings.AppSettings
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeAppItem(
+internal fun HomeAppItem(
     modifier: Modifier = Modifier,
     app: AppModel,
     settings: AppSettings,

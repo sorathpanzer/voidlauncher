@@ -84,7 +84,7 @@ import kotlinx.coroutines.yield
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun AppDrawerScreen(
+internal fun AppDrawerScreen(
     viewModel: MainViewModel,
     settingsViewModel: SettingsViewModel = viewModel(),
     onAppClick: (AppModel) -> Unit,
@@ -384,7 +384,7 @@ private fun ContextMenuItem(text: String, icon: androidx.compose.ui.graphics.vec
 }
 
 @Composable
-fun AppDrawerSearch(
+private fun AppDrawerSearch(
     searchQuery: String,
     onSearchChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
