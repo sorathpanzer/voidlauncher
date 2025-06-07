@@ -28,7 +28,6 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import app.voidlauncher.MainActivity
-import app.voidlauncher.helper.WidgetHelper
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -38,7 +37,6 @@ fun CLauncherNavigation(
     currentScreen: String,
     onScreenChange: (String) -> Unit,
     appWidgetHost: AppWidgetHost,
-    widgetHelper: WidgetHelper
 ) {
     val context = LocalContext.current
     val settings by settingsViewModel.settingsState.collectAsState()
@@ -81,10 +79,10 @@ fun CLauncherNavigation(
             }
             is UiEvent.ConfigureWidget -> {
                 val activity = context as? Activity
-                if (activity != null) {
-                    val REQUEST_CODE_CONFIGURE_WIDGET = 1001
-                    widgetHelper.startWidgetConfiguration(activity, event.widgetId, REQUEST_CODE_CONFIGURE_WIDGET)
-                }
+                // if (activity != null) {
+                //     val REQUEST_CODE_CONFIGURE_WIDGET = 1001
+                //     widgetHelper.startWidgetConfiguration(activity, event.widgetId, REQUEST_CODE_CONFIGURE_WIDGET)
+                // }
             }
 
 
