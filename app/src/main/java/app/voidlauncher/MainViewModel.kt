@@ -33,10 +33,6 @@ internal class MainViewModel(application: Application, private val appWidgetHost
     val settingsRepository = SettingsRepository(appContext)
     private val appRepository = AppRepository(appContext, settingsRepository, viewModelScope)
 
-    private val REQUEST_CODE_CONFIGURE_WIDGET = 101
-    private var pendingWidgetInfo: PendingWidgetInfo? = null
-    data class PendingWidgetInfo(val appWidgetId: Int, val providerInfo: android.appwidget.AppWidgetProviderInfo)
-
     // Events manager for UI events
     private val _eventsFlow = MutableSharedFlow<UiEvent>()
     val events: SharedFlow<UiEvent> = _eventsFlow.asSharedFlow()
@@ -348,187 +344,81 @@ internal class MainViewModel(application: Application, private val appWidgetHost
         }
     }
 
-    private fun setSwipeLeftApp(app: AppModel) {
-        viewModelScope.launch {
-            // Create AppPreference object
-            val appPreference = AppPreference(
-                label = app.appLabel,
-                packageName = app.appPackage,
-                activityClassName = app.activityClassName,
-                userString = app.user.toString()
-            )
+    private fun AppModel.toPreference() = AppPreference(
+        label = appLabel,
+        packageName = appPackage,
+        activityClassName = activityClassName,
+        userString = user.toString()
+    )
 
-            // Save using the JSON serialization approach
-            settingsRepository.setSwipeLeftApp(appPreference)
+    private fun launchAppFromPreference(pref: AppPreference?) {
+        pref?.takeIf { it.packageName.isNotEmpty() }?.let {
+            val app = AppModel(
+                appLabel = pref.label,
+                key = null,
+                appPackage = pref.packageName,
+                activityClassName = pref.activityClassName,
+                user = getUserHandleFromString(appContext, pref.userString)
+            )
+            launchApp(app)
         }
+    }
+
+    private fun setSwipeLeftApp(app: AppModel) {
+        viewModelScope.launch { settingsRepository.setSwipeLeftApp(app.toPreference()) }
     }
 
     private fun setSwipeRightApp(app: AppModel) {
-        viewModelScope.launch {
-            val appPreference = AppPreference(
-                label = app.appLabel,
-                packageName = app.appPackage,
-                activityClassName = app.activityClassName,
-                userString = app.user.toString()
-            )
-
-            settingsRepository.setSwipeRightApp(appPreference)
-        }
+        viewModelScope.launch { settingsRepository.setSwipeRightApp(app.toPreference()) }
     }
 
     private fun setOneTapApp(app: AppModel) {
-        viewModelScope.launch {
-            val appPreference = AppPreference(
-                label = app.appLabel,
-                packageName = app.appPackage,
-                activityClassName = app.activityClassName,
-                userString = app.user.toString()
-            )
-
-            settingsRepository.setOneTapApp(appPreference)
-        }
+        viewModelScope.launch { settingsRepository.setOneTapApp(app.toPreference()) }
     }
 
     private fun setDoubleTapApp(app: AppModel) {
-        viewModelScope.launch {
-            val appPreference = AppPreference(
-                label = app.appLabel,
-                packageName = app.appPackage,
-                activityClassName = app.activityClassName,
-                userString = app.user.toString()
-            )
-
-            settingsRepository.setDoubleTapApp(appPreference)
-        }
-    }
-
-    fun launchSwipeUpApp() {
-        viewModelScope.launch {
-            val swipeUpApp = settingsRepository.settings.first().swipeUpApp
-            if (swipeUpApp.packageName.isNotEmpty()) {
-                val app = AppModel(
-                    appLabel = swipeUpApp.label,
-                    key = null,
-                    appPackage = swipeUpApp.packageName,
-                    activityClassName = swipeUpApp.activityClassName,
-                    user = getUserHandleFromString(appContext, swipeUpApp.userString)
-                )
-                launchApp(app)
-            }
-        }
-    }
-
-    fun launchSwipeDownApp() {
-        viewModelScope.launch {
-            val swipeDownApp = settingsRepository.settings.first().swipeDownApp
-            if (swipeDownApp.packageName.isNotEmpty()) {
-                val app = AppModel(
-                    appLabel = swipeDownApp.label,
-                    key = null,
-                    appPackage = swipeDownApp.packageName,
-                    activityClassName = swipeDownApp.activityClassName,
-                    user = getUserHandleFromString(appContext, swipeDownApp.userString)
-                )
-                launchApp(app)
-            }
-        }
-    }
-
-    fun launchSwipeLeftApp() {
-        viewModelScope.launch {
-            val swipeLeftApp = settingsRepository.getSwipeLeftApp()
-            if (swipeLeftApp.packageName.isNotEmpty()) {
-                val app = AppModel(
-                    appLabel = swipeLeftApp.label,
-                    key = null,
-                    appPackage = swipeLeftApp.packageName,
-                    activityClassName = swipeLeftApp.activityClassName,
-                    user = getUserHandleFromString(appContext, swipeLeftApp.userString)
-                )
-                launchApp(app)
-            }
-        }
-    }
-
-    fun launchSwipeRightApp() {
-        viewModelScope.launch {
-            val swipeRightApp = settingsRepository.getSwipeRightApp()
-            if (swipeRightApp.packageName.isNotEmpty()) {
-                val app = AppModel(
-                    appLabel = swipeRightApp.label,
-                    key = null,
-                    appPackage = swipeRightApp.packageName,
-                    activityClassName = swipeRightApp.activityClassName,
-                    user = getUserHandleFromString(appContext, swipeRightApp.userString)
-                )
-                launchApp(app)
-            }
-        }
-    }
-
-    fun launchOneTapApp() {
-        viewModelScope.launch {
-            val oneTapApp = settingsRepository.getOneTapApp()
-            if (oneTapApp.packageName.isNotEmpty()) {
-                val app = AppModel(
-                    appLabel = oneTapApp.label,
-                    key = null,
-                    appPackage = oneTapApp.packageName,
-                    activityClassName = oneTapApp.activityClassName,
-                    user = getUserHandleFromString(appContext, oneTapApp.userString)
-                )
-                launchApp(app)
-            }
-        }
-    }
-
-    fun launchDoubleTapApp() {
-        viewModelScope.launch {
-            val doubleTapApp = settingsRepository.getDoubleTapApp()
-            if (doubleTapApp.packageName.isNotEmpty()) {
-                val app = AppModel(
-                    appLabel = doubleTapApp.label,
-                    key = null,
-                    appPackage = doubleTapApp.packageName,
-                    activityClassName = doubleTapApp.activityClassName,
-                    user = getUserHandleFromString(appContext, doubleTapApp.userString)
-                )
-                launchApp(app)
-            }
-        }
+        viewModelScope.launch { settingsRepository.setDoubleTapApp(app.toPreference()) }
     }
 
     private fun setSwipeUpApp(app: AppModel) {
-        viewModelScope.launch {
-            settingsRepository.setSwipeUpApp(AppPreference(
-                label = app.appLabel,
-                packageName = app.appPackage,
-                activityClassName = app.activityClassName,
-                userString = app.user.toString()
-            ))
-        }
+        viewModelScope.launch { settingsRepository.setSwipeUpApp(app.toPreference()) }
     }
 
     private fun setSwipeDownApp(app: AppModel) {
-        viewModelScope.launch {
-            settingsRepository.setSwipeDownApp(AppPreference(
-                label = app.appLabel,
-                packageName = app.appPackage,
-                activityClassName = app.activityClassName,
-                userString = app.user.toString()
-            ))
-        }
+        viewModelScope.launch { settingsRepository.setSwipeDownApp(app.toPreference()) }
+    }
+
+    fun launchSwipeUpApp() {
+        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().swipeUpApp) }
+    }
+
+    fun launchSwipeDownApp() {
+        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().swipeDownApp) }
+    }
+
+    fun launchSwipeLeftApp() {
+        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().swipeLeftApp) }
+    }
+
+    fun launchSwipeRightApp() {
+        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().swipeRightApp) }
+    }
+
+    fun launchOneTapApp() {
+        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().oneTapApp) }
+    }
+
+    fun launchDoubleTapApp() {
+        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().doubleTapApp) }
     }
 
     fun lockScreen() {
         viewModelScope.launch {
             val settings = settingsRepository.settings.first()
-            // if (settings.doubleTapToLock) {
                 // Use accessibility service to lock screen
                 val intent = Intent(appContext, MyAccessibilityService::class.java)
                 intent.action = "LOCK_SCREEN"
                 appContext.startService(intent)
-            // }
         }
     }
 
@@ -537,10 +427,6 @@ internal class MainViewModel(application: Application, private val appWidgetHost
      */
     fun searchApps(query: String) {
         viewModelScope.launch {
-            _appDrawerState.value = _appDrawerState.value.copy(
-                searchQuery = query,
-                isLoading = true
-            )
 
             try {
                 val settings = settingsRepository.settings.first()
@@ -551,12 +437,10 @@ internal class MainViewModel(application: Application, private val appWidgetHost
                 } else {
                     val listToFilter = if (settings.showHiddenAppsOnSearch) appListAll else appList
 
-                    // if (searchType) {
                         // Default startswith search
                         listToFilter.value.filter { app ->
                             app.appLabel.startsWith(query, ignoreCase = true)
                         }
-                    // }
                 }
 
                 _appDrawerState.value = _appDrawerState.value.copy(
