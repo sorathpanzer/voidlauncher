@@ -42,8 +42,6 @@ import app.voidlauncher.data.HomeItem
 import app.voidlauncher.data.HomeLayout
 import app.voidlauncher.data.settings.AppSettings
 import app.voidlauncher.helper.expandNotificationDrawer
-import app.voidlauncher.ui.dialogs.ResizeAppDialog
-import app.voidlauncher.ui.dialogs.ResizeWidgetDialog
 import app.voidlauncher.ui.util.detectSwipeGestures
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import kotlin.math.roundToInt
@@ -163,16 +161,6 @@ internal fun HomeScreen(
     ) {
 
     }
-
-    ResizeAppDialog(
-        appItem = resizeAppDialog,
-        currentRows = homeLayoutState.rows,
-        currentColumns = homeLayoutState.columns,
-        onDismiss = { resizeAppDialog = null },
-        onResize = { app, newRowSpan, newColSpan ->
-            viewModel.resizeApp(app, newRowSpan, newColSpan)
-        }
-    )
 }
 
 // Helper function to calculate grid position from screen position
