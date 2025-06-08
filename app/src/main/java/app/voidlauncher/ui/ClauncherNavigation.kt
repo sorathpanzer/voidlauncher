@@ -277,6 +277,7 @@ internal fun CLauncherNavigation(
                                     AppSelectionType.HOME_APP_16 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_16)
                                     AppSelectionType.SWIPE_LEFT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_LEFT_APP)
                                     AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
+                                    AppSelectionType.ONE_TAP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_ONE_TAP_APP)
                                     AppSelectionType.DOUBLE_TAP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_DOUBLE_TAP_APP)
                                     else -> {}
                                 }
@@ -311,6 +312,7 @@ internal fun CLauncherNavigation(
                             AppSelectionType.HOME_APP_16 -> "Select Home App"
                             AppSelectionType.SWIPE_LEFT_APP -> "Select Swipe Left App"
                             AppSelectionType.SWIPE_RIGHT_APP -> "Select Swipe Right App"
+                            AppSelectionType.ONE_TAP_APP -> "Select One Tap App"
                             AppSelectionType.DOUBLE_TAP_APP -> "Select Double Tap App"
                             null -> ""
                         }

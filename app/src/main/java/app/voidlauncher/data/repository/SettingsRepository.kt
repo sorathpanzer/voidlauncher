@@ -77,6 +77,7 @@ internal class SettingsRepository(private val context: Context) {
         val HOME_APPS_JSON = stringPreferencesKey("HOME_APPS_JSON")
         val SWIPE_LEFT_APP_JSON = stringPreferencesKey("SWIPE_LEFT_APP_JSON")
         val SWIPE_RIGHT_APP_JSON = stringPreferencesKey("SWIPE_RIGHT_APP_JSON")
+        val ONE_TAP_APP_JSON = stringPreferencesKey("ONE_TAP_APP_JSON")
         val DOUBLE_TAP_APP_JSON = stringPreferencesKey("DOUBLE_TAP_APP_JSON")
         val SWIPE_UP_APP_JSON = stringPreferencesKey("SWIPE_UP_APP_JSON")
         val SWIPE_DOWN_APP_JSON = stringPreferencesKey("SWIPE_DOWN_APP_JSON")
@@ -88,6 +89,7 @@ internal class SettingsRepository(private val context: Context) {
 
         val SWIPE_LEFT_ACTION = intPreferencesKey("SWIPE_LEFT_ACTION")
         val SWIPE_RIGHT_ACTION = intPreferencesKey("SWIPE_RIGHT_ACTION")
+        val ONE_TAP_ACTION = intPreferencesKey("ONE_TAP_ACTION")
         val DOUBLE_TAP_ACTION = intPreferencesKey("DOUBLE_TAP_ACTION")
 
         val HOME_SCREEN_ROWS = intPreferencesKey("HOME_SCREEN_ROWS")
@@ -102,6 +104,7 @@ internal class SettingsRepository(private val context: Context) {
     private val defaultHomeApps: List<HomeAppPreference> = defaultAppSettings.homeApps
     private val defaultSwipeLeftApp: AppPreference = defaultAppSettings.swipeLeftApp
     private val defaultSwipeRightApp: AppPreference = defaultAppSettings.swipeRightApp
+    private val defaultOneTapApp: AppPreference = defaultAppSettings.oneTapApp
     private val defaultDoubleTapApp: AppPreference = defaultAppSettings.doubleTapApp
     private val defaultSwipeUpApp: AppPreference = defaultAppSettings.swipeUpApp
     private val defaultSwipeDownApp: AppPreference = defaultAppSettings.swipeDownApp
@@ -122,6 +125,10 @@ internal class SettingsRepository(private val context: Context) {
         val swipeRightApp = prefs[SWIPE_RIGHT_APP_JSON]?.let {
             json.decodeFromStringCatching(it, defaultSwipeRightApp)
         } ?: defaultSwipeRightApp
+
+        val oneTapApp = prefs[ONE_TAP_APP_JSON]?.let {
+            json.decodeFromStringCatching(it, defaultOneTapApp)
+        } ?: defaultOneTapApp
 
         val doubleTapApp = prefs[DOUBLE_TAP_APP_JSON]?.let {
             json.decodeFromStringCatching(it, defaultDoubleTapApp)
@@ -163,6 +170,7 @@ internal class SettingsRepository(private val context: Context) {
             // doubleTapToLock = prefs[DOUBLE_TAP_TO_LOCK] ?: false,
             swipeLeftAction = prefs[SWIPE_LEFT_ACTION] ?: Constants.SwipeAction.NULL,
             swipeRightAction = prefs[SWIPE_RIGHT_ACTION] ?: Constants.SwipeAction.NULL,
+            oneTapAction = prefs[ONE_TAP_ACTION] ?: Constants.SwipeAction.SEARCH,
             doubleTapAction = prefs[DOUBLE_TAP_ACTION] ?: Constants.SwipeAction.LOCKSCREEN,
 
             lockSettings = prefs[LOCK_SETTINGS] ?: false,
@@ -189,6 +197,7 @@ internal class SettingsRepository(private val context: Context) {
             homeApps = homeApps,
             swipeLeftApp = swipeLeftApp,
             swipeRightApp = swipeRightApp,
+            oneTapApp = oneTapApp,
             doubleTapApp = doubleTapApp,
             swipeUpApp = swipeUpApp,
             swipeDownApp = swipeDownApp,
@@ -242,6 +251,7 @@ internal class SettingsRepository(private val context: Context) {
                         // "doubleTapToLock" -> prefs[DOUBLE_TAP_TO_LOCK] = newValue as Boolean
                         "swipeLeftAction" -> prefs[SWIPE_LEFT_ACTION] = newValue as Int
                         "swipeRightAction" -> prefs[SWIPE_RIGHT_ACTION] = newValue as Int
+                        "oneTapAction" -> prefs[ONE_TAP_ACTION] = newValue as Int
                         "doubleTapAction" -> prefs[DOUBLE_TAP_ACTION] = newValue as Int
 
                         // Search result appearance
@@ -272,6 +282,7 @@ internal class SettingsRepository(private val context: Context) {
                         "homeApps" -> prefs[HOME_APPS_JSON] = json.encodeToString(newValue)
                         "swipeLeftApp" -> prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(newValue)
                         "swipeRightApp" -> prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(newValue)
+                        "oneTapApp" -> prefs[ONE_TAP_APP_JSON] = json.encodeToString(newValue)
                         "doubleTapApp" -> prefs[DOUBLE_TAP_APP_JSON] = json.encodeToString(newValue)
                         "clockApp" -> prefs[SWIPE_UP_APP_JSON] = json.encodeToString(newValue)
                         "calendarApp" -> prefs[SWIPE_DOWN_APP_JSON] = json.encodeToString(newValue)
@@ -355,6 +366,12 @@ internal class SettingsRepository(private val context: Context) {
         }
     }
 
+    internal suspend fun setOneTapApp(app: AppPreference) {
+        context.settingsDataStore.edit { prefs ->
+            prefs[ONE_TAP_APP_JSON] = json.encodeToString(app)
+        }
+    }
+
     internal suspend fun setDoubleTapApp(app: AppPreference) {
         context.settingsDataStore.edit { prefs ->
             prefs[DOUBLE_TAP_APP_JSON] = json.encodeToString(app)
@@ -379,6 +396,10 @@ internal class SettingsRepository(private val context: Context) {
 
     internal suspend fun getSwipeRightApp(): AppPreference {
         return settings.first().swipeRightApp
+    }
+
+    internal suspend fun getOneTapApp(): AppPreference {
+        return settings.first().oneTapApp
     }
 
     internal suspend fun getDoubleTapApp(): AppPreference {

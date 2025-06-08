@@ -230,6 +230,7 @@ internal fun SettingsScreen(
                     val selectionType = when (prop.name) {
                         "swipeLeftApp" -> AppSelectionType.SWIPE_LEFT_APP
                         "swipeRightApp" -> AppSelectionType.SWIPE_RIGHT_APP
+                        "oneTapApp" -> AppSelectionType.ONE_TAP_APP
                         "doubleTapApp" -> AppSelectionType.DOUBLE_TAP_APP
                         "swipeUpApp" -> AppSelectionType.SWIPE_UP_APP
                         "swipeDownApp" -> AppSelectionType.SWIPE_DOWN_APP
@@ -371,13 +372,6 @@ internal fun SettingsScreen(
                                                                 e.printStackTrace()
                                                             }
                                                         }
-                                                        "doubleTapAction" -> { //doubleTapToLock
-                                                            if (it && !isAccessServiceEnabled(context)) {
-                                                                Toast.makeText(context, "Enable accessibility permission for this functionality.", Toast.LENGTH_SHORT).show()
-                                                                val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                                                                context.startActivity(intent)
-                                                            }
-                                                        }
                                                     }
                                                 }
                                             }
@@ -454,6 +448,9 @@ internal fun SettingsScreen(
                                                 }
                                                 "swipeRightApp" -> {
                                                     AppSelectionType.SWIPE_RIGHT_APP
+                                                }
+                                                "oneTapApp" -> {
+                                                    AppSelectionType.ONE_TAP_APP
                                                 }
                                                 "doubleTapApp" -> {
                                                     AppSelectionType.DOUBLE_TAP_APP

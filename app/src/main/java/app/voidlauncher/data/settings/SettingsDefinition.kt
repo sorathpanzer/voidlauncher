@@ -164,6 +164,24 @@ internal data class AppSettings(
 
 
     @Setting(
+        title = "One Tap Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
+    )
+    val oneTapAction: Int = Constants.SwipeAction.SEARCH,
+
+
+    @Setting(
+        title = "One Tap App",
+        category = SettingCategory.GESTURES,
+        type = SettingType.APP_PICKER,
+        dependsOn = "oneTapEnabled"
+    )
+    val oneTapApp: AppPreference = AppPreference(label = "Not set"),
+
+
+    @Setting(
         title = "Double Tap Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
@@ -179,7 +197,7 @@ internal data class AppSettings(
         dependsOn = "doubleTapEnabled"
     )
     val doubleTapApp: AppPreference = AppPreference(label = "Not set"),
-
+    
 
     @Setting(
         title = "Set Plain Wallpaper",
