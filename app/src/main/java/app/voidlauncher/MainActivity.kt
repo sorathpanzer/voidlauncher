@@ -1,11 +1,8 @@
 package app.voidlauncher
 
 import android.app.Application
-import android.appwidget.AppWidgetManager
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.content.res.Configuration
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -14,7 +11,6 @@ import android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.*
 import androidx.lifecycle.Lifecycle
@@ -24,7 +20,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import app.voidlauncher.data.Navigation
 import app.voidlauncher.data.repository.SettingsRepository
 import app.voidlauncher.helper.isDarkThemeOn
-import app.voidlauncher.helper.isTablet
 import app.voidlauncher.helper.setPlainWallpaper
 import app.voidlauncher.ui.CLauncherNavigation
 import app.voidlauncher.ui.UiEvent
@@ -42,7 +37,6 @@ internal class MainActivity : ComponentActivity() {
     private lateinit var settingsRepository: SettingsRepository
     private lateinit var appWidgetHost: AppWidgetHost
     private val APPWIDGET_HOST_ID = 1024
-    private val REQUEST_CONFIGURE_WIDGET = 1001
 
     protected override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -60,12 +54,6 @@ internal class MainActivity : ComponentActivity() {
 
         viewModel = ViewModelProvider(this, MainViewModelFactory(application, appWidgetHost))[MainViewModel::class.java] // Use factory
         settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
-
-
-        // Initialize theme based on settings
-        lifecycleScope.launch {
-            val settings = settingsRepository.settings.first()
-        }
 
         super.onCreate(savedInstanceState)
 
@@ -143,7 +131,7 @@ internal class MainActivity : ComponentActivity() {
 
     private fun initObservers() {
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.launcherResetFailed.collect { resetFailed ->
                     openLauncherChooser(resetFailed)
                 }
@@ -158,12 +146,6 @@ internal class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun setPlainWallpaper() {
-        if (this.isDarkThemeOn())
-            setPlainWallpaper(this, android.R.color.black)
-        else setPlainWallpaper(this, android.R.color.white)
-    }
-
     public override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         lifecycleScope.launch {
@@ -171,7 +153,7 @@ internal class MainActivity : ComponentActivity() {
             AppCompatDelegate.setDefaultNightMode(settings.appTheme)
 
             if (settings.plainWallpaper && AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
-                setPlainWallpaper()
+                setPlainWallpaper(this@MainActivity, android.R.color.black)
                 recreate()
             }
         }
@@ -188,20 +170,6 @@ internal class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    protected override fun onResume() {
-        super.onResume()
-        // Force hardware acceleration
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
-        )
-    }
-
-    protected override fun onDestroy() {
-        super.onDestroy()
-    }
-
 }
 
 private class MainViewModelFactory(
