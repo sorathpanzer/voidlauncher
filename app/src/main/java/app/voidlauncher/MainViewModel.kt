@@ -330,6 +330,10 @@ internal class MainViewModel(application: Application, private val appWidgetHost
                 setSwipeRightApp(appModel)
             }
 
+            Constants.FLAG_SET_ONE_TAP_APP -> {
+                setOneTapApp(appModel)
+            }
+
             Constants.FLAG_SET_DOUBLE_TAP_APP -> {
                 setDoubleTapApp(appModel)
             }
@@ -369,6 +373,19 @@ internal class MainViewModel(application: Application, private val appWidgetHost
             )
 
             settingsRepository.setSwipeRightApp(appPreference)
+        }
+    }
+
+    private fun setOneTapApp(app: AppModel) {
+        viewModelScope.launch {
+            val appPreference = AppPreference(
+                label = app.appLabel,
+                packageName = app.appPackage,
+                activityClassName = app.activityClassName,
+                userString = app.user.toString()
+            )
+
+            settingsRepository.setOneTapApp(appPreference)
         }
     }
 
@@ -443,6 +460,22 @@ internal class MainViewModel(application: Application, private val appWidgetHost
                     appPackage = swipeRightApp.packageName,
                     activityClassName = swipeRightApp.activityClassName,
                     user = getUserHandleFromString(appContext, swipeRightApp.userString)
+                )
+                launchApp(app)
+            }
+        }
+    }
+
+    fun launchOneTapApp() {
+        viewModelScope.launch {
+            val oneTapApp = settingsRepository.getOneTapApp()
+            if (oneTapApp.packageName.isNotEmpty()) {
+                val app = AppModel(
+                    appLabel = oneTapApp.label,
+                    key = null,
+                    appPackage = oneTapApp.packageName,
+                    activityClassName = oneTapApp.activityClassName,
+                    user = getUserHandleFromString(appContext, oneTapApp.userString)
                 )
                 launchApp(app)
             }

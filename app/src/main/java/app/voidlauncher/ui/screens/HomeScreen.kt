@@ -148,16 +148,14 @@ internal fun HomeScreen(
                         }
 
                     },
-                    onLongPress = { offset ->
-                        // Store the touch position for hit testing
-                        lastTouchPosition = offset
+                    onLongPress = {
                         onNavigateToSettings()
                     },
-                    onTap = { offset ->
-                        when (settings.doubleTapAction) {
+                    onTap = {
+                        when (settings.oneTapAction) {
                             Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
                             Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
-                            Constants.SwipeAction.APP -> viewModel.launchDoubleTapApp()
+                            Constants.SwipeAction.APP -> viewModel.launchOneTapApp()
                             Constants.SwipeAction.LOCKSCREEN -> checkAccessibilityAndLock(context, viewModel)
                             Constants.SwipeAction.NULL -> {}
                             else -> {}

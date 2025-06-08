@@ -68,6 +68,7 @@ internal enum class AppSelectionType {
     HOME_APP_16,
     SWIPE_LEFT_APP,
     SWIPE_RIGHT_APP,
+    ONE_TAP_APP,
     DOUBLE_TAP_APP,
     SWIPE_UP_APP,
     SWIPE_DOWN_APP,
