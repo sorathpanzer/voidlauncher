@@ -45,9 +45,6 @@ internal class AppRepository(
         }
     }
 
-    /**
-     * Load hidden apps
-     */
     internal suspend fun loadHiddenApps() {
         withContext(Dispatchers.IO) {
             try {

@@ -1,65 +1,29 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.kts.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# --- General ---
+-dontwarn kotlin.**
+-dontwarn kotlinx.coroutines.**
+-dontwarn androidx.lifecycle.**
+-dontwarn androidx.annotation.**
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Keep Kotlin metadata for reflection and serialization
+-keep class kotlin.Metadata { *; }
+-keepclassmembers class kotlin.Metadata { *; }
+-keep class kotlin.reflect.** { *; }
+-keep class kotlin.jvm.internal.** { *; }
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
-
--keepattributes Signature
--keepattributes *Annotation*
--dontobfuscate
-
+# Keep Parcelable implementations (needed for Android)
 -keep class * implements android.os.Parcelable {
-  public static final android.os.Parcelable$Creator *;
+    public static final android.os.Parcelable$Creator *;
 }
 
+# --- Keep your app's specific classes for reflection and serialization ---
+
+# Keep your app settings data classes and annotations
 -keep class app.voidlauncher.data.settings.AppSettings { *; }
 -keepclassmembers class app.voidlauncher.data.settings.AppSettings { *; }
 -keep @app.voidlauncher.data.settings.Setting class * { *; }
 -keepclasseswithmembers class * {
     @app.voidlauncher.data.settings.Setting <fields>;
 }
-
--keepattributes *Annotation*,EnclosingMethod,Signature,KotlinMetadata
-
--keep class kotlin.Metadata { *; }
-
--keep class kotlin.reflect.** { *; }
-
-
--keepattributes RuntimeVisibleAnnotations
--keepclassmembers class app.voidlauncher.data.settings.AppSettings {
-    @app.voidlauncher.data.settings.Setting *;
-}
-
-# Keep all Setting annotations
--keep @interface app.voidlauncher.data.settings.Setting
--keepattributes *Annotation*
-
-# Keep all enum classes used in annotations
--keepclassmembers enum app.voidlauncher.data.settings.SettingCategory { *; }
--keepclassmembers enum app.voidlauncher.data.settings.SettingType { *; }
-
-# Keep all reflection metadata
--keepattributes Signature, InnerClasses
--keep class kotlin.Metadata { *; }
--keep class kotlin.reflect.** { *; }
--keep class kotlin.jvm.internal.** { *; }
 
 -keepclassmembers class app.voidlauncher.data.settings.AppSettings {
     <fields>;
@@ -69,3 +33,31 @@
 -keep class app.voidlauncher.data.settings.SettingsManager { *; }
 
 -keep class app.voidlauncher.ui.screens.SettingsScreenKt { *; }
+
+# Keep all Setting annotations and enums used in annotations
+-keep @interface app.voidlauncher.data.settings.Setting
+-keepclassmembers enum app.voidlauncher.data.settings.SettingCategory { *; }
+-keepclassmembers enum app.voidlauncher.data.settings.SettingType { *; }
+
+# Keep annotations & runtime visible annotations for reflection & tools
+-keepattributes *Annotation*
+-keepattributes RuntimeVisibleAnnotations, Signature, EnclosingMethod, InnerClasses
+
+# --- Obfuscation and shrinking enabled ---
+# Remove unused code & rename classes/methods/fields not explicitly kept
+# This helps reduce size and improve performance and security
+
+# Don't disable obfuscation or shrinking unless necessary
+# So no "-dontobfuscate" or "-dontshrink"
+
+# Keep line numbers for crash stack trace debugging (optional)
+# -keepattributes SourceFile,LineNumberTable
+
+# --- Optimization ---
+# You can enable optimizations, but some projects disable to avoid issues
+# If you want, you can add:
+# -optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+
+# --- Misc ---
+# You can add specific rules for libraries or dependencies as needed
+

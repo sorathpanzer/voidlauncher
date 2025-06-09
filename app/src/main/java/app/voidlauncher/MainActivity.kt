@@ -19,7 +19,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import app.voidlauncher.data.Navigation
 import app.voidlauncher.data.repository.SettingsRepository
-import app.voidlauncher.helper.isDarkThemeOn
 import app.voidlauncher.helper.setPlainWallpaper
 import app.voidlauncher.ui.CLauncherNavigation
 import app.voidlauncher.ui.UiEvent
