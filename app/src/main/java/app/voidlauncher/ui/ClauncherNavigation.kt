@@ -22,7 +22,6 @@ import app.voidlauncher.ui.screens.*
 import app.voidlauncher.ui.util.SystemUIController
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.flow.collectLatest
-import app.voidlauncher.ui.screens.WidgetPickerScreen
 import android.appwidget.AppWidgetHost
 import android.content.Intent
 import android.os.Build
@@ -259,22 +258,6 @@ internal fun CLauncherNavigation(
                                 when (currentSelectionType) {
                                     AppSelectionType.SWIPE_UP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_UP_APP)
                                     AppSelectionType.SWIPE_DOWN_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_DOWN_APP)
-                                    AppSelectionType.HOME_APP_1 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_1)
-                                    AppSelectionType.HOME_APP_2 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_2)
-                                    AppSelectionType.HOME_APP_3 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_3)
-                                    AppSelectionType.HOME_APP_4 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_4)
-                                    AppSelectionType.HOME_APP_5 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_5)
-                                    AppSelectionType.HOME_APP_6 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_6)
-                                    AppSelectionType.HOME_APP_7 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_7)
-                                    AppSelectionType.HOME_APP_8 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_8)
-                                    AppSelectionType.HOME_APP_9 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_9)
-                                    AppSelectionType.HOME_APP_10 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_10)
-                                    AppSelectionType.HOME_APP_11 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_11)
-                                    AppSelectionType.HOME_APP_12 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_12)
-                                    AppSelectionType.HOME_APP_13 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_13)
-                                    AppSelectionType.HOME_APP_14 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_14)
-                                    AppSelectionType.HOME_APP_15 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_15)
-                                    AppSelectionType.HOME_APP_16 -> viewModel.selectedApp(app, Constants.FLAG_SET_HOME_APP_16)
                                     AppSelectionType.SWIPE_LEFT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_LEFT_APP)
                                     AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
                                     AppSelectionType.ONE_TAP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_ONE_TAP_APP)
@@ -294,22 +277,6 @@ internal fun CLauncherNavigation(
                         selectionTitle = when (currentSelectionType) {
                             AppSelectionType.SWIPE_UP_APP -> "Select Swipe Up Action App"
                             AppSelectionType.SWIPE_DOWN_APP -> "Select Swipe Down Action App"
-                            AppSelectionType.HOME_APP_1,
-                            AppSelectionType.HOME_APP_2,
-                            AppSelectionType.HOME_APP_3,
-                            AppSelectionType.HOME_APP_4,
-                            AppSelectionType.HOME_APP_5,
-                            AppSelectionType.HOME_APP_6,
-                            AppSelectionType.HOME_APP_7,
-                            AppSelectionType.HOME_APP_8,
-                            AppSelectionType.HOME_APP_9,
-                            AppSelectionType.HOME_APP_10,
-                            AppSelectionType.HOME_APP_11,
-                            AppSelectionType.HOME_APP_12,
-                            AppSelectionType.HOME_APP_13,
-                            AppSelectionType.HOME_APP_14,
-                            AppSelectionType.HOME_APP_15,
-                            AppSelectionType.HOME_APP_16 -> "Select Home App"
                             AppSelectionType.SWIPE_LEFT_APP -> "Select Swipe Left App"
                             AppSelectionType.SWIPE_RIGHT_APP -> "Select Swipe Right App"
                             AppSelectionType.ONE_TAP_APP -> "Select One Tap App"

@@ -68,6 +68,9 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -79,8 +82,9 @@ import app.voidlauncher.ui.BackHandler
 import app.voidlauncher.ui.util.detectSwipeGestures
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
-// import kotlinx.coroutines.launch // Not directly used, but by LaunchedEffect
 import kotlinx.coroutines.yield
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.width
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -389,36 +393,52 @@ private fun AppDrawerSearch(
     onSearchChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
     onEnterPressed: () -> Unit = {},
-    onFocusStateChanged: (Boolean) -> Unit // Callback to notify parent of focus state
+    onFocusStateChanged: (Boolean) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    TextField(
-        value = searchQuery,
-        onValueChange = onSearchChanged,
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 8.dp)
-            .onFocusChanged { focusState ->
-                val focused = focusState.isFocused
-                onFocusStateChanged(focused) // Notify parent of focus change
-                if (focused) {
-                    keyboardController?.show() // Show keyboard when TextField gains focus
-                }
-                // Keyboard hiding on focus loss is handled by system, IME actions, or explicit calls elsewhere (e.g., scroll logic)
+            .padding(vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        val maxTextFieldWidth = 600.dp
+        val calculatedWidth = if (maxWidth < maxTextFieldWidth) maxWidth else maxTextFieldWidth
+
+        TextField(
+            value = searchQuery,
+            onValueChange = onSearchChanged,
+            modifier = Modifier
+                .width(calculatedWidth)
+                .onFocusChanged { focusState ->
+                    onFocusStateChanged(focusState.isFocused)
+                    if (focusState.isFocused) {
+                        keyboardController?.show()
+                    }
+                },
+            placeholder = {
+                Text(
+                    text = "Search apps...",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
             },
-        placeholder = { Text("Search apps...") },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = {
-            keyboardController?.hide() // Hide keyboard on IME "Search" action
-            onEnterPressed()
-        }),
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
+            singleLine = true,
+            textStyle = TextStyle(textAlign = TextAlign.Center),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    keyboardController?.hide()
+                    onEnterPressed()
+                }
+            ),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            )
         )
-    )
+    }
 }
