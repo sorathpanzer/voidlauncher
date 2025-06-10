@@ -106,12 +106,6 @@ internal data class AppSettings(
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val swipeDownAction: Int = Constants.SwipeAction.NOTIFICATIONS,
-
-    @Setting(
-        title = "Swipe Down App",
-        category = SettingCategory.GESTURES,
-        type = SettingType.APP_PICKER,
-    )
     val swipeDownApp: AppPreference = AppPreference(),
 
     @Setting(
@@ -121,12 +115,6 @@ internal data class AppSettings(
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val swipeUpAction: Int = Constants.SwipeAction.SEARCH,
-
-    @Setting(
-        title = "Swipe Up App",
-        category = SettingCategory.GESTURES,
-        type = SettingType.APP_PICKER,
-    )
     val swipeUpApp: AppPreference = AppPreference(),
 
     @Setting(
@@ -146,13 +134,6 @@ internal data class AppSettings(
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val swipeLeftAction: Int = Constants.SwipeAction.NULL,
-
-    @Setting(
-        title = "Left Swipe App",
-        category = SettingCategory.GESTURES,
-        type = SettingType.APP_PICKER,
-        dependsOn = "swipeLeftEnabled"
-    )
     val swipeLeftApp: AppPreference = AppPreference(label = "Not set"),
 
     @Setting(
@@ -162,13 +143,6 @@ internal data class AppSettings(
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val swipeRightAction: Int = Constants.SwipeAction.NULL,
-
-    @Setting(
-        title = "Right Swipe App",
-        category = SettingCategory.GESTURES,
-        type = SettingType.APP_PICKER,
-        dependsOn = "swipeRightEnabled"
-    )
     val swipeRightApp: AppPreference = AppPreference(label = "Not set"),
 
     @Setting(
@@ -178,13 +152,6 @@ internal data class AppSettings(
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val oneTapAction: Int = Constants.SwipeAction.SEARCH,
-
-    @Setting(
-        title = "One Tap App",
-        category = SettingCategory.GESTURES,
-        type = SettingType.APP_PICKER,
-        dependsOn = "oneTapEnabled"
-    )
     val oneTapApp: AppPreference = AppPreference(label = "Not set"),
 
     @Setting(
@@ -194,13 +161,6 @@ internal data class AppSettings(
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val doubleTapAction: Int = Constants.SwipeAction.LOCKSCREEN,
-
-    @Setting(
-        title = "Double Tap App",
-        category = SettingCategory.GESTURES,
-        type = SettingType.APP_PICKER,
-        dependsOn = "doubleTapEnabled"
-    )
     val doubleTapApp: AppPreference = AppPreference(label = "Not set"),
 
     @Setting(
