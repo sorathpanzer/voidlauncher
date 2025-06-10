@@ -250,7 +250,6 @@ internal fun AppDrawerScreen(
                             .padding(top = 250.dp),         // Push down by 100dp; adjust as needed
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("No apps found matching \"$searchQuery\"")
                         Button(
                             onClick = {
                                 if (searchQuery.startsWith("!")) {
