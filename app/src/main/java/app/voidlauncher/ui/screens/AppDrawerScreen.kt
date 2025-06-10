@@ -243,8 +243,13 @@ internal fun AppDrawerScreen(
             uiState.error != null -> Box(Modifier.fillMaxSize(), Alignment.Center) { Text("Error: ${uiState.error}") }
             uiState.apps.isEmpty() && searchQuery.isEmpty() -> Box(Modifier.fillMaxSize(), Alignment.Center) { Text("No apps found") }
             uiState.filteredApps.isEmpty() && searchQuery.isNotEmpty() -> {
-                Box(Modifier.fillMaxSize(), Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(Modifier.fillMaxSize()) {
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)    // Align to top center of the Box
+                            .padding(top = 250.dp),         // Push down by 100dp; adjust as needed
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         Text("No apps found matching \"$searchQuery\"")
                         Button(
                             onClick = {
