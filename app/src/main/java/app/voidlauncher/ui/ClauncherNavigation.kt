@@ -205,21 +205,6 @@ internal fun CLauncherNavigation(
                         )
                     )
                 }
-                // Widget screens animations
-                Navigation.WIDGET_PICKER -> {
-                    // Settings to widget screens: slide left with fade and scale
-                    (slideInHorizontally(
-                                        initialOffsetX = { it/5 },  // Reduced slide distance for subtlety
-                                        animationSpec = tween(300)
-                                    ) + fadeIn(animationSpec = tween(300)) +
-                                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))).togetherWith(
-                        slideOutHorizontally(
-                                                targetOffsetX = { -it/5 },  // Reduced slide distance for subtlety
-                                                animationSpec = tween(300)
-                                            ) + fadeOut(animationSpec = tween(300)) +
-                                                    scaleOut(targetScale = 0.95f, animationSpec = tween(300))
-                    )
-                }
                 else -> {
                     // Default animation with fade and scale
                     (fadeIn(animationSpec = tween(300)) +
