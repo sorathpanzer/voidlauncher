@@ -111,7 +111,6 @@ internal object Navigation {
     const val APP_DRAWER = "app_drawer"
     const val SETTINGS = "settings"
     const val HIDDEN_APPS = "hidden_apps"
-    const val WIDGET_PICKER = "widget_picker"
 }
 
 
