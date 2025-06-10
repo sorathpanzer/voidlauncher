@@ -1,26 +1,20 @@
 package app.voidlauncher.ui.screens
 
-import android.app.Activity
 import android.content.Intent
-import android.content.pm.ActivityInfo
-import android.content.res.Configuration
 import android.net.Uri
 import android.provider.Settings
 import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -69,9 +63,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.voidlauncher.MainViewModel
@@ -82,7 +74,6 @@ import app.voidlauncher.ui.BackHandler
 import app.voidlauncher.ui.util.detectSwipeGestures
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.yield
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.width
 
@@ -134,7 +125,6 @@ internal fun AppDrawerScreen(
 
     LaunchedEffect(settings.autoShowKeyboard, focusRequester) {
         if (settings.autoShowKeyboard) {
-            yield()
             focusRequester.requestFocus()
         }
     }
@@ -164,10 +154,11 @@ internal fun AppDrawerScreen(
                 val actualScrollHappened = currentIndex != previousIndex || currentOffset != previousOffset
                 if (actualScrollHappened) {
                     // Determine scroll direction: positive for down, negative for up
-                    var verticalScrollDelta = 0
-                    verticalScrollDelta = if (currentIndex > previousIndex) 1 // Major scroll down
-                    else if (currentIndex < previousIndex) -1 // Major scroll up
-                    else currentOffset - previousOffset // Minor scroll in same item
+                    val verticalScrollDelta = when {
+                        currentIndex > previousIndex -> 1
+                        currentIndex < previousIndex -> -1
+                        else -> currentOffset - previousOffset
+                    }
 
                     if (verticalScrollDelta > 0) { // User scrolled DOWN (content moved UP)
                         if (isSearchFocused) {
@@ -229,8 +220,6 @@ internal fun AppDrawerScreen(
 
         val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
 
-        Log.d("AppRename", "Renamed apps: ${settings.renamedApps}")
-
         LaunchedEffect(appsToShow, settings.autoOpenFilteredApp, searchQuery, handleAppClick) {
             delay(300)
             if (searchQuery.isNotEmpty() && appsToShow.size == 1 && settings.autoOpenFilteredApp) {
@@ -288,7 +277,7 @@ internal fun AppDrawerScreen(
     }
 
     if (showContextMenu && selectedApp != null) {
-        val app = selectedApp!!
+        val app = selectedApp ?: return
         val hiddenApps by viewModel.hiddenApps.collectAsState()
         val isHidden = hiddenApps.any { it.getKey() == app.getKey() }
 
