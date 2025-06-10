@@ -98,9 +98,6 @@ internal fun SettingsScreen(
     var currentProperty by remember { mutableStateOf<KProperty1<AppSettings, *>?>(null) }
     var currentAnnotation by remember { mutableStateOf<Setting?>(null) }
 
-    var showGridWarningDialog by remember { mutableStateOf(false) }
-    var pendingGridChange by remember { mutableStateOf<Pair<String, Int>?>(null) }
-
     DisposableEffect(Unit) {
         onDispose {
             viewModel.resetUnlockState()
@@ -136,25 +133,6 @@ internal fun SettingsScreen(
         )
     }
 
-    if (showGridWarningDialog && pendingGridChange != null) {
-        GridSizeWarningDialog(
-            title = "Grid Size Change",
-            message = "Changing the grid size will move some apps and widgets to inaccessible positions. Do you want to continue?",
-            onConfirm = {
-                coroutineScope.launch {
-                    val (propertyName, newValue) = pendingGridChange!!
-                    viewModel.updateGridSize(propertyName, newValue)
-                    showGridWarningDialog = false
-                    pendingGridChange = null
-                }
-            },
-            onDismiss = {
-                showGridWarningDialog = false
-                pendingGridChange = null
-            }
-        )
-    }
-
     // Display the appropriate dialog based on setting type
     when (showingDialog) {
         "slider" -> {
@@ -179,19 +157,12 @@ internal fun SettingsScreen(
                                 // Check if this is a grid size change that affects items
                                 if (propertyName == "homeScreenRows" || propertyName == "homeScreenColumns") {
 
-                                    // Show warning dialog
-                                    pendingGridChange = propertyName to intValue
-                                    showGridWarningDialog = true
                                     showingDialog = null
                                 } else {
                                     // Safe to change directly
                                     when (prop.returnType.classifier) {
                                         Int::class -> {
-                                            if (propertyName == "homeScreenRows" || propertyName == "homeScreenColumns") {
-                                                viewModel.updateGridSize(propertyName, intValue)
-                                            } else {
-                                                viewModel.updateSetting(propertyName, intValue)
-                                            }
+                                        viewModel.updateSetting(propertyName, intValue)
                                         }
                                         Float::class -> viewModel.updateSetting(propertyName, newValue)
                                     }
@@ -486,7 +457,6 @@ internal fun SettingsScreen(
                         title = "Set as Default Launcher",
                         subtitle = if (isClauncherDefault(context)) "VoidLauncher is default" else "VoidLauncher is not default",
                         onClick = {
-//                             (context as? MainActivity)?.requestDefaultLauncher(context)
                             val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
                             context.startActivity(intent)
                         },
@@ -797,28 +767,3 @@ private fun DropdownSettingDialog(
         }
     )
 }
-
-@Composable
-private fun GridSizeWarningDialog(
-    title: String,
-    message: String,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = { Text(message) },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text("Continue")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
-
