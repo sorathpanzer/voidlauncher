@@ -2,10 +2,7 @@ package app.voidlauncher.ui.screens
 
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.ActivityInfo
-import android.net.Uri
 import android.provider.Settings
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
@@ -86,8 +84,6 @@ internal fun SettingsScreen(
     onNavigateBack: () -> Unit,
     onNavigateToHiddenApps: () -> Unit = {}
 ) {
-//    BackHandler(onBack = onNavigateBack)
-
     val context = LocalContext.current
     val uiState by viewModel.settingsState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
@@ -154,16 +150,11 @@ internal fun SettingsScreen(
                                 val propertyName = prop.name
                                 val intValue = newValue.toInt()
 
-                                // Check if this is a grid size change that affects items
                                 if (propertyName == "homeScreenRows" || propertyName == "homeScreenColumns") {
-
                                     showingDialog = null
                                 } else {
-                                    // Safe to change directly
                                     when (prop.returnType.classifier) {
-                                        Int::class -> {
-                                        viewModel.updateSetting(propertyName, intValue)
-                                        }
+                                        Int::class -> viewModel.updateSetting(propertyName, intValue)
                                         Float::class -> viewModel.updateSetting(propertyName, newValue)
                                     }
                                     showingDialog = null
@@ -188,6 +179,26 @@ internal fun SettingsScreen(
                         onOptionSelected = { index ->
                             coroutineScope.launch {
                                 viewModel.updateSetting(prop.name, index)
+                                
+                                // If the selected option is "app", immediately show app picker
+                                if (prop.name.endsWith("Action") && 
+                                    index == Constants.SwipeAction.APP) {
+                                    
+                                    // Find the corresponding app property
+                                    val appPropertyName = prop.name.replace("Action", "App")
+                                    val appProperty = AppSettings::class.members
+                                        .filterIsInstance<KProperty1<AppSettings, *>>()
+                                        .firstOrNull { it.name == appPropertyName }
+                                    
+                                    appProperty?.let {
+                                        currentProperty = it
+                                        showingDialog = "app_picker"
+                                    } ?: run {
+                                        showingDialog = null
+                                    }
+                                } else {
+                                    showingDialog = null
+                                }
                             }
                         }
                     )
@@ -197,7 +208,6 @@ internal fun SettingsScreen(
         "app_picker" -> {
             currentProperty?.let { prop ->
                 coroutineScope.launch {
-                    // Determine which app selection type to use
                     val selectionType = when (prop.name) {
                         "swipeLeftApp" -> AppSelectionType.SWIPE_LEFT_APP
                         "swipeRightApp" -> AppSelectionType.SWIPE_RIGHT_APP
@@ -301,7 +311,7 @@ internal fun SettingsScreen(
             return@Scaffold
         }
 
-            LazyColumn(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -314,7 +324,7 @@ internal fun SettingsScreen(
                 val categorySettings = settingsByCategory[category] ?: continue
 
                 item {
-                    SettingsSection(title = category.name.lowercase().capitalize(Locale.getDefault())) {
+                    SettingsSection(title = category.name.lowercase().replaceFirstChar { it.titlecase(Locale.getDefault()) }) {
                         categorySettings.forEach { (property, annotation) ->
                             // Check if this setting is enabled
                             val isEnabled = settingsManager.isSettingEnabled(uiState, property, annotation)
@@ -328,16 +338,16 @@ internal fun SettingsScreen(
                                             description = annotation.description.takeIf { it.isNotEmpty() },
                                             isChecked = value,
                                             enabled = isEnabled,
-                                            onCheckedChange = {
+                                            onCheckedChange = { checked ->
                                                 coroutineScope.launch {
-                                                    viewModel.updateSetting(property.name, it)
+                                                    viewModel.updateSetting(property.name, checked)
 
                                                     // Special handling for specific settings
                                                     when (property.name) {
                                                         "statusBar" -> {
                                                             try {
                                                                 (context as? Activity)?.let { activity ->
-                                                                    updateStatusBarVisibility(activity, it)
+                                                                    updateStatusBarVisibility(activity, checked)
                                                                 }
                                                             } catch (e: Exception) {
                                                                 e.printStackTrace()
@@ -377,17 +387,53 @@ internal fun SettingsScreen(
                                             "Unknown"
                                         }
 
-                                        SettingsItem(
-                                            title = annotation.title,
-                                            subtitle = displayText,
-                                            description = annotation.description.takeIf { it.isNotEmpty() },
-                                            enabled = isEnabled,
-                                            onClick = {
-                                                currentProperty = property
-                                                currentAnnotation = annotation
-                                                showingDialog = "dropdown"
-                                            }
-                                        )
+                                        // Special handling for action type settings that need app selection
+                                        if (property.name.endsWith("Action")) {
+                                            // Get the corresponding app preference property
+                                            val appPropertyName = property.name.replace("Action", "App")
+                                            val appProperty = AppSettings::class.members
+                                                .filterIsInstance<KProperty1<AppSettings, *>>()
+                                                .firstOrNull { it.name == appPropertyName }
+                                            
+                                            val appName = appProperty?.let {
+                                                when (val appPref = it.get(uiState)) {
+                                                    is AppPreference -> appPref.label
+                                                    else -> "Select app"
+                                                }
+                                            } ?: "Select app"
+
+                                            SettingsItem(
+                                                title = annotation.title,
+                                                subtitle = if (value == Constants.SwipeAction.APP) "$displayText: $appName" else displayText,
+                                                description = annotation.description.takeIf { it.isNotEmpty() },
+                                                enabled = isEnabled,
+                                                onClick = {
+                                                    currentProperty = property
+                                                    currentAnnotation = annotation
+                                                    
+                                                    if (value == Constants.SwipeAction.APP) {
+                                                        // If current selection is "app", show app picker directly
+                                                        showingDialog = "dropdown"
+                                                    } else {
+                                                        // Otherwise show action type selection first
+                                                        showingDialog = "dropdown"
+                                                    }
+                                                }
+                                            )
+                                        } else {
+                                            // Regular dropdown handling
+                                            SettingsItem(
+                                                title = annotation.title,
+                                                subtitle = displayText,
+                                                description = annotation.description.takeIf { it.isNotEmpty() },
+                                                enabled = isEnabled,
+                                                onClick = {
+                                                    currentProperty = property
+                                                    currentAnnotation = annotation
+                                                    showingDialog = "dropdown"
+                                                }
+                                            )
+                                        }
                                     }
                                 }
                                 SettingType.BUTTON -> {
@@ -414,27 +460,13 @@ internal fun SettingsScreen(
                                         enabled = isEnabled,
                                         onClick = {
                                             val selectionType = when (property.name) {
-                                                "swipeLeftApp" -> {
-                                                    AppSelectionType.SWIPE_LEFT_APP
-                                                }
-                                                "swipeRightApp" -> {
-                                                    AppSelectionType.SWIPE_RIGHT_APP
-                                                }
-                                                "oneTapApp" -> {
-                                                    AppSelectionType.ONE_TAP_APP
-                                                }
-                                                "doubleTapApp" -> {
-                                                    AppSelectionType.DOUBLE_TAP_APP
-                                                }
-                                                "swipeUpApp" -> {
-                                                    AppSelectionType.SWIPE_UP_APP
-                                                }
-                                                "swipeDownApp" -> {
-                                                    AppSelectionType.SWIPE_DOWN_APP
-                                                }
-                                                else -> {
-                                                    null
-                                                }
+                                                "swipeLeftApp" -> AppSelectionType.SWIPE_LEFT_APP
+                                                "swipeRightApp" -> AppSelectionType.SWIPE_RIGHT_APP
+                                                "oneTapApp" -> AppSelectionType.ONE_TAP_APP
+                                                "doubleTapApp" -> AppSelectionType.DOUBLE_TAP_APP
+                                                "swipeUpApp" -> AppSelectionType.SWIPE_UP_APP
+                                                "swipeDownApp" -> AppSelectionType.SWIPE_DOWN_APP
+                                                else -> null
                                             }
 
                                             selectionType?.let {
@@ -469,10 +501,8 @@ internal fun SettingsScreen(
                         isChecked = uiState.lockSettings,
                         onCheckedChange = { locked ->
                             if (locked) {
-                                // When enabling lock, show dialog to set PIN
                                 viewModel.setShowLockDialog(true, true)
                             } else {
-                                // When disabling, just turn it off (no PIN required to disable)
                                 viewModel.toggleLockSettings(false)
                             }
                         }
@@ -496,11 +526,6 @@ internal fun SettingsScreen(
             }
         }
     }
-}
-
-// Helper functions
-private fun String.capitalize(locale: Locale): String {
-    return replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
 }
 
 @Composable
@@ -694,7 +719,6 @@ private fun SliderSettingDialog(
                 Slider(
                     value = sliderValue,
                     onValueChange = {
-                        // Round to nearest step
                         val steps = ((it - min) / step).toInt()
                         sliderValue = min + (steps * step)
                     },
@@ -734,7 +758,7 @@ private fun DropdownSettingDialog(
         title = { Text(title) },
         text = {
             LazyColumn {
-                items(options.indices.toList().size) { index ->
+                items(options.size) { index ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
