@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.first
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
-import kotlin.reflect.full.memberProperties
 import app.voidlauncher.data.HomeLayout
 import app.voidlauncher.data.settings.AppPreference
 import app.voidlauncher.data.settings.HomeAppPreference
@@ -214,21 +213,17 @@ internal class SettingsRepository(private val context: Context) {
         }
     }
 
-
-    /**
-     * Update a specific setting using reflection
-     */
     internal suspend fun updateSetting(update: (AppSettings) -> AppSettings) {
         val currentSettings = settings.first()
         val updatedSettings = update(currentSettings)
-
+    
         context.settingsDataStore.edit { prefs ->
-            // Use reflection to find changed properties
-            AppSettings::class.memberProperties.forEach { property ->
-                val name = property.name
-                val currentValue = property.get(currentSettings)
-                val newValue = property.get(updatedSettings)
-
+            AppSettings::class.java.declaredFields.forEach { field ->
+                field.isAccessible = true
+                val name = field.name
+                val currentValue = field.get(currentSettings)
+                val newValue = field.get(updatedSettings)
+    
                 if (currentValue != newValue) {
                     @Suppress("UNCHECKED_CAST")
                     when (name) {
@@ -236,30 +231,29 @@ internal class SettingsRepository(private val context: Context) {
                         "showAppNames" -> prefs[SHOW_APP_NAMES] = newValue as Boolean
                         "showHiddenAppsOnSearch" -> prefs[SHOW_HIDDEN_APPS_IN_SEARCH] = newValue as Boolean
                         "searchType" -> prefs[SEARCH_TYPE] = newValue as Int
-
+    
                         // Appearance settings
                         "appTheme" -> prefs[APP_THEME] = newValue as Int
                         "useDynamicTheme" -> prefs[USE_DYNAMIC_THEME] = newValue as Boolean
-
+    
                         // Layout settings
                         "statusBar" -> prefs[STATUS_BAR] = newValue as Boolean
                         "showHomeScreenIcons" -> prefs[SHOW_HOME_SCREEN_ICONS] = newValue as Boolean
-
+    
                         // Gestures settings
                         "swipeDownAction" -> prefs[SWIPE_DOWN_ACTION] = newValue as Int
                         "swipeUpAction" -> prefs[SWIPE_UP_ACTION] = newValue as Int
-                        // "doubleTapToLock" -> prefs[DOUBLE_TAP_TO_LOCK] = newValue as Boolean
                         "swipeLeftAction" -> prefs[SWIPE_LEFT_ACTION] = newValue as Int
                         "swipeRightAction" -> prefs[SWIPE_RIGHT_ACTION] = newValue as Int
                         "oneTapAction" -> prefs[ONE_TAP_ACTION] = newValue as Int
                         "doubleTapAction" -> prefs[DOUBLE_TAP_ACTION] = newValue as Int
-
+    
                         // Search result appearance
                         "searchResultsFontSize" -> prefs[SEARCH_RESULTS_FONT_SIZE] = newValue as Float
-
+    
                         "lockSettings" -> prefs[LOCK_SETTINGS] = newValue as Boolean
                         "settingsLockPin" -> prefs[SETTINGS_LOCK_PIN] = newValue as String
-
+    
                         // Other properties
                         "firstOpen" -> prefs[FIRST_OPEN] = newValue as Boolean
                         "firstOpenTime" -> prefs[FIRST_OPEN_TIME] = newValue as Long
@@ -275,23 +269,30 @@ internal class SettingsRepository(private val context: Context) {
                         "aboutClicked" -> prefs[ABOUT_CLICKED] = newValue as Boolean
                         "rateClicked" -> prefs[RATE_CLICKED] = newValue as Boolean
                         "shareShownTime" -> prefs[SHARE_SHOWN_TIME] = newValue as Long
-
+    
                         // Special handling for complex types
                         "hiddenApps" -> prefs[HIDDEN_APPS] = newValue as Set<String>
-
+    
                         "homeApps" -> prefs[HOME_APPS_JSON] = json.encodeToString(newValue)
                         "swipeLeftApp" -> prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(newValue)
                         "swipeRightApp" -> prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(newValue)
                         "oneTapApp" -> prefs[ONE_TAP_APP_JSON] = json.encodeToString(newValue)
                         "doubleTapApp" -> prefs[DOUBLE_TAP_APP_JSON] = json.encodeToString(newValue)
-                        "clockApp" -> prefs[SWIPE_UP_APP_JSON] = json.encodeToString(newValue)
-                        "calendarApp" -> prefs[SWIPE_DOWN_APP_JSON] = json.encodeToString(newValue)
+                        "swipeUpApp" -> prefs[SWIPE_UP_APP_JSON] = json.encodeToString(newValue)
+                        "swipeDownApp" -> prefs[SWIPE_DOWN_APP_JSON] = json.encodeToString(newValue)
                         "renamedApps" -> prefs[RENAMED_APPS_JSON] = json.encodeToString(newValue)
+    
+                        // Add other fields if needed
+    
+                        else -> {
+                            // Unknown property - optionally log or ignore
+                        }
                     }
                 }
             }
         }
     }
+
 
     private fun getHomeLayout(): Flow<HomeLayout> = context.settingsDataStore.data
         .map { prefs ->

@@ -1,15 +1,10 @@
 package app.voidlauncher.data.settings
 
-import kotlin.annotation.AnnotationRetention
-import kotlin.annotation.AnnotationTarget
-
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
 import app.voidlauncher.data.Constants
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KProperty1
-import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.memberProperties
 
 /**
  * Annotation for app settings
@@ -51,16 +46,35 @@ internal enum class SettingType {
 }
 
 /**
+ * Serializable preference classes
+ */
+@Serializable
+internal data class HomeAppPreference(
+    val label: String = "",
+    val packageName: String = "",
+    val activityClassName: String? = null,
+    val userString: String = "",
+)
+
+@Serializable
+internal data class AppPreference(
+    val label: String = "",
+    val packageName: String = "",
+    val activityClassName: String? = null,
+    val userString: String = ""
+)
+
+/**
  * Central data class for all application settings
  */
 internal data class AppSettings(
-
     @Setting(
         title = "Show App Names",
         category = SettingCategory.GENERAL,
         type = SettingType.TOGGLE
     )
     val showAppNames: Boolean = false,
+
     val autoShowKeyboard: Boolean = true,
 
     @Setting(
@@ -69,11 +83,9 @@ internal data class AppSettings(
         type = SettingType.TOGGLE
     )
     val showHiddenAppsOnSearch: Boolean = false,
+
     val autoOpenFilteredApp: Boolean = true,
-
     val searchType: Int = Constants.SearchType.STARTS_WITH,
-
-    // Appearance settings
     val appTheme: Int = AppCompatDelegate.MODE_NIGHT_YES,
     val useDynamicTheme: Boolean = false,
 
@@ -84,8 +96,8 @@ internal data class AppSettings(
     )
     val statusBar: Boolean = false,
 
-   val lockSettings: Boolean = false,
-   val settingsLockPin: String = "",
+    val lockSettings: Boolean = false,
+    val settingsLockPin: String = "",
 
     @Setting(
         title = "Swipe Down Action",
@@ -109,7 +121,6 @@ internal data class AppSettings(
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val swipeUpAction: Int = Constants.SwipeAction.SEARCH,
-
 
     @Setting(
         title = "Swipe Up App",
@@ -144,7 +155,6 @@ internal data class AppSettings(
     )
     val swipeLeftApp: AppPreference = AppPreference(label = "Not set"),
 
-
     @Setting(
         title = "Swipe Right Action",
         category = SettingCategory.GESTURES,
@@ -152,7 +162,6 @@ internal data class AppSettings(
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val swipeRightAction: Int = Constants.SwipeAction.NULL,
-
 
     @Setting(
         title = "Right Swipe App",
@@ -162,7 +171,6 @@ internal data class AppSettings(
     )
     val swipeRightApp: AppPreference = AppPreference(label = "Not set"),
 
-
     @Setting(
         title = "One Tap Action",
         category = SettingCategory.GESTURES,
@@ -170,7 +178,6 @@ internal data class AppSettings(
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val oneTapAction: Int = Constants.SwipeAction.SEARCH,
-
 
     @Setting(
         title = "One Tap App",
@@ -180,7 +187,6 @@ internal data class AppSettings(
     )
     val oneTapApp: AppPreference = AppPreference(label = "Not set"),
 
-
     @Setting(
         title = "Double Tap Action",
         category = SettingCategory.GESTURES,
@@ -189,7 +195,6 @@ internal data class AppSettings(
     )
     val doubleTapAction: Int = Constants.SwipeAction.LOCKSCREEN,
 
-
     @Setting(
         title = "Double Tap App",
         category = SettingCategory.GESTURES,
@@ -197,7 +202,6 @@ internal data class AppSettings(
         dependsOn = "doubleTapEnabled"
     )
     val doubleTapApp: AppPreference = AppPreference(label = "Not set"),
-    
 
     @Setting(
         title = "Set Plain Wallpaper",
@@ -207,12 +211,9 @@ internal data class AppSettings(
     )
     val plainWallpaper: Boolean = false,
 
+    val homeApps: List<HomeAppPreference> = List(Constants.HomeAppCount.NUM) { HomeAppPreference() },
 
-
-    val homeApps: List<HomeAppPreference> = List(Constants.HomeAppCount.NUM) { HomeAppPreference() }, // Changed from NUM to actual count needed, ensure constant is correct
-
-
-    // Non-UI settings (not annotated)
+    // Non-UI
     val firstOpen: Boolean = true,
     val firstOpenTime: Long = 0L,
     val firstSettingsOpen: Boolean = true,
@@ -230,112 +231,65 @@ internal data class AppSettings(
     val shareShownTime: Long = 0L
 ) {
     companion object {
-        // Helper method to get default settings
         internal fun getDefault(): AppSettings = AppSettings()
     }
 }
 
 /**
- * Manager class that handles settings reflection and organization
+ * Manager class using static setting list (no reflection)
  */
 internal class SettingsManager {
-    /**
-     * Get all settings properties with their annotations
-     */
-    private fun getAllSettings(): List<Pair<KProperty1<AppSettings, *>, Setting>> {
-        return AppSettings::class.memberProperties
-            .mapNotNull { property ->
-                val annotation = property.findAnnotation<Setting>()
-                if (annotation != null) {
-                    property to annotation
-                } else {
-                    null
-                }
+
+    private val allSettings: List<Pair<KProperty1<AppSettings, *>, Setting>> = AppSettings::class.members
+        .filterIsInstance<KProperty1<AppSettings, *>>()
+        .mapNotNull { property ->
+            property.annotations.filterIsInstance<Setting>().firstOrNull()?.let {
+                property to it
             }
-    }
+        }
 
-    /**
-     * Get settings grouped by category
-     */
     internal fun getSettingsByCategory(): Map<SettingCategory, List<Pair<KProperty1<AppSettings, *>, Setting>>> {
-        return getAllSettings().groupBy { it.second.category }
+        return allSettings.groupBy { it.second.category }
     }
 
-    /**
-     * Get a setting value from an AppSettings instance
-     */
-    @Suppress("unused")
-    private fun getSettingValue(settings: AppSettings, property: KProperty1<AppSettings, *>): Any? {
-        return property.get(settings)
-    }
-
-    /**
-     * Create a new AppSettings instance with an updated value for a property
-     */
     internal fun updateSetting(settings: AppSettings, propertyName: String, value: Any): AppSettings {
-        // Create a mutable map of all current property values
-        val propertyMap = mutableMapOf<String, Any?>()
-
-        // Fill the map with all current property values
-        AppSettings::class.memberProperties.forEach { prop ->
-            propertyMap[prop.name] = prop.get(settings)
+        return when (propertyName) {
+            "showAppNames" -> settings.copy(showAppNames = value as Boolean)
+            "showHiddenAppsOnSearch" -> settings.copy(showHiddenAppsOnSearch = value as Boolean)
+            "statusBar" -> settings.copy(statusBar = value as Boolean)
+            "swipeDownAction" -> settings.copy(swipeDownAction = value as Int)
+            "swipeDownApp" -> settings.copy(swipeDownApp = value as AppPreference)
+            "swipeUpAction" -> settings.copy(swipeUpAction = value as Int)
+            "swipeUpApp" -> settings.copy(swipeUpApp = value as AppPreference)
+            "searchResultsFontSize" -> settings.copy(searchResultsFontSize = value as Float)
+            "swipeLeftAction" -> settings.copy(swipeLeftAction = value as Int)
+            "swipeLeftApp" -> settings.copy(swipeLeftApp = value as AppPreference)
+            "swipeRightAction" -> settings.copy(swipeRightAction = value as Int)
+            "swipeRightApp" -> settings.copy(swipeRightApp = value as AppPreference)
+            "oneTapAction" -> settings.copy(oneTapAction = value as Int)
+            "oneTapApp" -> settings.copy(oneTapApp = value as AppPreference)
+            "doubleTapAction" -> settings.copy(doubleTapAction = value as Int)
+            "doubleTapApp" -> settings.copy(doubleTapApp = value as AppPreference)
+            "plainWallpaper" -> settings.copy(plainWallpaper = value as Boolean)
+            else -> settings
         }
-
-        // Update the specific property
-        propertyMap[propertyName] = value
-
-        // Create a new instance with the updated property
-        val constructor = AppSettings::class.constructors.first()
-        val parameters = constructor.parameters
-
-        // Map parameter names to values, using the updated property value where applicable
-        val parameterValues = parameters.associateWith { param ->
-            propertyMap[param.name]
-        }
-
-        // Create a new instance with the updated values
-        return constructor.callBy(parameterValues)
     }
 
-    /**
-     * Check if a setting is enabled based on its dependencies
-     */
     internal fun isSettingEnabled(
         settings: AppSettings,
         property: KProperty1<AppSettings, *>,
         annotation: Setting
     ): Boolean {
         val dependsOn = annotation.dependsOn
+        if (dependsOn.isEmpty()) return true
 
-        if (dependsOn.isEmpty()) {
-            return true
-        }
+        val dependency = AppSettings::class.members
+            .filterIsInstance<KProperty1<AppSettings, *>>()
+            .find { it.name == dependsOn }
 
-        val dependencyProperty = AppSettings::class.memberProperties.find { it.name == dependsOn }
-        return if (dependencyProperty != null) {
-            val dependencyValue = dependencyProperty.get(settings)
-            when (dependencyValue) {
-                is Boolean -> dependencyValue
-                else -> true
-            }
-        } else {
-            true
+        return when (val value = dependency?.get(settings)) {
+            is Boolean -> value
+            else -> true
         }
     }
 }
-
-@Serializable
-internal data class HomeAppPreference(
-    val label: String = "",
-    val packageName: String = "",
-    val activityClassName: String? = null,
-    val userString: String = "",
-)
-
-@Serializable
-internal data class AppPreference(
-    val label: String = "",
-    val packageName: String = "",
-    val activityClassName: String? = null,
-    val userString: String = ""
-)
