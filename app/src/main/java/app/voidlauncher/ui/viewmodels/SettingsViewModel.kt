@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
+// import androidx.lifecycle.viewmodel.compose.viewModel
 import app.voidlauncher.MainViewModel
 import app.voidlauncher.data.repository.SettingsRepository
 import app.voidlauncher.data.settings.AppSettings
@@ -61,13 +61,6 @@ internal class SettingsViewModel(application: Application) : AndroidViewModel(ap
      */
     internal suspend fun updateSetting(propertyName: String, value: Any) {
         settingsRepository.updateSetting(propertyName, value)
-    }
-
-    internal suspend fun updateGridSize(propertyName: String, newValue: Int) {
-        val currentSettings = settingsState.value
-
-        updateSetting(propertyName, newValue)
-
     }
 
     /**
