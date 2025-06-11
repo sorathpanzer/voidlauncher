@@ -100,7 +100,6 @@ internal class SettingsRepository(private val context: Context) {
     }
 
     private val defaultAppSettings = AppSettings.getDefault()
-    private val defaultHomeApps: List<HomeAppPreference> = defaultAppSettings.homeApps
     private val defaultSwipeLeftApp: AppPreference = defaultAppSettings.swipeLeftApp
     private val defaultSwipeRightApp: AppPreference = defaultAppSettings.swipeRightApp
     private val defaultOneTapApp: AppPreference = defaultAppSettings.oneTapApp
@@ -112,10 +111,6 @@ internal class SettingsRepository(private val context: Context) {
      * Flow of settings that emits whenever any setting changes
      */
     val settings: Flow<AppSettings> = context.settingsDataStore.data.map { prefs ->
-
-        val homeApps = prefs[HOME_APPS_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultHomeApps)
-        } ?: defaultHomeApps
 
         val swipeLeftApp = prefs[SWIPE_LEFT_APP_JSON]?.let {
             json.decodeFromStringCatching(it, defaultSwipeLeftApp)
@@ -180,7 +175,6 @@ internal class SettingsRepository(private val context: Context) {
             firstOpenTime = prefs[FIRST_OPEN_TIME] ?: 0L,
             firstSettingsOpen = prefs[FIRST_SETTINGS_OPEN] ?: true,
             firstHide = prefs[FIRST_HIDE] ?: true,
-            userState = prefs[USER_STATE] ?: Constants.UserState.START,
             lockMode = prefs[LOCK_MODE] ?: false,
             keyboardMessage = prefs[KEYBOARD_MESSAGE] ?: false,
             plainWallpaper = prefs[PLAIN_WALLPAPER] ?: false,
@@ -193,7 +187,6 @@ internal class SettingsRepository(private val context: Context) {
             shareShownTime = prefs[SHARE_SHOWN_TIME] ?: 0L,
             searchResultsFontSize = prefs[SEARCH_RESULTS_FONT_SIZE] ?: 1.0f,
 
-            homeApps = homeApps,
             swipeLeftApp = swipeLeftApp,
             swipeRightApp = swipeRightApp,
             oneTapApp = oneTapApp,
@@ -259,7 +252,6 @@ internal class SettingsRepository(private val context: Context) {
                         "firstOpenTime" -> prefs[FIRST_OPEN_TIME] = newValue as Long
                         "firstSettingsOpen" -> prefs[FIRST_SETTINGS_OPEN] = newValue as Boolean
                         "firstHide" -> prefs[FIRST_HIDE] = newValue as Boolean
-                        "userState" -> prefs[USER_STATE] = newValue as String
                         "lockMode" -> prefs[LOCK_MODE] = newValue as Boolean
                         "keyboardMessage" -> prefs[KEYBOARD_MESSAGE] = newValue as Boolean
                         "plainWallpaper" -> prefs[PLAIN_WALLPAPER] = newValue as Boolean
@@ -273,7 +265,6 @@ internal class SettingsRepository(private val context: Context) {
                         // Special handling for complex types
                         "hiddenApps" -> prefs[HIDDEN_APPS] = newValue as Set<String>
     
-                        "homeApps" -> prefs[HOME_APPS_JSON] = json.encodeToString(newValue)
                         "swipeLeftApp" -> prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(newValue)
                         "swipeRightApp" -> prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(newValue)
                         "oneTapApp" -> prefs[ONE_TAP_APP_JSON] = json.encodeToString(newValue)
@@ -336,20 +327,6 @@ internal class SettingsRepository(private val context: Context) {
         val currentSettings = settings.first()
         val updatedSettings = settingsManager.updateSetting(currentSettings, propertyName, value)
         updateSetting { updatedSettings }
-    }
-
-    /**
-     * Methods for managing home apps
-     */
-    internal suspend fun setHomeApp(position: Int, app: HomeAppPreference) {
-        updateSetting { currentSettings ->
-            // Create a mutable copy since AppSettings.homeApps is immutable.
-            val newHomeApps = currentSettings.homeApps.toMutableList()
-            if (position in newHomeApps.indices) {
-                newHomeApps[position] = app
-            }
-            currentSettings.copy(homeApps = newHomeApps)
-        }
     }
 
     /**

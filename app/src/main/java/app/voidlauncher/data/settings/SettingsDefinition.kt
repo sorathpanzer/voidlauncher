@@ -6,9 +6,6 @@ import app.voidlauncher.data.Constants
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KProperty1
 
-/**
- * Annotation for app settings
- */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
 internal annotation class Setting(
@@ -20,12 +17,10 @@ internal annotation class Setting(
     val min: Float = 0f,
     val max: Float = 100f,
     val step: Float = 1f,
+    val rowId: Int = -1, // <- Add this line
     val options: Array<String> = []
 )
 
-/**
- * Categories for organizing settings
- */
 internal enum class SettingCategory {
     GENERAL,
     APPEARANCE,
@@ -34,9 +29,6 @@ internal enum class SettingCategory {
     SYSTEM
 }
 
-/**
- * Types of settings
- */
 internal enum class SettingType {
     TOGGLE,
     SLIDER,
@@ -45,9 +37,6 @@ internal enum class SettingType {
     APP_PICKER,
 }
 
-/**
- * Serializable preference classes
- */
 @Serializable
 internal data class HomeAppPreference(
     val label: String = "",
@@ -64,9 +53,6 @@ internal data class AppPreference(
     val userString: String = ""
 )
 
-/**
- * Central data class for all application settings
- */
 internal data class AppSettings(
     @Setting(
         title = "Show App Names",
@@ -103,6 +89,7 @@ internal data class AppSettings(
         title = "Swipe Down Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
+        rowId = 1,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val swipeDownAction: Int = Constants.SwipeAction.NOTIFICATIONS,
@@ -112,6 +99,7 @@ internal data class AppSettings(
         title = "Swipe Up Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
+        rowId = 1,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val swipeUpAction: Int = Constants.SwipeAction.SEARCH,
@@ -131,6 +119,7 @@ internal data class AppSettings(
         title = "Swipe Left Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
+        rowId = 2,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val swipeLeftAction: Int = Constants.SwipeAction.NULL,
@@ -140,6 +129,7 @@ internal data class AppSettings(
         title = "Swipe Right Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
+        rowId = 2,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val swipeRightAction: Int = Constants.SwipeAction.NULL,
@@ -149,15 +139,17 @@ internal data class AppSettings(
         title = "One Tap Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
+        rowId = 3,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
-    val oneTapAction: Int = Constants.SwipeAction.SEARCH,
+    val oneTapAction: Int = Constants.SwipeAction.LOCKSCREEN,
     val oneTapApp: AppPreference = AppPreference(label = "Not set"),
 
     @Setting(
         title = "Double Tap Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
+        rowId = 3,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val doubleTapAction: Int = Constants.SwipeAction.LOCKSCREEN,
@@ -171,14 +163,11 @@ internal data class AppSettings(
     )
     val plainWallpaper: Boolean = false,
 
-    val homeApps: List<HomeAppPreference> = List(Constants.HomeAppCount.NUM) { HomeAppPreference() },
-
     // Non-UI
     val firstOpen: Boolean = true,
     val firstOpenTime: Long = 0L,
     val firstSettingsOpen: Boolean = true,
     val firstHide: Boolean = true,
-    val userState: String = Constants.UserState.START,
     val lockMode: Boolean = false,
     val keyboardMessage: Boolean = false,
     val renamedApps: Map<String, String> = mapOf(),
@@ -195,18 +184,38 @@ internal data class AppSettings(
     }
 }
 
-/**
- * Manager class using static setting list (no reflection)
- */
 internal class SettingsManager {
 
-    private val allSettings: List<Pair<KProperty1<AppSettings, *>, Setting>> = AppSettings::class.members
-        .filterIsInstance<KProperty1<AppSettings, *>>()
-        .mapNotNull { property ->
-            property.annotations.filterIsInstance<Setting>().firstOrNull()?.let {
-                property to it
+    private val orderedSettingNames = listOf(
+        "showAppNames",
+        "showHiddenAppsOnSearch",
+        "statusBar",
+        "swipeUpAction",
+        "swipeUpApp",
+        "swipeDownAction",
+        "swipeDownApp",
+        "swipeLeftAction",
+        "swipeLeftApp",
+        "swipeRightAction",
+        "swipeRightApp",
+        "oneTapAction",
+        "oneTapApp",
+        "doubleTapAction",
+        "doubleTapApp",
+        "plainWallpaper",
+        "searchResultsFontSize"
+    )
+
+    private val allSettings: List<Pair<KProperty1<AppSettings, *>, Setting>> = orderedSettingNames.mapNotNull { name ->
+        AppSettings::class.members
+            .filterIsInstance<KProperty1<AppSettings, *>>()
+            .find { it.name == name }
+            ?.let { prop ->
+                prop.annotations.filterIsInstance<Setting>().firstOrNull()?.let { annotation ->
+                    prop to annotation
+                }
             }
-        }
+    }
 
     internal fun getSettingsByCategory(): Map<SettingCategory, List<Pair<KProperty1<AppSettings, *>, Setting>>> {
         return allSettings.groupBy { it.second.category }
