@@ -4,22 +4,8 @@ package app.voidlauncher.data
 
 internal object Constants {
 
-    const val REQUEST_CODE_BIND_WIDGET = 102
-
-    object Key {
-        const val FLAG = "flag"
-        const val RENAME = "rename"
-    }
-
     object Dialog {
         const val ABOUT = "ABOUT"
-    }
-
-    object UserState {
-        const val START = "START"
-        const val REVIEW = "REVIEW"
-        const val RATE = "RATE"
-        const val SHARE = "SHARE"
     }
 
     object SwipeAction {
@@ -40,9 +26,6 @@ internal object Constants {
         const val SEVEN = 1.45f
     }
 
-    object HomeAppCount {
-        const val NUM = 16
-    }
 
     const val FLAG_LAUNCH_APP = 100
     const val FLAG_HIDDEN_APPS = 101
