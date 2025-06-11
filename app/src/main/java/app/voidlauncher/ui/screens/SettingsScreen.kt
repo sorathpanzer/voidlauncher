@@ -64,7 +64,6 @@ import app.voidlauncher.data.settings.Setting
 import app.voidlauncher.data.settings.SettingCategory
 import app.voidlauncher.data.settings.SettingType
 import app.voidlauncher.data.settings.SettingsManager
-import app.voidlauncher.helper.isAccessServiceEnabled
 import app.voidlauncher.helper.isClauncherDefault
 import app.voidlauncher.helper.setPlainWallpaperByTheme
 import app.voidlauncher.ui.AppSelectionType
