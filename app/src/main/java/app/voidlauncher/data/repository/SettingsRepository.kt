@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.first
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
-import app.voidlauncher.data.HomeLayout
 import app.voidlauncher.data.settings.AppPreference
 import app.voidlauncher.data.settings.HomeAppPreference
 import kotlinx.serialization.encodeToString
@@ -153,7 +152,6 @@ internal class SettingsRepository(private val context: Context) {
 
             // Appearance settings
             appTheme = prefs[APP_THEME] ?: AppCompatDelegate.MODE_NIGHT_YES,
-            useDynamicTheme = prefs[USE_DYNAMIC_THEME] ?: false,
 
             // Layout settings
             statusBar = prefs[STATUS_BAR] ?: false,
@@ -183,8 +181,6 @@ internal class SettingsRepository(private val context: Context) {
             hiddenAppsUpdated = prefs[HIDDEN_APPS_UPDATED] ?: false,
             showHintCounter = prefs[SHOW_HINT_COUNTER] ?: 1,
             aboutClicked = prefs[ABOUT_CLICKED] ?: false,
-            rateClicked = prefs[RATE_CLICKED] ?: false,
-            shareShownTime = prefs[SHARE_SHOWN_TIME] ?: 0L,
             searchResultsFontSize = prefs[SEARCH_RESULTS_FONT_SIZE] ?: 1.0f,
 
             swipeLeftApp = swipeLeftApp,
@@ -227,7 +223,6 @@ internal class SettingsRepository(private val context: Context) {
     
                         // Appearance settings
                         "appTheme" -> prefs[APP_THEME] = newValue as Int
-                        "useDynamicTheme" -> prefs[USE_DYNAMIC_THEME] = newValue as Boolean
     
                         // Layout settings
                         "statusBar" -> prefs[STATUS_BAR] = newValue as Boolean
@@ -259,8 +254,6 @@ internal class SettingsRepository(private val context: Context) {
                         "hiddenAppsUpdated" -> prefs[HIDDEN_APPS_UPDATED] = newValue as Boolean
                         "showHintCounter" -> prefs[SHOW_HINT_COUNTER] = newValue as Int
                         "aboutClicked" -> prefs[ABOUT_CLICKED] = newValue as Boolean
-                        "rateClicked" -> prefs[RATE_CLICKED] = newValue as Boolean
-                        "shareShownTime" -> prefs[SHARE_SHOWN_TIME] = newValue as Long
     
                         // Special handling for complex types
                         "hiddenApps" -> prefs[HIDDEN_APPS] = newValue as Set<String>
@@ -283,42 +276,6 @@ internal class SettingsRepository(private val context: Context) {
             }
         }
     }
-
-
-    private fun getHomeLayout(): Flow<HomeLayout> = context.settingsDataStore.data
-        .map { prefs ->
-            prefs[HOME_LAYOUT]?.let { jsonString ->
-                try {
-                    Json.decodeFromString<HomeLayout>(jsonString)
-                } catch (e: Exception) {
-                    Log.e("SettingsRepo", "Failed to decode HomeLayout JSON", e)
-                    HomeLayout() // Return default on error
-                }
-            } ?: HomeLayout() // Return default if key not found
-        }
-        .catch { exception ->
-            Log.e("SettingsRepo", "Error reading HomeLayout", exception)
-            emit(HomeLayout()) // Emit default on error
-        }
-
-    internal suspend fun saveHomeLayout(layout: HomeLayout) {
-        try {
-            val jsonString = Json.encodeToString(layout)
-            context.settingsDataStore.edit { prefs ->
-                prefs[HOME_LAYOUT] = jsonString
-            }
-        } catch (e: Exception) {
-            Log.e("SettingsRepo", "Failed to encode or save HomeLayout JSON", e)
-            // Optionally notify UI of error
-        }
-    }
-
-    internal suspend fun triggerHomeLayoutRefresh() {
-        // Read the current value and write it back to trigger the flow
-        val currentLayout = getHomeLayout().first()
-        saveHomeLayout(currentLayout)
-    }
-
 
     /**
      * Update a setting by property name
