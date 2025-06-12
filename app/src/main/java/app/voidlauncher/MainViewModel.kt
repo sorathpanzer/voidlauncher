@@ -37,10 +37,6 @@ internal class MainViewModel(application: Application, private val appWidgetHost
     private val _eventsFlow = MutableSharedFlow<UiEvent>()
     val events: SharedFlow<UiEvent> = _eventsFlow.asSharedFlow()
 
-    // UI States
-    private val _homeLayoutState = MutableStateFlow(HomeLayout())
-    val homeLayoutState: StateFlow<HomeLayout> = _homeLayoutState.asStateFlow()
-
     private val _appDrawerState = MutableStateFlow(AppDrawerUiState())
     val appDrawerState: StateFlow<AppDrawerUiState> = _appDrawerState.asStateFlow()
 
@@ -107,42 +103,6 @@ internal class MainViewModel(application: Application, private val appWidgetHost
             }
             // Reload apps to reflect changes
             loadApps()
-        }
-    }
-
-    internal fun moveApp(appItem: HomeItem.App, newRow: Int, newColumn: Int) {
-        viewModelScope.launch {
-            val currentLayout = _homeLayoutState.value
-            if (newRow + appItem.rowSpan > currentLayout.rows ||
-                newColumn + appItem.columnSpan > currentLayout.columns
-            ) {
-                _errorMessage.value = "Cannot move app: out of bounds"
-                return@launch
-            }
-            val updatedItems = currentLayout.items.map { item ->
-                if (item.id == appItem.id && item is HomeItem.App) {
-                    item.copy(row = newRow, column = newColumn)
-                } else {
-                    item
-                }
-            }
-            val newLayout = currentLayout.copy(items = updatedItems)
-            settingsRepository.saveHomeLayout(newLayout)
-        }
-    }
-
-    internal fun resizeApp(appItem: HomeItem.App, newRowSpan: Int, newColSpan: Int) {
-        viewModelScope.launch {
-            val currentLayout = _homeLayoutState.value
-            val updatedItems = currentLayout.items.map { item ->
-                if (item.id == appItem.id && item is HomeItem.App) {
-                    item.copy(rowSpan = newRowSpan, columnSpan = newColSpan)
-                } else {
-                    item
-                }
-            }
-            val newLayout = currentLayout.copy(items = updatedItems)
-            settingsRepository.saveHomeLayout(newLayout)
         }
     }
 

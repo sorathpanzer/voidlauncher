@@ -164,9 +164,7 @@ internal fun setPlainWallpaperByTheme(context: Context, appTheme: Int) {
         AppCompatDelegate.MODE_NIGHT_YES -> setPlainWallpaper(context, android.R.color.black)
         AppCompatDelegate.MODE_NIGHT_NO -> setPlainWallpaper(context, android.R.color.white)
         else -> {
-            if (context.isDarkThemeOn())
-                setPlainWallpaper(context, android.R.color.black)
-            else setPlainWallpaper(context, android.R.color.white)
+            setPlainWallpaper(context, android.R.color.black)
         }
     }
 }
@@ -180,18 +178,6 @@ internal fun setPlainWallpaper(context: Context, color: Int) {
         manager.setBitmap(bitmap, null, false, WallpaperManager.FLAG_LOCK)
     } catch (e: Exception) {
         e.printStackTrace()
-    }
-}
-
-private fun getChangedAppTheme(context: Context, currentAppTheme: Int): Int {
-    return when (currentAppTheme) {
-        AppCompatDelegate.MODE_NIGHT_YES -> AppCompatDelegate.MODE_NIGHT_NO
-        AppCompatDelegate.MODE_NIGHT_NO -> AppCompatDelegate.MODE_NIGHT_YES
-        else -> {
-            if (context.isDarkThemeOn())
-                AppCompatDelegate.MODE_NIGHT_NO
-            else AppCompatDelegate.MODE_NIGHT_YES
-        }
     }
 }
 
@@ -248,37 +234,6 @@ internal fun expandNotificationDrawer(context: Context) {
     }
 }
 
-internal fun openAlarmApp(context: Context) {
-    try {
-        val intent = Intent(AlarmClock.ACTION_SHOW_ALARMS)
-        context.startActivity(intent)
-    } catch (e: Exception) {
-        Log.d("TAG", e.toString())
-    }
-}
-
-internal fun openCalendar(context: Context) {
-    try {
-        val calendarUri = CalendarContract.CONTENT_URI
-            .buildUpon()
-            .appendPath("time")
-            .build()
-        context.startActivity(Intent(Intent.ACTION_VIEW, calendarUri))
-    } catch (e: Exception) {
-        e.printStackTrace()
-        try {
-            val intent = Intent(Intent.ACTION_MAIN).setClassName(
-                context,
-                "app.voidlauncher.helper.FakeHomeActivity"
-            )
-            intent.addCategory(Intent.CATEGORY_APP_CALENDAR)
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-}
-
 internal fun isAccessServiceEnabled(context: Context): Boolean {
     val enabled = try {
         Settings.Secure.getInt(context.applicationContext.contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED)
@@ -321,12 +276,6 @@ internal fun isTablet(context: Context): Boolean {
     }
 }
 
-
-internal fun Context.isDarkThemeOn(): Boolean {
-    return resources.configuration.uiMode and
-            Configuration.UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
-}
-
 internal fun Context.copyToClipboard(text: String) {
     val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     val clipData = ClipData.newPlainText(getString(R.string.app_name), text)
@@ -353,12 +302,6 @@ internal fun Context.isSystemApp(packageName: String): Boolean {
     }
 }
 
-internal fun Context.uninstall(packageName: String) {
-    val intent = Intent(Intent.ACTION_DELETE)
-    intent.data = "package:$packageName".toUri()
-    startActivity(intent)
-}
-
 @ColorInt
 internal fun Context.getColorFromAttr(
     @AttrRes attrColor: Int,
@@ -376,19 +319,6 @@ internal fun View.animateAlpha(alpha: Float = 1.0f) {
         alpha(alpha)
         start()
     }
-}
-
-internal fun Context.shareApp() {
-    val message = getString(R.string.are_you_using_your_phone_or_is_your_phone_using_you) +
-            "\n" + Constants.URL_CCLAUNCHER_GITHUB
-    val sendIntent: Intent = Intent().apply {
-        action = Intent.ACTION_SEND
-        putExtra(Intent.EXTRA_TEXT, message)
-        type = "text/plain"
-    }
-
-    val shareIntent = Intent.createChooser(sendIntent, null)
-    startActivity(shareIntent)
 }
 
 internal fun Context.starApp() {
