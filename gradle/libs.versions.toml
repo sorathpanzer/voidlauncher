@@ -9,6 +9,7 @@ lifecycleViewmodelCompose = "2.9.1"
 materialIconsExtended = "1.7.8"
 kotlin = "2.1.21"
 material3Android = "1.3.2"
+exp4j = "0.4.8"  # Add this line in the versions section
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -19,6 +20,7 @@ kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref =
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 material3 = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
+exp4j = { group = "net.objecthunter", name = "exp4j", version.ref = "exp4j" }  # Add this line
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

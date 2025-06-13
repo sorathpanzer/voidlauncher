@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlin.math.ceil
-import net.objecthunter.exp4j.ExpressionBuilder
 
 /**
  * MainViewModel is the primary ViewModel for VoidLauncher that manages app state and user interactions.
@@ -90,6 +89,43 @@ internal class MainViewModel(application: Application, private val appWidgetHost
             apps = _appList.value,
             isLoading = false
         )
+    }
+
+    private fun evaluateMathExpression(expression: String): String? {
+        return try {
+            // Remove all whitespace
+            val cleanExpr = expression.replace("\\s".toRegex(), "")
+            
+            // Simple evaluation - for more complex cases consider using a proper expression evaluator
+            val result = when {
+                cleanExpr.contains("+") -> {
+                    val parts = cleanExpr.split("+")
+                    parts[0].toDouble() + parts[1].toDouble()
+                }
+                cleanExpr.contains("-") -> {
+                    val parts = cleanExpr.split("-")
+                    parts[0].toDouble() - parts[1].toDouble()
+                }
+                cleanExpr.contains("*") -> {
+                    val parts = cleanExpr.split("*")
+                    parts[0].toDouble() * parts[1].toDouble()
+                }
+                cleanExpr.contains("/") -> {
+                    val parts = cleanExpr.split("/")
+                    parts[0].toDouble() / parts[1].toDouble()
+                }
+                else -> cleanExpr.toDouble() // single number
+            }
+            
+            // Format the result to remove .0 if it's an integer
+            if (result % 1 == 0.0) {
+                result.toInt().toString()
+            } else {
+                result.toString()
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 
     internal fun renameApp(app: AppModel, newName: String) {
@@ -287,94 +323,54 @@ internal class MainViewModel(application: Application, private val appWidgetHost
     }
 
     /**
-     * Search apps by query & Math evaluation
-    */
-        
-    object MathEvaluator {
-        fun evaluate(expression: String): String? {
-            return try {
-                // Remove all whitespace and replace × with *, ÷ with /
-                val cleanExpr = expression.replace("\\s".toRegex(), "")
-                    .replace("×", "*")
-                    .replace("÷", "/")
-                    .replace("√", "sqrt")
-    
-                // Build and evaluate the expression
-                val result = ExpressionBuilder(cleanExpr)
-                    .build()
-                    .evaluate()
-    
-                // Format the result
-                if (result % 1 == 0.0) {
-                    result.toInt().toString()
-                } else {
-                    // Limit to 6 decimal places to avoid long decimals
-                    "%.6f".format(result).replace(Regex("\\.?0+$"), "")
-                }
-            } catch (e: Exception) {
-                null
-            }
-        }
-    }
-    
-    private fun evaluateMathExpression(expression: String): String? {
-        return MathEvaluator.evaluate(expression)
-    }    
-        
-    private fun isMathExpression(input: String): Boolean {
-        if (input.isEmpty()) return false
-        
-        val mathRegex = Regex("^[\\d\\s+\\-*/^().√!]+$")
-        return input.matches(mathRegex) && 
-               input.any { it.isDigit() } &&  // Must contain at least one digit
-               input.count { it.isDigit() } >= input.count { it in "+-*/^" }  // More numbers than operators
-    }
-    
-    fun searchApps(query: String, isEnterPressed: Boolean = false) {
-        viewModelScope.launch {
-            try {
-                val settings = settingsRepository.settings.first()
-                
-                // Clear previous calculator result
-                _appDrawerState.update { it.copy(showCalculatorResult = false) }
-    
-                // Handle calculator only when Enter is pressed on a math expression
-                if (isEnterPressed && isMathExpression(query)) {
-                    val result = evaluateMathExpression(query)
-                    if (result != null) {
-                        _appDrawerState.update {
-                            it.copy(
-                                calculatorResult = result,
-                                showCalculatorResult = true,
-                                filteredApps = emptyList()
-                            )
-                        }
-                        return@launch
+     * Search apps by query
+     */
+
+fun searchApps(query: String, isEnterPressed: Boolean = false) {
+    viewModelScope.launch {
+        try {
+            val settings = settingsRepository.settings.first()
+            
+            // Clear previous calculator result
+            _appDrawerState.update { it.copy(showCalculatorResult = false) }
+
+            // Handle calculator only when Enter is pressed on a math expression
+            if (isEnterPressed && query.isNotEmpty() && query[0].isDigit()) {
+                val result = evaluateMathExpression(query)
+                if (result != null) {
+                    _appDrawerState.update {
+                        it.copy(
+                            calculatorResult = result,
+                            showCalculatorResult = true,
+                            filteredApps = emptyList()
+                        )
                     }
+                    return@launch
                 }
-    
-                // Normal app search
-                val filteredApps = if (settings.showHiddenAppsOnSearch) {
-                    appListAll.value.filter { it.appLabel.startsWith(query, true) }
-                } else {
-                    appList.value.filter { it.appLabel.startsWith(query, true) }
-                }
-    
-                _appDrawerState.update {
-                    it.copy(
-                        filteredApps = filteredApps,
-                        isLoading = false
-                    )
-                }
-    
-                if (filteredApps.size == 1 && settings.autoOpenFilteredApp) {
-                    launchApp(filteredApps[0])
-                }
-            } catch (e: Exception) {
-                _errorMessage.value = "Search failed: ${e.message}"
             }
+
+            // Normal app search
+            val filteredApps = if (settings.showHiddenAppsOnSearch) {
+                appListAll.value.filter { it.appLabel.startsWith(query, true) }
+            } else {
+                appList.value.filter { it.appLabel.startsWith(query, true) }
+            }
+
+            _appDrawerState.update {
+                it.copy(
+                    filteredApps = filteredApps,
+                    isLoading = false
+                )
+            }
+
+            if (filteredApps.size == 1 && settings.autoOpenFilteredApp) {
+                launchApp(filteredApps[0])
+            }
+        } catch (e: Exception) {
+            _errorMessage.value = "Search failed: ${e.message}"
         }
     }
+}
 
     /**
      * Clear error message
