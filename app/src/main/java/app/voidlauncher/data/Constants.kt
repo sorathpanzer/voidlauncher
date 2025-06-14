@@ -36,6 +36,8 @@ internal object Constants {
     const val FLAG_SET_DOUBLE_TAP_APP = 20
     const val FLAG_SET_SWIPE_UP_APP = 21
     const val FLAG_SET_SWIPE_DOWN_APP = 22
+    const val FLAG_SET_TWOFINGER_SWIPE_UP_APP = 23
+    const val FLAG_SET_TWOFINGER_SWIPE_DOWN_APP = 24
 
     const val REQUEST_CODE_ENABLE_ADMIN = 666
     const val REQUEST_CODE_LAUNCHER_SELECTOR = 678

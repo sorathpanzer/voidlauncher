@@ -54,4 +54,6 @@ internal enum class AppSelectionType {
     DOUBLE_TAP_APP,
     SWIPE_UP_APP,
     SWIPE_DOWN_APP,
+    TWOFINGER_SWIPE_UP_APP,
+    TWOFINGER_SWIPE_DOWN_APP,
 }

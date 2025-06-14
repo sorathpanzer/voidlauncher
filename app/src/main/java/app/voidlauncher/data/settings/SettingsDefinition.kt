@@ -86,16 +86,6 @@ internal data class AppSettings(
     val settingsLockPin: String = "",
 
     @Setting(
-        title = "Swipe Down Action",
-        category = SettingCategory.GESTURES,
-        type = SettingType.DROPDOWN,
-        rowId = 1,
-        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
-    )
-    val swipeDownAction: Int = Constants.SwipeAction.NOTIFICATIONS,
-    val swipeDownApp: AppPreference = AppPreference(),
-
-    @Setting(
         title = "Swipe Up Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
@@ -104,6 +94,37 @@ internal data class AppSettings(
     )
     val swipeUpAction: Int = Constants.SwipeAction.SEARCH,
     val swipeUpApp: AppPreference = AppPreference(),
+
+    @Setting(
+        title = "Swipe Down Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        rowId = 2,
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
+    )
+    val swipeDownAction: Int = Constants.SwipeAction.NOTIFICATIONS,
+    val swipeDownApp: AppPreference = AppPreference(),
+
+        @Setting(
+        title = "2Finger Swipe Up Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        rowId = 1,
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
+    )
+    val twoFingerSwipeUpAction: Int = Constants.SwipeAction.NULL,
+    val twoFingerSwipeUpApp: AppPreference = AppPreference(label = "Not set"),
+
+    @Setting(
+        title = "2Finger Swipe Down Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        rowId = 2,
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
+    )
+    val twoFingerSwipeDownAction: Int = Constants.SwipeAction.NULL,
+    val twoFingerSwipeDownApp: AppPreference = AppPreference(label = "Not set"),
+
 
     @Setting(
         title = "Search Results Font Size",
@@ -119,7 +140,7 @@ internal data class AppSettings(
         title = "Swipe Left Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
-        rowId = 2,
+        rowId = 1,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val swipeLeftAction: Int = Constants.SwipeAction.NULL,
@@ -139,7 +160,7 @@ internal data class AppSettings(
         title = "One Tap Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
-        rowId = 3,
+        rowId = 1,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val oneTapAction: Int = Constants.SwipeAction.LOCKSCREEN,
@@ -149,11 +170,11 @@ internal data class AppSettings(
         title = "Double Tap Action",
         category = SettingCategory.GESTURES,
         type = SettingType.DROPDOWN,
-        rowId = 3,
+        rowId = 2,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
-    val doubleTapAction: Int = Constants.SwipeAction.LOCKSCREEN,
-    val doubleTapApp: AppPreference = AppPreference(label = "Not set"),
+    val doubleTapAction: Int = Constants.SwipeAction.NULL,
+    val doubleTapApp: AppPreference = AppPreference(),
 
     @Setting(
         title = "Set Plain Wallpaper",
@@ -190,6 +211,10 @@ internal class SettingsManager {
         "showAppNames",
         "showHiddenAppsOnSearch",
         "statusBar",
+        "oneTapAction",
+        "oneTapApp",
+        "doubleTapAction",
+        "doubleTapApp",
         "swipeUpAction",
         "swipeUpApp",
         "swipeDownAction",
@@ -198,10 +223,10 @@ internal class SettingsManager {
         "swipeLeftApp",
         "swipeRightAction",
         "swipeRightApp",
-        "oneTapAction",
-        "oneTapApp",
-        "doubleTapAction",
-        "doubleTapApp",
+        "twoFingerSwipeUpAction",
+        "twoFingerSwipeUpApp",
+        "twoFingerSwipeDownAction",
+        "twoFingerSwipeDownApp",
         "plainWallpaper",
         "searchResultsFontSize"
     )
@@ -230,6 +255,10 @@ internal class SettingsManager {
             "swipeDownApp" -> settings.copy(swipeDownApp = value as AppPreference)
             "swipeUpAction" -> settings.copy(swipeUpAction = value as Int)
             "swipeUpApp" -> settings.copy(swipeUpApp = value as AppPreference)
+            "twoFingerSwipeDownAction" -> settings.copy(twoFingerSwipeDownAction = value as Int)
+            "twoFingerSwipeDownApp" -> settings.copy(twoFingerSwipeDownApp = value as AppPreference)
+            "twoFingerSwipeUpAction" -> settings.copy(twoFingerSwipeUpAction = value as Int)
+            "twoFingerSwipeUpApp" -> settings.copy(twoFingerSwipeUpApp = value as AppPreference)
             "searchResultsFontSize" -> settings.copy(searchResultsFontSize = value as Float)
             "swipeLeftAction" -> settings.copy(swipeLeftAction = value as Int)
             "swipeLeftApp" -> settings.copy(swipeLeftApp = value as AppPreference)

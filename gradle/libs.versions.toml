@@ -9,7 +9,7 @@ lifecycleViewmodelCompose = "2.9.1"
 materialIconsExtended = "1.7.8"
 kotlin = "2.1.21"
 material3Android = "1.3.2"
-exp4j = "0.4.8"  # Add this line in the versions section
+exp4j = "0.4.8" 
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
