@@ -214,6 +214,8 @@ internal fun SettingsScreen(
                         "doubleTapApp" -> AppSelectionType.DOUBLE_TAP_APP
                         "swipeUpApp" -> AppSelectionType.SWIPE_UP_APP
                         "swipeDownApp" -> AppSelectionType.SWIPE_DOWN_APP
+                        "twoFingerSwipeUpApp" -> AppSelectionType.TWOFINGER_SWIPE_UP_APP
+                        "twoFingerSwipeDownApp" -> AppSelectionType.TWOFINGER_SWIPE_DOWN_APP
                         else -> null
                     }
 
@@ -465,6 +467,8 @@ internal fun SettingsScreen(
                                                 "doubleTapApp" -> AppSelectionType.DOUBLE_TAP_APP
                                                 "swipeUpApp" -> AppSelectionType.SWIPE_UP_APP
                                                 "swipeDownApp" -> AppSelectionType.SWIPE_DOWN_APP
+                                                "twoFingerSwipeUpApp" -> AppSelectionType.TWOFINGER_SWIPE_UP_APP
+                                                "twoFingerSwipeDownApp" -> AppSelectionType.TWOFINGER_SWIPE_DOWN_APP
                                                 else -> null
                                             }
 

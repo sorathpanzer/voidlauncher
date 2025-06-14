@@ -243,6 +243,8 @@ internal fun CLauncherNavigation(
                                 when (currentSelectionType) {
                                     AppSelectionType.SWIPE_UP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_UP_APP)
                                     AppSelectionType.SWIPE_DOWN_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_DOWN_APP)
+                                    AppSelectionType.TWOFINGER_SWIPE_UP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_TWOFINGER_SWIPE_UP_APP)
+                                    AppSelectionType.TWOFINGER_SWIPE_DOWN_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_TWOFINGER_SWIPE_DOWN_APP)
                                     AppSelectionType.SWIPE_LEFT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_LEFT_APP)
                                     AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
                                     AppSelectionType.ONE_TAP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_ONE_TAP_APP)
@@ -262,6 +264,8 @@ internal fun CLauncherNavigation(
                         selectionTitle = when (currentSelectionType) {
                             AppSelectionType.SWIPE_UP_APP -> "Select Swipe Up Action App"
                             AppSelectionType.SWIPE_DOWN_APP -> "Select Swipe Down Action App"
+                            AppSelectionType.TWOFINGER_SWIPE_UP_APP -> "Select 2 fingers Swipe Up Action App"
+                            AppSelectionType.TWOFINGER_SWIPE_DOWN_APP -> "Select 2 fingers Swipe Down Action App"
                             AppSelectionType.SWIPE_LEFT_APP -> "Select Swipe Left App"
                             AppSelectionType.SWIPE_RIGHT_APP -> "Select Swipe Right App"
                             AppSelectionType.ONE_TAP_APP -> "Select One Tap App"

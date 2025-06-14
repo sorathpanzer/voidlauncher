@@ -205,6 +205,13 @@ internal class MainViewModel(application: Application, private val appWidgetHost
             Constants.FLAG_SET_SWIPE_DOWN_APP -> {
                 setSwipeDownApp(appModel)
             }
+            Constants.FLAG_SET_TWOFINGER_SWIPE_UP_APP -> {
+                setTwoFingerSwipeUpApp(appModel)
+            }
+
+            Constants.FLAG_SET_TWOFINGER_SWIPE_DOWN_APP -> {
+                setTwoFingerSwipeDownApp(appModel)
+            }
         }
     }
 
@@ -252,12 +259,28 @@ internal class MainViewModel(application: Application, private val appWidgetHost
         viewModelScope.launch { settingsRepository.setSwipeDownApp(app.toPreference()) }
     }
 
+    private fun setTwoFingerSwipeUpApp(app: AppModel) {
+        viewModelScope.launch { settingsRepository.setTwoFingerSwipeUpApp(app.toPreference()) }
+    }
+
+    private fun setTwoFingerSwipeDownApp(app: AppModel) {
+        viewModelScope.launch { settingsRepository.setTwoFingerSwipeDownApp(app.toPreference()) }
+    }
+
     fun launchSwipeUpApp() {
         viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().swipeUpApp) }
     }
 
     fun launchSwipeDownApp() {
         viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().swipeDownApp) }
+    }
+
+    fun launchTwoFingerSwipeUpApp() {
+        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().twoFingerSwipeUpApp) }
+    }
+
+    fun launchTwoFingerSwipeDownApp() {
+        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().twoFingerSwipeDownApp) }
     }
 
     fun launchSwipeLeftApp() {
