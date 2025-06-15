@@ -212,6 +212,21 @@ internal class MainViewModel(application: Application, private val appWidgetHost
             Constants.FLAG_SET_TWOFINGER_SWIPE_DOWN_APP -> {
                 setTwoFingerSwipeDownApp(appModel)
             }
+            Constants.FLAG_SET_TWOFINGER_SWIPE_LEFT_APP -> {
+                setTwoFingerSwipeLeftApp(appModel)
+            }
+
+            Constants.FLAG_SET_TWOFINGER_SWIPE_RIGHT_APP -> {
+                setTwoFingerSwipeRightApp(appModel)
+            }
+
+            Constants.FLAG_SET_PINCH_IN_APP -> {
+                setPinchInApp(appModel)
+            }
+
+            Constants.FLAG_SET_PINCH_OUT_APP -> {
+                setPinchOutApp(appModel)
+            }
         }
     }
 
@@ -267,6 +282,22 @@ internal class MainViewModel(application: Application, private val appWidgetHost
         viewModelScope.launch { settingsRepository.setTwoFingerSwipeDownApp(app.toPreference()) }
     }
 
+    private fun setTwoFingerSwipeLeftApp(app: AppModel) {
+        viewModelScope.launch { settingsRepository.setTwoFingerSwipeLeftApp(app.toPreference()) }
+    }
+
+    private fun setTwoFingerSwipeRightApp(app: AppModel) {
+        viewModelScope.launch { settingsRepository.setTwoFingerSwipeRightApp(app.toPreference()) }
+    }
+
+    private fun setPinchInApp(app: AppModel) {
+        viewModelScope.launch { settingsRepository.setPinchInApp(app.toPreference()) }
+    }
+
+    private fun setPinchOutApp(app: AppModel) {
+        viewModelScope.launch { settingsRepository.setPinchOutApp(app.toPreference()) }
+    }
+
     fun launchSwipeUpApp() {
         viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().swipeUpApp) }
     }
@@ -297,6 +328,22 @@ internal class MainViewModel(application: Application, private val appWidgetHost
 
     fun launchDoubleTapApp() {
         viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().doubleTapApp) }
+    }
+
+    fun launchTwoFingerSwipeLeftApp() {
+        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().twoFingerSwipeLeftApp) }
+    }
+
+    fun launchTwoFingerSwipeRightApp() {
+        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().twoFingerSwipeRightApp) }
+    }
+
+    fun launchPinchInApp() {
+        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().pinchInApp) }
+    }
+
+    fun launchPinchOutApp() {
+        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().pinchOutApp) }
     }
 
     fun lockScreen() {

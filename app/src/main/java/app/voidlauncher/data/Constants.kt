@@ -30,14 +30,18 @@ internal object Constants {
     const val FLAG_LAUNCH_APP = 100
     const val FLAG_HIDDEN_APPS = 101
 
-    const val FLAG_SET_SWIPE_LEFT_APP = 17
-    const val FLAG_SET_SWIPE_RIGHT_APP = 18
-    const val FLAG_SET_ONE_TAP_APP = 19
-    const val FLAG_SET_DOUBLE_TAP_APP = 20
-    const val FLAG_SET_SWIPE_UP_APP = 21
-    const val FLAG_SET_SWIPE_DOWN_APP = 22
-    const val FLAG_SET_TWOFINGER_SWIPE_UP_APP = 23
-    const val FLAG_SET_TWOFINGER_SWIPE_DOWN_APP = 24
+    const val FLAG_SET_SWIPE_LEFT_APP = 10
+    const val FLAG_SET_SWIPE_RIGHT_APP = 11
+    const val FLAG_SET_ONE_TAP_APP = 12
+    const val FLAG_SET_DOUBLE_TAP_APP = 13
+    const val FLAG_SET_SWIPE_UP_APP = 14
+    const val FLAG_SET_SWIPE_DOWN_APP = 15
+    const val FLAG_SET_TWOFINGER_SWIPE_UP_APP = 16
+    const val FLAG_SET_TWOFINGER_SWIPE_DOWN_APP = 17
+    const val FLAG_SET_TWOFINGER_SWIPE_LEFT_APP = 18
+    const val FLAG_SET_TWOFINGER_SWIPE_RIGHT_APP = 19
+    const val FLAG_SET_PINCH_IN_APP = 20
+    const val FLAG_SET_PINCH_OUT_APP = 21
 
     const val REQUEST_CODE_ENABLE_ADMIN = 666
     const val REQUEST_CODE_LAUNCHER_SELECTOR = 678
