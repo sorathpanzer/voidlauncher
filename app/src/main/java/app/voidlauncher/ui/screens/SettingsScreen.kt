@@ -216,6 +216,10 @@ internal fun SettingsScreen(
                         "swipeDownApp" -> AppSelectionType.SWIPE_DOWN_APP
                         "twoFingerSwipeUpApp" -> AppSelectionType.TWOFINGER_SWIPE_UP_APP
                         "twoFingerSwipeDownApp" -> AppSelectionType.TWOFINGER_SWIPE_DOWN_APP
+                        "twoFingerSwipeLeftApp" -> AppSelectionType.TWOFINGER_SWIPE_LEFT_APP
+                        "twoFingerSwipeRightApp" -> AppSelectionType.TWOFINGER_SWIPE_RIGHT_APP
+                        "pinchInApp" -> AppSelectionType.PINCH_IN_APP
+                        "pinchOutApp" -> AppSelectionType.PINCH_OUT_APP
                         else -> null
                     }
 
@@ -469,6 +473,10 @@ internal fun SettingsScreen(
                                                 "swipeDownApp" -> AppSelectionType.SWIPE_DOWN_APP
                                                 "twoFingerSwipeUpApp" -> AppSelectionType.TWOFINGER_SWIPE_UP_APP
                                                 "twoFingerSwipeDownApp" -> AppSelectionType.TWOFINGER_SWIPE_DOWN_APP
+                                                "twoFingerSwipeLeftApp" -> AppSelectionType.TWOFINGER_SWIPE_LEFT_APP
+                                                "twoFingerSwipeRightApp" -> AppSelectionType.TWOFINGER_SWIPE_RIGHT_APP
+                                                "pinchInApp" -> AppSelectionType.PINCH_IN_APP
+                                                "pinchOutApp" -> AppSelectionType.PINCH_OUT_APP
                                                 else -> null
                                             }
 

@@ -247,8 +247,12 @@ internal fun CLauncherNavigation(
                                     AppSelectionType.TWOFINGER_SWIPE_DOWN_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_TWOFINGER_SWIPE_DOWN_APP)
                                     AppSelectionType.SWIPE_LEFT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_LEFT_APP)
                                     AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
+                                    AppSelectionType.TWOFINGER_SWIPE_LEFT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_TWOFINGER_SWIPE_LEFT_APP)
+                                    AppSelectionType.TWOFINGER_SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_TWOFINGER_SWIPE_RIGHT_APP)
                                     AppSelectionType.ONE_TAP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_ONE_TAP_APP)
                                     AppSelectionType.DOUBLE_TAP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_DOUBLE_TAP_APP)
+                                    AppSelectionType.PINCH_IN_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_PINCH_IN_APP)
+                                    AppSelectionType.PINCH_OUT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_PINCH_OUT_APP)
                                     else -> {}
                                 }
                                 // After selection, reset and go back to settings
@@ -270,6 +274,10 @@ internal fun CLauncherNavigation(
                             AppSelectionType.SWIPE_RIGHT_APP -> "Select Swipe Right App"
                             AppSelectionType.ONE_TAP_APP -> "Select One Tap App"
                             AppSelectionType.DOUBLE_TAP_APP -> "Select Double Tap App"
+                            AppSelectionType.TWOFINGER_SWIPE_LEFT_APP -> "Select 2 fingers Swipe Left App"
+                            AppSelectionType.TWOFINGER_SWIPE_RIGHT_APP -> "Select 2 fingers Swipe Right App"
+                            AppSelectionType.PINCH_IN_APP -> "Select Pinch In App"
+                            AppSelectionType.PINCH_OUT_APP -> "Select Pinch Out App"
                             null -> ""
                         }
                     )

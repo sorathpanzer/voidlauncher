@@ -12,62 +12,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-// import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import app.voidlauncher.MainViewModel
 import app.voidlauncher.data.Constants
 import app.voidlauncher.helper.expandNotificationDrawer
 import app.voidlauncher.helper.isAccessServiceEnabled
 import app.voidlauncher.ui.util.detectSwipeGestures
+import app.voidlauncher.ui.util.detectTwoFingerSwipes
+import app.voidlauncher.ui.util.detectPinchGestures
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import androidx.compose.ui.input.pointer.*
-import kotlinx.coroutines.coroutineScope
-import kotlin.math.abs
 import androidx.compose.foundation.gestures.awaitEachGesture
-
-internal fun Modifier.detectTwoFingerVerticalSwipes(
-    onSwipeUp: () -> Unit = {},
-    onSwipeDown: () -> Unit = {},
-): Modifier = this.then(
-    Modifier.pointerInput(Unit) {
-        awaitEachGesture {
-            val pointers = mutableMapOf<PointerId, Float>() // store Y positions
-
-            // Wait for two fingers down
-            while (pointers.size < 2) {
-                val event = awaitPointerEvent()
-                event.changes.filter { it.pressed }.forEach {
-                    pointers[it.id] = it.position.y
-                }
-            }
-
-            val startYs = pointers.toMap()
-
-            // Track movement
-            var endYs = startYs
-            while (true) {
-                val event = awaitPointerEvent()
-                val current = event.changes.filter { it.pressed }
-                if (current.size < 2) break
-
-                endYs = current.associate { it.id to it.position.y }
-                current.forEach { it.consume() }
-            }
-
-            val dy = endYs.values.zip(startYs.values).map { (end, start) -> end - start }
-
-            if (dy.size == 2) {
-                val minSwipe = 50f
-                if (dy.all { it > minSwipe }) {
-                    onSwipeDown()
-                } else if (dy.all { it < -minSwipe }) {
-                    onSwipeUp()
-                }
-            }
-        }
-    }
-)
-
 
 private fun checkAccessibilityAndLock(context: Context, viewModel: MainViewModel) {
     if (!isAccessServiceEnabled(context)) {
@@ -135,7 +90,7 @@ internal fun HomeScreen(
                 }
             )
              // Multi-finger swipe support
-            .detectTwoFingerVerticalSwipes(
+            .detectTwoFingerSwipes(
                 onSwipeUp = {
                     handleAction(context, viewModel, settings.twoFingerSwipeUpAction) {
                         viewModel.launchTwoFingerSwipeUpApp()
@@ -145,8 +100,34 @@ internal fun HomeScreen(
                     handleAction(context, viewModel, settings.twoFingerSwipeDownAction) {
                         viewModel.launchTwoFingerSwipeDownApp()
                     }
+                },
+                onSwipeRight = {
+                    handleAction(context, viewModel, settings.twoFingerSwipeRightAction) {
+                        viewModel.launchTwoFingerSwipeRightApp()
+                    }
+                },
+                onSwipeLeft = {
+                    handleAction(context, viewModel, settings.twoFingerSwipeLeftAction) {
+                        viewModel.launchTwoFingerSwipeLeftApp()
+                    }
                 }
             )
+            .detectPinchGestures { zoomDelta ->
+                when {
+                    zoomDelta > 150f -> {
+                        // Pinch out (zoom in)
+                        handleAction(context, viewModel, settings.pinchOutAction) {
+                        viewModel.launchPinchOutApp()
+                    }
+                    }
+                    zoomDelta < -150f -> {
+                        // Pinch in (zoom out)
+                        handleAction(context, viewModel, settings.pinchInAction){
+                        viewModel.launchPinchInApp()
+                    }
+                    }
+                }
+            }
             .pointerInput(Unit) {
                 detectTapGestures(
                     onDoubleTap = {

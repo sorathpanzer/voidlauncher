@@ -86,47 +86,6 @@ internal data class AppSettings(
     val settingsLockPin: String = "",
 
     @Setting(
-        title = "Swipe Up Action",
-        category = SettingCategory.GESTURES,
-        type = SettingType.DROPDOWN,
-        rowId = 1,
-        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
-    )
-    val swipeUpAction: Int = Constants.SwipeAction.SEARCH,
-    val swipeUpApp: AppPreference = AppPreference(),
-
-    @Setting(
-        title = "Swipe Down Action",
-        category = SettingCategory.GESTURES,
-        type = SettingType.DROPDOWN,
-        rowId = 2,
-        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
-    )
-    val swipeDownAction: Int = Constants.SwipeAction.NOTIFICATIONS,
-    val swipeDownApp: AppPreference = AppPreference(),
-
-        @Setting(
-        title = "2Finger Swipe Up Action",
-        category = SettingCategory.GESTURES,
-        type = SettingType.DROPDOWN,
-        rowId = 1,
-        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
-    )
-    val twoFingerSwipeUpAction: Int = Constants.SwipeAction.NULL,
-    val twoFingerSwipeUpApp: AppPreference = AppPreference(label = "Not set"),
-
-    @Setting(
-        title = "2Finger Swipe Down Action",
-        category = SettingCategory.GESTURES,
-        type = SettingType.DROPDOWN,
-        rowId = 2,
-        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
-    )
-    val twoFingerSwipeDownAction: Int = Constants.SwipeAction.NULL,
-    val twoFingerSwipeDownApp: AppPreference = AppPreference(label = "Not set"),
-
-
-    @Setting(
         title = "Search Results Font Size",
         category = SettingCategory.APPEARANCE,
         type = SettingType.SLIDER,
@@ -137,24 +96,12 @@ internal data class AppSettings(
     val searchResultsFontSize: Float = 1.0f,
 
     @Setting(
-        title = "Swipe Left Action",
-        category = SettingCategory.GESTURES,
-        type = SettingType.DROPDOWN,
-        rowId = 1,
-        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
+        title = "Set Plain Wallpaper",
+        category = SettingCategory.APPEARANCE,
+        type = SettingType.BUTTON,
+        description = "Set a plain black/white wallpaper based on theme"
     )
-    val swipeLeftAction: Int = Constants.SwipeAction.NULL,
-    val swipeLeftApp: AppPreference = AppPreference(label = "Not set"),
-
-    @Setting(
-        title = "Swipe Right Action",
-        category = SettingCategory.GESTURES,
-        type = SettingType.DROPDOWN,
-        rowId = 2,
-        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
-    )
-    val swipeRightAction: Int = Constants.SwipeAction.NULL,
-    val swipeRightApp: AppPreference = AppPreference(label = "Not set"),
+    val plainWallpaper: Boolean = false,
 
     @Setting(
         title = "One Tap Action",
@@ -174,15 +121,107 @@ internal data class AppSettings(
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
     val doubleTapAction: Int = Constants.SwipeAction.NULL,
-    val doubleTapApp: AppPreference = AppPreference(),
+    val doubleTapApp: AppPreference = AppPreference(label = "Not set"),
 
     @Setting(
-        title = "Set Plain Wallpaper",
-        category = SettingCategory.APPEARANCE,
-        type = SettingType.BUTTON,
-        description = "Set a plain black/white wallpaper based on theme"
+        title = "Swipe Up Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        rowId = 1,
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
     )
-    val plainWallpaper: Boolean = false,
+    val swipeUpAction: Int = Constants.SwipeAction.SEARCH,
+    val swipeUpApp: AppPreference = AppPreference(),
+
+    @Setting(
+        title = "Swipe Down Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        rowId = 2,
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
+    )
+    val swipeDownAction: Int = Constants.SwipeAction.NOTIFICATIONS,
+    val swipeDownApp: AppPreference = AppPreference(),
+
+    @Setting(
+        title = "Swipe Right Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        rowId = 2,
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
+    )
+    val swipeRightAction: Int = Constants.SwipeAction.NULL,
+    val swipeRightApp: AppPreference = AppPreference(label = "Not set"),
+
+    @Setting(
+        title = "Swipe Left Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        rowId = 1,
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
+    )
+    val swipeLeftAction: Int = Constants.SwipeAction.NULL,
+    val swipeLeftApp: AppPreference = AppPreference(label = "Not set"),
+
+    @Setting(
+        title = "2Finger Swipe Up Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        rowId = 1,
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
+    )
+    val twoFingerSwipeUpAction: Int = Constants.SwipeAction.NULL,
+    val twoFingerSwipeUpApp: AppPreference = AppPreference(label = "Not set"),
+
+    @Setting(
+        title = "2Finger Swipe Down Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        rowId = 2,
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
+    )
+    val twoFingerSwipeDownAction: Int = Constants.SwipeAction.NULL,
+    val twoFingerSwipeDownApp: AppPreference = AppPreference(label = "Not set"),
+
+    @Setting(
+        title = "2Finger Swipe Right Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        rowId = 1,
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
+    )
+    val twoFingerSwipeRightAction: Int = Constants.SwipeAction.NULL,
+    val twoFingerSwipeRightApp: AppPreference = AppPreference(label = "Not set"),
+
+    @Setting(
+        title = "2Finger Swipe Left Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        rowId = 2,
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
+    )
+    val twoFingerSwipeLeftAction: Int = Constants.SwipeAction.NULL,
+    val twoFingerSwipeLeftApp: AppPreference = AppPreference(label = "Not set"),
+
+    @Setting(
+        title = "Pinch In Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        rowId = 1,
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
+    )
+    val pinchInAction: Int = Constants.SwipeAction.NULL,
+    val pinchInApp: AppPreference = AppPreference(label = "Not set"),
+
+    @Setting(
+        title = "Pinch Out Action",
+        category = SettingCategory.GESTURES,
+        type = SettingType.DROPDOWN,
+        rowId = 2,
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
+    )
+    val pinchOutAction: Int = Constants.SwipeAction.NULL,
+    val pinchOutApp: AppPreference = AppPreference(label = "Not set"),
 
     // Non-UI
     val firstOpen: Boolean = true,
@@ -227,6 +266,14 @@ internal class SettingsManager {
         "twoFingerSwipeUpApp",
         "twoFingerSwipeDownAction",
         "twoFingerSwipeDownApp",
+        "twoFingerSwipeRightAction",
+        "twoFingerSwipeRightApp",
+        "twoFingerSwipeLeftAction",
+        "twoFingerSwipeLeftApp",
+        "pinchInAction",
+        "pinchInApp",
+        "pinchOutAction",
+        "pinchOutApp",
         "plainWallpaper",
         "searchResultsFontSize"
     )
@@ -251,6 +298,8 @@ internal class SettingsManager {
             "showAppNames" -> settings.copy(showAppNames = value as Boolean)
             "showHiddenAppsOnSearch" -> settings.copy(showHiddenAppsOnSearch = value as Boolean)
             "statusBar" -> settings.copy(statusBar = value as Boolean)
+            "searchResultsFontSize" -> settings.copy(searchResultsFontSize = value as Float)
+            "plainWallpaper" -> settings.copy(plainWallpaper = value as Boolean)
             "swipeDownAction" -> settings.copy(swipeDownAction = value as Int)
             "swipeDownApp" -> settings.copy(swipeDownApp = value as AppPreference)
             "swipeUpAction" -> settings.copy(swipeUpAction = value as Int)
@@ -259,7 +308,6 @@ internal class SettingsManager {
             "twoFingerSwipeDownApp" -> settings.copy(twoFingerSwipeDownApp = value as AppPreference)
             "twoFingerSwipeUpAction" -> settings.copy(twoFingerSwipeUpAction = value as Int)
             "twoFingerSwipeUpApp" -> settings.copy(twoFingerSwipeUpApp = value as AppPreference)
-            "searchResultsFontSize" -> settings.copy(searchResultsFontSize = value as Float)
             "swipeLeftAction" -> settings.copy(swipeLeftAction = value as Int)
             "swipeLeftApp" -> settings.copy(swipeLeftApp = value as AppPreference)
             "swipeRightAction" -> settings.copy(swipeRightAction = value as Int)
@@ -268,7 +316,14 @@ internal class SettingsManager {
             "oneTapApp" -> settings.copy(oneTapApp = value as AppPreference)
             "doubleTapAction" -> settings.copy(doubleTapAction = value as Int)
             "doubleTapApp" -> settings.copy(doubleTapApp = value as AppPreference)
-            "plainWallpaper" -> settings.copy(plainWallpaper = value as Boolean)
+            "twoFingerSwipeRightAction" -> settings.copy(twoFingerSwipeRightAction = value as Int)
+            "twoFingerSwipeRightApp" -> settings.copy(twoFingerSwipeRightApp = value as AppPreference)
+            "twoFingerSwipeLeftAction" -> settings.copy(twoFingerSwipeLeftAction = value as Int)
+            "twoFingerSwipeLeftApp" -> settings.copy(twoFingerSwipeLeftApp = value as AppPreference)
+            "pinchInAction" -> settings.copy(pinchInAction = value as Int)
+            "pinchInApp" -> settings.copy(pinchInApp = value as AppPreference)
+            "pinchOutAction" -> settings.copy(pinchOutAction = value as Int)
+            "pinchOutApp" -> settings.copy(pinchOutApp = value as AppPreference)
             else -> settings
         }
     }
