@@ -4,16 +4,16 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.IntSize
+// import androidx.compose.ui.unit.IntSize
 import androidx.compose.foundation.gestures.awaitEachGesture
 import kotlin.math.abs
-import kotlin.math.atan2
+// import kotlin.math.atan2
 import kotlin.math.hypot
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.foundation.gestures.awaitFirstDown
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.milliseconds
+// import kotlinx.coroutines.coroutineScope
+// import kotlinx.coroutines.delay
+// import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Adds swipe gesture detection to a composable

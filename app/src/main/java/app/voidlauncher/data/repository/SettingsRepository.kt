@@ -14,10 +14,8 @@ import kotlinx.coroutines.flow.first
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
 import app.voidlauncher.data.settings.AppPreference
-import app.voidlauncher.data.settings.HomeAppPreference
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.coroutines.flow.catch
 
 // Extension property for Context to access the DataStore instance
 internal val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "app.voidlauncher.settings")
@@ -126,55 +124,26 @@ internal class SettingsRepository(private val context: Context) {
     /**
      * Flow of settings that emits whenever any setting changes
      */
+
+    inline fun <reified T> getJsonPref(prefs: Preferences, key: Preferences.Key<String>, default: T): T {
+        return prefs[key]?.let { json.decodeFromStringCatching(it, default) } ?: default
+        
+    }
+
     val settings: Flow<AppSettings> = context.settingsDataStore.data.map { prefs ->
-
-        val swipeLeftApp = prefs[SWIPE_LEFT_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultSwipeLeftApp)
-        } ?: defaultSwipeLeftApp
-
-        val swipeRightApp = prefs[SWIPE_RIGHT_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultSwipeRightApp)
-        } ?: defaultSwipeRightApp
-
-        val twoFingerSwipeLeftApp = prefs[TWOFINGER_SWIPE_LEFT_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultTwoFingerSwipeLeftApp)
-        } ?: defaultTwoFingerSwipeLeftApp
-
-        val twoFingerSwipeRightApp = prefs[TWOFINGER_SWIPE_RIGHT_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultTwoFingerSwipeRightApp)
-        } ?: defaultTwoFingerSwipeRightApp
-
-        val oneTapApp = prefs[ONE_TAP_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultOneTapApp)
-        } ?: defaultOneTapApp
-
-        val doubleTapApp = prefs[DOUBLE_TAP_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultDoubleTapApp)
-        } ?: defaultDoubleTapApp
-
-        val swipeUpApp = prefs[SWIPE_UP_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultSwipeUpApp)
-        } ?: defaultSwipeUpApp
-
-        val swipeDownApp = prefs[SWIPE_DOWN_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultSwipeDownApp)
-        } ?: defaultSwipeDownApp
-
-        val twoFingerSwipeUpApp = prefs[TWOFINGER_SWIPE_UP_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultTwoFingerSwipeUpApp)
-        } ?: defaultTwoFingerSwipeUpApp
-
-        val twoFingerSwipeDownApp = prefs[TWOFINGER_SWIPE_DOWN_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultTwoFingerSwipeDownApp)
-        } ?: defaultTwoFingerSwipeDownApp
-
-        val pinchInApp = prefs[PINCH_IN_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultPinchInApp)
-        } ?: defaultPinchInApp
-
-        val pinchOutApp = prefs[PINCH_OUT_APP_JSON]?.let {
-            json.decodeFromStringCatching(it, defaultPinchOutApp)
-        } ?: defaultPinchOutApp
+        
+        val swipeLeftApp = getJsonPref(prefs, SWIPE_LEFT_APP_JSON, defaultSwipeLeftApp)
+        val swipeRightApp = getJsonPref(prefs, SWIPE_RIGHT_APP_JSON, defaultSwipeRightApp)
+        val twoFingerSwipeLeftApp = getJsonPref(prefs, TWOFINGER_SWIPE_LEFT_APP_JSON, defaultTwoFingerSwipeLeftApp)
+        val twoFingerSwipeRightApp = getJsonPref(prefs, TWOFINGER_SWIPE_RIGHT_APP_JSON, defaultTwoFingerSwipeRightApp)
+        val oneTapApp = getJsonPref(prefs, ONE_TAP_APP_JSON, defaultOneTapApp)
+        val doubleTapApp = getJsonPref(prefs, DOUBLE_TAP_APP_JSON, defaultDoubleTapApp)
+        val swipeUpApp = getJsonPref(prefs, SWIPE_UP_APP_JSON, defaultSwipeUpApp)
+        val swipeDownApp = getJsonPref(prefs, SWIPE_DOWN_APP_JSON, defaultSwipeDownApp)
+        val twoFingerSwipeUpApp = getJsonPref(prefs, TWOFINGER_SWIPE_UP_APP_JSON, defaultTwoFingerSwipeUpApp)
+        val twoFingerSwipeDownApp = getJsonPref(prefs, TWOFINGER_SWIPE_DOWN_APP_JSON, defaultTwoFingerSwipeDownApp)
+        val pinchInApp = getJsonPref(prefs, PINCH_IN_APP_JSON, defaultPinchInApp)
+        val pinchOutApp = getJsonPref(prefs, PINCH_OUT_APP_JSON, defaultPinchOutApp)
 
         val renamedApps = prefs[RENAMED_APPS_JSON]?.let {
             try {
@@ -353,94 +322,26 @@ internal class SettingsRepository(private val context: Context) {
     /**
      * Methods for managing other settable apps
      */
-    internal suspend fun setSwipeLeftApp(app: AppPreference) {
+
+    internal suspend fun setGestureApp(key: Preferences.Key<String>, app: AppPreference) {
         context.settingsDataStore.edit { prefs ->
-            prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(app)
+            prefs[key] = json.encodeToString(app)
         }
     }
 
-    internal suspend fun setSwipeRightApp(app: AppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(app)
-        }
-    }
-
-    internal suspend fun setOneTapApp(app: AppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[ONE_TAP_APP_JSON] = json.encodeToString(app)
-        }
-    }
-
-    internal suspend fun setDoubleTapApp(app: AppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[DOUBLE_TAP_APP_JSON] = json.encodeToString(app)
-        }
-    }
-
-    internal suspend fun setSwipeUpApp(app: AppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[SWIPE_UP_APP_JSON] = json.encodeToString(app)
-        }
-    }
-
-    internal suspend fun setSwipeDownApp(app: AppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[SWIPE_DOWN_APP_JSON] = json.encodeToString(app)
-        }
-    }
-
-    internal suspend fun setTwoFingerSwipeUpApp(app: AppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[TWOFINGER_SWIPE_UP_APP_JSON] = json.encodeToString(app)
-        }
-    }
-
-    internal suspend fun setTwoFingerSwipeDownApp(app: AppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[TWOFINGER_SWIPE_DOWN_APP_JSON] = json.encodeToString(app)
-        }
-    }
-
-    internal suspend fun setTwoFingerSwipeLeftApp(app: AppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[TWOFINGER_SWIPE_LEFT_APP_JSON] = json.encodeToString(app)
-        }
-    }
-
-    internal suspend fun setTwoFingerSwipeRightApp(app: AppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[TWOFINGER_SWIPE_RIGHT_APP_JSON] = json.encodeToString(app)
-        }
-    }
-
-    internal suspend fun setPinchInApp(app: AppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[PINCH_IN_APP_JSON] = json.encodeToString(app)
-        }
-    }
-
-    internal suspend fun setPinchOutApp(app: AppPreference) {
-        context.settingsDataStore.edit { prefs ->
-            prefs[PINCH_OUT_APP_JSON] = json.encodeToString(app)
-        }
-    }
-
-    internal suspend fun getSwipeLeftApp(): AppPreference {
-        return settings.first().swipeLeftApp
-    }
-
-    internal suspend fun getSwipeRightApp(): AppPreference {
-        return settings.first().swipeRightApp
-    }
-
-    internal suspend fun getOneTapApp(): AppPreference {
-        return settings.first().oneTapApp
-    }
-
-    internal suspend fun getDoubleTapApp(): AppPreference {
-        return settings.first().doubleTapApp
-    }
-
+    suspend fun setSwipeLeftApp(app: AppPreference) = setGestureApp(SWIPE_LEFT_APP_JSON, app)
+    suspend fun setSwipeRightApp(app: AppPreference) = setGestureApp(SWIPE_RIGHT_APP_JSON, app)
+    suspend fun setSwipeUpApp(app: AppPreference) = setGestureApp(SWIPE_UP_APP_JSON, app)
+    suspend fun setSwipeDownApp(app: AppPreference) = setGestureApp(SWIPE_DOWN_APP_JSON, app)
+    suspend fun setTwoFingerSwipeLeftApp(app: AppPreference) = setGestureApp(TWOFINGER_SWIPE_LEFT_APP_JSON, app)
+    suspend fun setTwoFingerSwipeRightApp(app: AppPreference) = setGestureApp(TWOFINGER_SWIPE_RIGHT_APP_JSON, app)
+    suspend fun setTwoFingerSwipeUpApp(app: AppPreference) = setGestureApp(TWOFINGER_SWIPE_UP_APP_JSON, app)
+    suspend fun setTwoFingerSwipeDownApp(app: AppPreference) = setGestureApp(TWOFINGER_SWIPE_DOWN_APP_JSON, app)
+    suspend fun setOneTapApp(app: AppPreference) = setGestureApp(ONE_TAP_APP_JSON, app)
+    suspend fun setDoubleTapApp(app: AppPreference) = setGestureApp(DOUBLE_TAP_APP_JSON, app)
+    suspend fun setPinchInApp(app: AppPreference) = setGestureApp(PINCH_IN_APP_JSON, app)
+    suspend fun setPinchOutApp(app: AppPreference) = setGestureApp(PINCH_OUT_APP_JSON, app)
+    
     internal suspend fun setSettingsLock(locked: Boolean) {
         updateSetting { it.copy(lockSettings = locked) }
     }

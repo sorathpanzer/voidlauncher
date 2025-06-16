@@ -1,12 +1,9 @@
 package app.voidlauncher
 
-import android.app.Activity.RESULT_OK
 import android.app.Application
 import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
 import android.content.Intent
-import android.os.Bundle
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.voidlauncher.data.*
@@ -14,7 +11,6 @@ import app.voidlauncher.data.repository.AppRepository
 import app.voidlauncher.data.repository.SettingsRepository
 import app.voidlauncher.data.settings.AppPreference
 import app.voidlauncher.data.settings.AppSettings
-import app.voidlauncher.data.settings.HomeAppPreference
 import app.voidlauncher.helper.MyAccessibilityService
 import app.voidlauncher.helper.getScreenDimensions
 import app.voidlauncher.helper.getUserHandleFromString
@@ -22,11 +18,10 @@ import app.voidlauncher.ui.UiEvent
 import app.voidlauncher.ui.AppDrawerUiState
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.util.UUID
 import kotlin.math.ceil
 import net.objecthunter.exp4j.ExpressionBuilder
 
-/**
+ /**
  * MainViewModel is the primary ViewModel for VoidLauncher that manages app state and user interactions.
  */
 internal class MainViewModel(application: Application, private val appWidgetHost: AppWidgetHost) : AndroidViewModel(application) {
@@ -250,101 +245,44 @@ internal class MainViewModel(application: Application, private val appWidgetHost
         }
     }
 
-    private fun setSwipeLeftApp(app: AppModel) {
-        viewModelScope.launch { settingsRepository.setSwipeLeftApp(app.toPreference()) }
+    private fun setGestureApp(app: AppModel, save: suspend (AppPreference) -> Unit) {
+        viewModelScope.launch {
+            save(app.toPreference())
+        }
     }
 
-    private fun setSwipeRightApp(app: AppModel) {
-        viewModelScope.launch { settingsRepository.setSwipeRightApp(app.toPreference()) }
+    private fun setSwipeLeftApp(app: AppModel) = setGestureApp(app, settingsRepository::setSwipeLeftApp)
+    private fun setSwipeRightApp(app: AppModel) = setGestureApp(app, settingsRepository::setSwipeRightApp)
+    private fun setSwipeUpApp(app: AppModel) = setGestureApp(app, settingsRepository::setSwipeUpApp)
+    private fun setSwipeDownApp(app: AppModel) = setGestureApp(app, settingsRepository::setSwipeDownApp)
+    private fun setTwoFingerSwipeLeftApp(app: AppModel) = setGestureApp(app, settingsRepository::setTwoFingerSwipeLeftApp)
+    private fun setTwoFingerSwipeRightApp(app: AppModel) = setGestureApp(app, settingsRepository::setTwoFingerSwipeRightApp)
+    private fun setTwoFingerSwipeUpApp(app: AppModel) = setGestureApp(app, settingsRepository::setTwoFingerSwipeUpApp)
+    private fun setTwoFingerSwipeDownApp(app: AppModel) = setGestureApp(app, settingsRepository::setTwoFingerSwipeDownApp)
+    private fun setOneTapApp(app: AppModel) = setGestureApp(app, settingsRepository::setOneTapApp)
+    private fun setDoubleTapApp(app: AppModel) = setGestureApp(app, settingsRepository::setDoubleTapApp)
+    private fun setPinchInApp(app: AppModel) = setGestureApp(app, settingsRepository::setPinchInApp)
+    private fun setPinchOutApp(app: AppModel) = setGestureApp(app, settingsRepository::setPinchOutApp)
+
+    fun launchAppFromSettings(getPref: (AppSettings) -> AppPreference?) {
+        viewModelScope.launch {
+            val settings = settingsRepository.settings.first()
+            launchAppFromPreference(getPref(settings))
+        }
     }
 
-    private fun setOneTapApp(app: AppModel) {
-        viewModelScope.launch { settingsRepository.setOneTapApp(app.toPreference()) }
-    }
-
-    private fun setDoubleTapApp(app: AppModel) {
-        viewModelScope.launch { settingsRepository.setDoubleTapApp(app.toPreference()) }
-    }
-
-    private fun setSwipeUpApp(app: AppModel) {
-        viewModelScope.launch { settingsRepository.setSwipeUpApp(app.toPreference()) }
-    }
-
-    private fun setSwipeDownApp(app: AppModel) {
-        viewModelScope.launch { settingsRepository.setSwipeDownApp(app.toPreference()) }
-    }
-
-    private fun setTwoFingerSwipeUpApp(app: AppModel) {
-        viewModelScope.launch { settingsRepository.setTwoFingerSwipeUpApp(app.toPreference()) }
-    }
-
-    private fun setTwoFingerSwipeDownApp(app: AppModel) {
-        viewModelScope.launch { settingsRepository.setTwoFingerSwipeDownApp(app.toPreference()) }
-    }
-
-    private fun setTwoFingerSwipeLeftApp(app: AppModel) {
-        viewModelScope.launch { settingsRepository.setTwoFingerSwipeLeftApp(app.toPreference()) }
-    }
-
-    private fun setTwoFingerSwipeRightApp(app: AppModel) {
-        viewModelScope.launch { settingsRepository.setTwoFingerSwipeRightApp(app.toPreference()) }
-    }
-
-    private fun setPinchInApp(app: AppModel) {
-        viewModelScope.launch { settingsRepository.setPinchInApp(app.toPreference()) }
-    }
-
-    private fun setPinchOutApp(app: AppModel) {
-        viewModelScope.launch { settingsRepository.setPinchOutApp(app.toPreference()) }
-    }
-
-    fun launchSwipeUpApp() {
-        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().swipeUpApp) }
-    }
-
-    fun launchSwipeDownApp() {
-        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().swipeDownApp) }
-    }
-
-    fun launchTwoFingerSwipeUpApp() {
-        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().twoFingerSwipeUpApp) }
-    }
-
-    fun launchTwoFingerSwipeDownApp() {
-        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().twoFingerSwipeDownApp) }
-    }
-
-    fun launchSwipeLeftApp() {
-        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().swipeLeftApp) }
-    }
-
-    fun launchSwipeRightApp() {
-        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().swipeRightApp) }
-    }
-
-    fun launchOneTapApp() {
-        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().oneTapApp) }
-    }
-
-    fun launchDoubleTapApp() {
-        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().doubleTapApp) }
-    }
-
-    fun launchTwoFingerSwipeLeftApp() {
-        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().twoFingerSwipeLeftApp) }
-    }
-
-    fun launchTwoFingerSwipeRightApp() {
-        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().twoFingerSwipeRightApp) }
-    }
-
-    fun launchPinchInApp() {
-        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().pinchInApp) }
-    }
-
-    fun launchPinchOutApp() {
-        viewModelScope.launch { launchAppFromPreference(settingsRepository.settings.first().pinchOutApp) }
-    }
+    fun launchSwipeUpApp() = launchAppFromSettings { it.swipeUpApp }
+    fun launchSwipeDownApp() = launchAppFromSettings { it.swipeDownApp }
+    fun launchSwipeRightApp() = launchAppFromSettings { it.swipeRightApp }
+    fun launchSwipeLeftApp() = launchAppFromSettings { it.swipeLeftApp }
+    fun launchTwoFingerSwipeUpApp() = launchAppFromSettings { it.twoFingerSwipeUpApp }
+    fun launchTwoFingerSwipeDownApp() = launchAppFromSettings { it.twoFingerSwipeDownApp }
+    fun launchTwoFingerSwipeRightApp() = launchAppFromSettings { it.twoFingerSwipeRightApp }
+    fun launchTwoFingerSwipeLeftApp() = launchAppFromSettings { it.twoFingerSwipeLeftApp }
+    fun launchOneTapApp() = launchAppFromSettings { it.oneTapApp }
+    fun launchDoubleTapApp() = launchAppFromSettings { it.doubleTapApp }
+    fun launchPinchInApp() = launchAppFromSettings { it.pinchInApp }
+    fun launchPinchOutApp() = launchAppFromSettings { it.pinchOutApp }
 
     fun lockScreen() {
         viewModelScope.launch {
@@ -360,7 +298,7 @@ internal class MainViewModel(application: Application, private val appWidgetHost
      * Search apps by query & Math evaluation
     */
         
-    object MathEvaluator {
+    private object MathEvaluator {
         fun evaluate(expression: String): String? {
             return try {
                 // Remove all whitespace and replace × with *, ÷ with /

@@ -320,14 +320,3 @@ internal fun View.animateAlpha(alpha: Float = 1.0f) {
         start()
     }
 }
-
-internal fun Context.starApp() {
-    val intent = Intent(
-        Intent.ACTION_VIEW,
-        Constants.URL_CCLAUNCHER_GITHUB.toUri()
-    )
-    var flags = Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_MULTIPLE_TASK
-    flags = flags or Intent.FLAG_ACTIVITY_NEW_DOCUMENT
-    intent.addFlags(flags)
-    startActivity(intent)
-}

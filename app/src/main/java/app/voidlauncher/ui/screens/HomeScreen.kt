@@ -21,8 +21,7 @@ import app.voidlauncher.ui.util.detectSwipeGestures
 import app.voidlauncher.ui.util.detectTwoFingerSwipes
 import app.voidlauncher.ui.util.detectPinchGestures
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
-import androidx.compose.ui.input.pointer.*
-import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.ui.input.pointer.pointerInput
 
 private fun checkAccessibilityAndLock(context: Context, viewModel: MainViewModel) {
     if (!isAccessServiceEnabled(context)) {
@@ -60,7 +59,7 @@ internal fun HomeScreen(
             Constants.SwipeAction.APP -> launchApp()
             Constants.SwipeAction.LOCKSCREEN -> checkAccessibilityAndLock(context, viewModel)
             Constants.SwipeAction.NULL -> Unit
-            else -> Unit
+            else -> {}
         }
     }
 

@@ -2,49 +2,33 @@ package app.voidlauncher.ui
 
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 
 /**
  * UI Events for navigation and actions
  */
 internal sealed class UiEvent {
-    // Navigation events
+    // Navigation
     object NavigateToAppDrawer : UiEvent()
     object NavigateToSettings : UiEvent()
     object NavigateToHiddenApps : UiEvent()
     object NavigateBack : UiEvent()
+    object NavigateToWidgetPicker : UiEvent()
 
-    // Dialog events
+    // Dialogs & feedback
     data class ShowDialog(val dialogType: String) : UiEvent()
-
-    data class LaunchWidgetBindIntent(val intent: Intent) : UiEvent()
-
-    // System events
-    object ResetLauncher : UiEvent()
     data class ShowToast(val message: String) : UiEvent()
     data class ShowError(val message: String) : UiEvent()
-    data class NavigateToAppSelection(val selectionType: AppSelectionType) : UiEvent()
-    data class ShowAppSelectionDialog(val selectionType: AppSelectionType) : UiEvent()
 
-    data object NavigateToWidgetPicker : UiEvent()
+    // Widget config
+    data class LaunchWidgetBindIntent(val intent: Intent) : UiEvent()
     data class StartActivityForResult(val intent: Intent, val requestCode: Int) : UiEvent()
-
     data class ConfigureWidget(val widgetId: Int, val providerInfo: AppWidgetProviderInfo) : UiEvent()
 
-}
+    // App selection
+    data class NavigateToAppSelection(val selectionType: AppSelectionType) : UiEvent()
 
-
-/**
- * Class to manage events
- */
-internal class EventsManager {
-    private val _events = MutableSharedFlow<UiEvent>()
-    val events: SharedFlow<UiEvent> = _events
-
-    private suspend fun emitEvent(event: UiEvent) {
-        _events.emit(event)
-    }
+    // System
+    object ResetLauncher : UiEvent()
 }
 
 internal enum class AppSelectionType {
