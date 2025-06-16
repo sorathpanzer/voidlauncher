@@ -1,8 +1,6 @@
 package app.voidlauncher.ui.screens
 
-import android.app.Activity
 import android.content.Intent
-import android.provider.Settings
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -75,6 +73,8 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.reflect.KProperty1
 import app.voidlauncher.ui.dialogs.SettingsLockDialog
+import kotlinx.coroutines.CoroutineScope
+import android.content.Context
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,25 +88,22 @@ internal fun SettingsScreen(
     val coroutineScope = rememberCoroutineScope()
     val settingsManager = remember { SettingsManager() }
 
-    // Dialog states
-    var showingDialog by remember { mutableStateOf<String?>(null) }
+    var showingDialog by remember { mutableStateOf<SettingsDialogType?>(null) }
     var currentProperty by remember { mutableStateOf<KProperty1<AppSettings, *>?>(null) }
     var currentAnnotation by remember { mutableStateOf<Setting?>(null) }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.resetUnlockState()
-        }
-    }
 
     val effectiveLockState by viewModel.effectiveLockState.collectAsState()
     val showLockDialog by viewModel.showLockDialog.collectAsState()
     val isSettingPin by viewModel.isSettingPin.collectAsState()
 
-    BackHandler(onBack = {
+    DisposableEffect(Unit) {
+        onDispose { viewModel.resetUnlockState() }
+    }
+
+    BackHandler {
         viewModel.resetUnlockState()
         onNavigateBack()
-    })
+    }
 
     if (showLockDialog) {
         SettingsLockDialog(
@@ -116,131 +113,23 @@ internal fun SettingsScreen(
                 if (isSettingPin) {
                     viewModel.setPin(pin)
                     viewModel.toggleLockSettings(true)
+                } else if (viewModel.validatePin(pin)) {
                     viewModel.setShowLockDialog(false)
-                } else {
-                    if (viewModel.validatePin(pin)) {
-                        viewModel.setShowLockDialog(false)
-                    } else {
-                        // Show error (handled in dialog)
-                    }
                 }
             }
         )
     }
 
-    // Display the appropriate dialog based on setting type
-    when (showingDialog) {
-        "slider" -> {
-            currentProperty?.let { prop ->
-                currentAnnotation?.let { annotation ->
-                    SliderSettingDialog(
-                        title = annotation.title,
-                        currentValue = when (prop.returnType.classifier) {
-                            Int::class -> (prop.get(uiState) as Int).toFloat()
-                            Float::class -> prop.get(uiState) as Float
-                            else -> 0f
-                        },
-                        min = annotation.min,
-                        max = annotation.max,
-                        step = annotation.step,
-                        onDismiss = { showingDialog = null },
-                        onValueSelected = { newValue ->
-                            coroutineScope.launch {
-                                val propertyName = prop.name
-                                val intValue = newValue.toInt()
-
-                                if (propertyName == "homeScreenRows" || propertyName == "homeScreenColumns") {
-                                    showingDialog = null
-                                } else {
-                                    when (prop.returnType.classifier) {
-                                        Int::class -> viewModel.updateSetting(propertyName, intValue)
-                                        Float::class -> viewModel.updateSetting(propertyName, newValue)
-                                    }
-                                    showingDialog = null
-                                }
-                            }
-                        }
-                    )
-                }
-            }
-        }
-        "dropdown" -> {
-            currentProperty?.let { prop ->
-                currentAnnotation?.let { annotation ->
-                    DropdownSettingDialog(
-                        title = annotation.title,
-                        options = annotation.options.toList(),
-                        selectedIndex = when (prop.returnType.classifier) {
-                            Int::class -> prop.get(uiState) as Int
-                            else -> 0
-                        },
-                        onDismiss = { showingDialog = null },
-                        onOptionSelected = { index ->
-                            coroutineScope.launch {
-                                viewModel.updateSetting(prop.name, index)
-                                
-                                // If the selected option is "app", immediately show app picker
-                                if (prop.name.endsWith("Action") && 
-                                    index == Constants.SwipeAction.APP) {
-                                    
-                                    // Find the corresponding app property
-                                    val appPropertyName = prop.name.replace("Action", "App")
-                                    val appProperty = AppSettings::class.members
-                                        .filterIsInstance<KProperty1<AppSettings, *>>()
-                                        .firstOrNull { it.name == appPropertyName }
-                                    
-                                    appProperty?.let {
-                                        currentProperty = it
-                                        showingDialog = "app_picker"
-                                    } ?: run {
-                                        showingDialog = null
-                                    }
-                                } else {
-                                    showingDialog = null
-                                }
-                            }
-                        }
-                    )
-                }
-            }
-        }
-        "app_picker" -> {
-            currentProperty?.let { prop ->
-                coroutineScope.launch {
-                    val selectionType = when (prop.name) {
-                        "swipeLeftApp" -> AppSelectionType.SWIPE_LEFT_APP
-                        "swipeRightApp" -> AppSelectionType.SWIPE_RIGHT_APP
-                        "oneTapApp" -> AppSelectionType.ONE_TAP_APP
-                        "doubleTapApp" -> AppSelectionType.DOUBLE_TAP_APP
-                        "swipeUpApp" -> AppSelectionType.SWIPE_UP_APP
-                        "swipeDownApp" -> AppSelectionType.SWIPE_DOWN_APP
-                        "twoFingerSwipeUpApp" -> AppSelectionType.TWOFINGER_SWIPE_UP_APP
-                        "twoFingerSwipeDownApp" -> AppSelectionType.TWOFINGER_SWIPE_DOWN_APP
-                        "twoFingerSwipeLeftApp" -> AppSelectionType.TWOFINGER_SWIPE_LEFT_APP
-                        "twoFingerSwipeRightApp" -> AppSelectionType.TWOFINGER_SWIPE_RIGHT_APP
-                        "pinchInApp" -> AppSelectionType.PINCH_IN_APP
-                        "pinchOutApp" -> AppSelectionType.PINCH_OUT_APP
-                        else -> null
-                    }
-
-                    selectionType?.let {
-                        viewModel.emitEvent(UiEvent.NavigateToAppSelection(it))
-                        showingDialog = null
-                    }
-                }
-            }
-        }
-        "button" -> {
-            currentProperty?.let { prop ->
-                when (prop.name) {
-                    "plainWallpaper" -> {
-                        setPlainWallpaperByTheme(context, appTheme = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                        showingDialog = null
-                    }
-                }
-            }
-        }
-    }
+    ShowSettingsDialog(
+        dialogType = showingDialog,
+        currentProperty = currentProperty,
+        currentAnnotation = currentAnnotation,
+        uiState = uiState,
+        coroutineScope = coroutineScope,
+        viewModel = viewModel,
+        context = context,
+        onDismiss = { showingDialog = null }
+    )
 
     Scaffold(
         topBar = {
@@ -248,243 +137,129 @@ internal fun SettingsScreen(
                 title = { Text("Settings") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
         }
     ) { paddingValues ->
-        if (viewModel.isLoading.value) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+        when {
+            viewModel.isLoading.value -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
             }
-            return@Scaffold
-        }
-        if (effectiveLockState) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                Card(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth(0.8f)
+            effectiveLockState -> {
+                Box(
+                    Modifier.fillMaxSize().padding(paddingValues),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Column(
-                        modifier = Modifier.padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Lock,
-                            contentDescription = "Settings Locked",
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Text(
-                            text = "Settings are locked",
-                            style = MaterialTheme.typography.headlineSmall,
-                            textAlign = TextAlign.Center
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = "Enter your PIN to access settings",
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Button(
-                            onClick = { viewModel.setShowLockDialog(true, false) },
-                            modifier = Modifier.fillMaxWidth()
+                    Card(Modifier.padding(16.dp).fillMaxWidth(0.8f)) {
+                        Column(
+                            Modifier.padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text("Unlock Settings")
+                            Icon(
+                                Icons.Default.Lock,
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(Modifier.height(16.dp))
+                            Text("Settings are locked", style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
+                            Spacer(Modifier.height(8.dp))
+                            Text("Enter your PIN to access settings", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+                            Spacer(Modifier.height(16.dp))
+                            Button(onClick = { viewModel.setShowLockDialog(true, false) }, Modifier.fillMaxWidth()) {
+                                Text("Unlock Settings")
+                            }
                         }
                     }
                 }
             }
-            return@Scaffold
         }
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            // Group settings by category
+        LazyColumn(Modifier.fillMaxSize().padding(paddingValues)) {
             val settingsByCategory = settingsManager.getSettingsByCategory()
-
-            // Display each category
             for (category in SettingCategory.entries) {
-                val categorySettings = settingsByCategory[category] ?: continue
-
+                val entries = settingsByCategory[category] ?: continue
                 item {
                     SettingsSection(title = category.name.lowercase().replaceFirstChar { it.titlecase(Locale.getDefault()) }) {
-                        categorySettings.forEach { (property, annotation) ->
-                            // Check if this setting is enabled
-                            val isEnabled = settingsManager.isSettingEnabled(uiState, property, annotation)
-
-                            when (annotation.type) {
+                        entries.forEach { (prop, ann) ->
+                            val enabled = settingsManager.isSettingEnabled(uiState, prop, ann)
+                            when (ann.type) {
                                 SettingType.TOGGLE -> {
-                                    if (property.returnType.classifier == Boolean::class) {
-                                        val value = property.get(uiState) as Boolean
                                         SettingsToggle(
-                                            title = annotation.title,
-                                            description = annotation.description.takeIf { it.isNotEmpty() },
-                                            isChecked = value,
-                                            enabled = isEnabled,
-                                            onCheckedChange = { checked ->
-                                                coroutineScope.launch {
-                                                    viewModel.updateSetting(property.name, checked)
-
-                                                    // Special handling for specific settings
-                                                    when (property.name) {
-                                                        "statusBar" -> {
-                                                            try {
-                                                                (context as? Activity)?.let { activity ->
-                                                                    updateStatusBarVisibility(activity, checked)
-                                                                }
-                                                            } catch (e: Exception) {
-                                                                e.printStackTrace()
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        )
-                                    }
+                                            title = ann.title,
+                                            description = ann.description.ifBlank { null },
+                                            isChecked = prop.get(uiState) as Boolean,
+                                            enabled = enabled
+                                        ) { checked ->
+                                            coroutineScope.launch { viewModel.updateSetting(prop.name, checked) }
+                                        }
                                 }
                                 SettingType.SLIDER -> {
                                     SettingsItem(
-                                        title = annotation.title,
-                                        subtitle = when (property.returnType.classifier) {
-                                            Int::class -> "${property.get(uiState) as Int}"
-                                            Float::class -> String.format(Locale.getDefault(), "%.1f", property.get(uiState) as Float)
+                                        title = ann.title,
+                                        subtitle = when (prop.returnType.classifier) {
+                                            Int::class -> "${prop.get(uiState)}"
+                                            Float::class -> String.format(Locale.getDefault(), "%.1f", prop.get(uiState))
                                             else -> ""
                                         },
-                                        description = annotation.description.takeIf { it.isNotEmpty() },
-                                        enabled = isEnabled,
+                                        description = ann.description.ifBlank { null },
+                                        enabled = enabled,
                                         onClick = {
-                                            currentProperty = property
-                                            currentAnnotation = annotation
-                                            showingDialog = "slider"
+                                            currentProperty = prop
+                                            currentAnnotation = ann
+                                            showingDialog = SettingsDialogType.SLIDER
                                         }
                                     )
                                 }
                                 SettingType.DROPDOWN -> {
-                                    val options = annotation.options
-
-                                    if (options.isNotEmpty() && property.returnType.classifier == Int::class) {
-                                        val value = property.get(uiState) as Int
-                                        val displayText = if (value >= 0 && value < options.size) {
-                                            options[value]
-                                        } else {
-                                            "Unknown"
-                                        }
-
-                                        // Special handling for action type settings that need app selection
-                                        if (property.name.endsWith("Action")) {
-                                            // Get the corresponding app preference property
-                                            val appPropertyName = property.name.replace("Action", "App")
-                                            val appProperty = AppSettings::class.members
-                                                .filterIsInstance<KProperty1<AppSettings, *>>()
-                                                .firstOrNull { it.name == appPropertyName }
-                                            
-                                            val appName = appProperty?.let {
-                                                when (val appPref = it.get(uiState)) {
-                                                    is AppPreference -> appPref.label
-                                                    else -> "Select app"
-                                                }
-                                            } ?: "Select app"
-
-                                            SettingsItem(
-                                                title = annotation.title,
-                                                subtitle = if (value == Constants.SwipeAction.APP) "$displayText: $appName" else displayText,
-                                                description = annotation.description.takeIf { it.isNotEmpty() },
-                                                enabled = isEnabled,
-                                                onClick = {
-                                                    currentProperty = property
-                                                    currentAnnotation = annotation
-                                                    
-                                                    if (value == Constants.SwipeAction.APP) {
-                                                        // If current selection is "app", show app picker directly
-                                                        showingDialog = "dropdown"
-                                                    } else {
-                                                        // Otherwise show action type selection first
-                                                        showingDialog = "dropdown"
-                                                    }
-                                                }
-                                            )
-                                        } else {
-                                            // Regular dropdown handling
-                                            SettingsItem(
-                                                title = annotation.title,
-                                                subtitle = displayText,
-                                                description = annotation.description.takeIf { it.isNotEmpty() },
-                                                enabled = isEnabled,
-                                                onClick = {
-                                                    currentProperty = property
-                                                    currentAnnotation = annotation
-                                                    showingDialog = "dropdown"
-                                                }
-                                            )
-                                        }
+                                    if (ann.options.isNotEmpty() && prop.returnType.classifier == Int::class) {
+                                        val value = prop.get(uiState) as Int
+                                        val display = ann.options.getOrElse(value) { "Unknown" }
+                                        SettingsItem(
+                                            title = ann.title,
+                                            subtitle = if (prop.name.endsWith("Action") && value == Constants.SwipeAction.APP) {
+                                                val appName = (AppSettings::class.members
+                                                    .firstOrNull { it.name == prop.name.replace("Action", "App") }
+                                                    ?.call(uiState) as? AppPreference)?.label ?: "Select app"
+                                                "$display: $appName"
+                                            } else {
+                                                display
+                                            },
+                                            description = ann.description.ifBlank { null },
+                                            enabled = enabled,
+                                            onClick = {
+                                                currentProperty = prop
+                                                currentAnnotation = ann
+                                                showingDialog = SettingsDialogType.DROPDOWN
+                                            }
+                                        )
                                     }
                                 }
                                 SettingType.BUTTON -> {
                                     SettingsAction(
-                                        title = annotation.title,
-                                        description = annotation.description.takeIf { it.isNotEmpty() },
-                                        enabled = isEnabled,
+                                        title = ann.title,
+                                        description = ann.description.ifBlank { null },
+                                        enabled = enabled,
                                         onClick = {
-                                            currentProperty = property
-                                            showingDialog = "button"
+                                            currentProperty = prop
+                                            showingDialog = SettingsDialogType.BUTTON
                                         }
                                     )
                                 }
                                 SettingType.APP_PICKER -> {
-                                    val appPreference = property.get(uiState)
-                                    val appName = when (appPreference) {
-                                        is AppPreference -> appPreference.label
-                                        else -> "Not set"
-                                    }
+                                    val appName = (prop.get(uiState) as? AppPreference)?.label ?: "Not set"
                                     SettingsItem(
-                                        title = annotation.title,
+                                        title = ann.title,
                                         subtitle = appName,
-                                        description = annotation.description.takeIf { it.isNotEmpty() },
-                                        enabled = isEnabled,
+                                        description = ann.description.ifBlank { null },
+                                        enabled = enabled,
                                         onClick = {
-                                            val selectionType = when (property.name) {
-                                                "swipeLeftApp" -> AppSelectionType.SWIPE_LEFT_APP
-                                                "swipeRightApp" -> AppSelectionType.SWIPE_RIGHT_APP
-                                                "oneTapApp" -> AppSelectionType.ONE_TAP_APP
-                                                "doubleTapApp" -> AppSelectionType.DOUBLE_TAP_APP
-                                                "swipeUpApp" -> AppSelectionType.SWIPE_UP_APP
-                                                "swipeDownApp" -> AppSelectionType.SWIPE_DOWN_APP
-                                                "twoFingerSwipeUpApp" -> AppSelectionType.TWOFINGER_SWIPE_UP_APP
-                                                "twoFingerSwipeDownApp" -> AppSelectionType.TWOFINGER_SWIPE_DOWN_APP
-                                                "twoFingerSwipeLeftApp" -> AppSelectionType.TWOFINGER_SWIPE_LEFT_APP
-                                                "twoFingerSwipeRightApp" -> AppSelectionType.TWOFINGER_SWIPE_RIGHT_APP
-                                                "pinchInApp" -> AppSelectionType.PINCH_IN_APP
-                                                "pinchOutApp" -> AppSelectionType.PINCH_OUT_APP
-                                                else -> null
-                                            }
-
-                                            selectionType?.let {
-                                                coroutineScope.launch {
-                                                    viewModel.emitEvent(UiEvent.NavigateToAppSelection(it))
-                                                }
-                                            }
+                                            currentProperty = prop
+                                            showingDialog = SettingsDialogType.APP_PICKER
                                         }
                                     )
                                 }
@@ -499,11 +274,10 @@ internal fun SettingsScreen(
                     SettingsItem(
                         title = "Set as Default Launcher",
                         subtitle = if (isClauncherDefault(context)) "VoidLauncher is default" else "VoidLauncher is not default",
+                        transparency = if (isClauncherDefault(context)) 0.7f else 1.0f,
                         onClick = {
-                            val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
-                            context.startActivity(intent)
-                        },
-                        transparency = if (isClauncherDefault(context)) 0.7f else 1.0f
+                            context.startActivity(Intent(android.provider.Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
+                        }
                     )
 
                     SettingsToggle(
@@ -511,18 +285,12 @@ internal fun SettingsScreen(
                         description = "Prevent changes to settings without a PIN",
                         isChecked = uiState.lockSettings,
                         onCheckedChange = { locked ->
-                            if (locked) {
-                                viewModel.setShowLockDialog(true, true)
-                            } else {
-                                viewModel.toggleLockSettings(false)
-                            }
+                            if (locked) viewModel.setShowLockDialog(true, true)
+                            else viewModel.toggleLockSettings(false)
                         }
                     )
 
-                    SettingsItem(
-                        title = "Hidden Apps",
-                        onClick = onNavigateToHiddenApps
-                    )
+                    SettingsItem(title = "Hidden Apps", onClick = onNavigateToHiddenApps)
 
                     SettingsItem(
                         title = "About VoidLauncher",
@@ -537,6 +305,101 @@ internal fun SettingsScreen(
             }
         }
     }
+}
+
+private enum class SettingsDialogType { SLIDER, DROPDOWN, APP_PICKER, BUTTON }
+
+@Composable
+private fun ShowSettingsDialog(
+    dialogType: SettingsDialogType?,
+    currentProperty: KProperty1<AppSettings, *>?,
+    currentAnnotation: Setting?,
+    uiState: AppSettings,
+    coroutineScope: CoroutineScope,
+    viewModel: SettingsViewModel,
+    context: Context,
+    onDismiss: () -> Unit
+) {
+    when (dialogType) {
+        SettingsDialogType.SLIDER -> currentProperty?.takeIf { currentAnnotation != null }?.let { prop ->
+            val ann = currentAnnotation!!
+            val initialValue = when (prop.returnType.classifier) {
+                Int::class -> (prop.get(uiState) as Int).toFloat()
+                Float::class -> prop.get(uiState) as Float
+                else -> 0f
+            }
+            SliderSettingDialog(
+                title = ann.title,
+                currentValue = initialValue,
+                min = ann.min,
+                max = ann.max,
+                step = ann.step,
+                onDismiss = onDismiss
+            ) { newValue ->
+                coroutineScope.launch {
+                    val final = if (prop.returnType.classifier == Int::class) newValue.toInt() else newValue
+                    viewModel.updateSetting(prop.name, final)
+                    onDismiss()
+                }
+            }
+        }
+
+        SettingsDialogType.DROPDOWN -> currentProperty?.takeIf { currentAnnotation != null }?.let { prop ->
+            val ann = currentAnnotation!!
+            val index = prop.get(uiState) as? Int ?: 0
+            DropdownSettingDialog(
+                title = ann.title,
+                options = ann.options.toList(),
+                selectedIndex = index,
+                onDismiss = onDismiss
+            ) { newIndex ->
+                coroutineScope.launch {
+                    viewModel.updateSetting(prop.name, newIndex)
+                    if (prop.name.endsWith("Action") && newIndex == Constants.SwipeAction.APP) {
+                        AppSettings::class.members
+                            .filterIsInstance<KProperty1<AppSettings, *>>()
+                            .firstOrNull { it.name == prop.name.replace("Action", "App") }
+                            ?.let { appProp ->
+                                viewModel.emitEvent(UiEvent.NavigateToAppSelection(propNameToSelection(appProp.name)))
+                            }
+                    }
+                    onDismiss()
+                }
+            }
+        }
+
+        SettingsDialogType.APP_PICKER -> currentProperty?.let { prop ->
+            coroutineScope.launch {
+                viewModel.emitEvent(UiEvent.NavigateToAppSelection(propNameToSelection(prop.name)))
+                onDismiss()
+            }
+        }
+
+        SettingsDialogType.BUTTON -> currentProperty?.let { prop ->
+            if (prop.name == "plainWallpaper") {
+                setPlainWallpaperByTheme(context, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            }
+            onDismiss()
+        }
+
+        null -> Unit
+    }
+}
+
+private fun propNameToSelection(name: String) = when (name) {
+    "swipeLeftApp" -> AppSelectionType.SWIPE_LEFT_APP
+    "swipeRightApp" -> AppSelectionType.SWIPE_RIGHT_APP
+    "oneTapApp" -> AppSelectionType.ONE_TAP_APP
+    "doubleTapApp" -> AppSelectionType.DOUBLE_TAP_APP
+    "swipeUpApp" -> AppSelectionType.SWIPE_UP_APP
+    "swipeDownApp" -> AppSelectionType.SWIPE_DOWN_APP
+    "twoFingerSwipeUpApp" -> AppSelectionType.TWOFINGER_SWIPE_UP_APP
+    "twoFingerSwipeDownApp" -> AppSelectionType.TWOFINGER_SWIPE_DOWN_APP
+    "twoFingerSwipeLeftApp" -> AppSelectionType.TWOFINGER_SWIPE_LEFT_APP
+    "twoFingerSwipeRightApp" -> AppSelectionType.TWOFINGER_SWIPE_RIGHT_APP
+    "pinchInApp" -> AppSelectionType.PINCH_IN_APP
+    "pinchOutApp" -> AppSelectionType.PINCH_OUT_APP
+    else -> error("Unknown app picker property")
 }
 
 @Composable
@@ -586,16 +449,16 @@ private fun SettingsItem(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge
             )
-            if (subtitle != null) {
+            subtitle?.let {
                 Text(
-                    text = subtitle,
+                    text = it,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
             }
-            if (description != null) {
+            description?.let {
                 Text(
-                    text = description,
+                    text = it,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                     modifier = Modifier.padding(top = 4.dp)
@@ -623,10 +486,8 @@ private fun SettingsToggle(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(enabled = enabled) {
-                if (enabled) {
-                    toggleState = !toggleState
-                    onCheckedChange(toggleState)
-                }
+                toggleState = !toggleState
+                onCheckedChange(toggleState)
             }
             .padding(16.dp)
             .alpha(if (enabled) 1f else 0.5f),
@@ -638,9 +499,9 @@ private fun SettingsToggle(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge
             )
-            if (description != null) {
+            description?.let {
                 Text(
-                    text = description,
+                    text = it,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                     modifier = Modifier.padding(top = 4.dp)
@@ -649,10 +510,10 @@ private fun SettingsToggle(
         }
         Switch(
             checked = toggleState,
-            onCheckedChange = { if (enabled) {
+            onCheckedChange = {
                 toggleState = it
                 onCheckedChange(it)
-            }},
+            },
             enabled = enabled
         )
     }
