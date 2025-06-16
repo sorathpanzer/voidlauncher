@@ -37,14 +37,6 @@ internal enum class SettingType {
     APP_PICKER,
 }
 
-// @Serializable
-// internal data class HomeAppPreference(
-//     val label: String = "",
-//     val packageName: String = "",
-//     val activityClassName: String? = null,
-//     val userString: String = "",
-// )
-
 @Serializable
 internal data class AppPreference(
     val label: String = "",
