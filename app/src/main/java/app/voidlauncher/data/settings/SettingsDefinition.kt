@@ -21,12 +21,15 @@ internal annotation class Setting(
     val options: Array<String> = []
 )
 
-internal enum class SettingCategory {
-    GENERAL,
-    APPEARANCE,
-    LAYOUT,
-    GESTURES,
-    SYSTEM
+internal enum class SettingCategory(val label: String)  {
+    GENERAL("GENERAL"),
+    APPEARANCE("APPEARANCE"),
+    SWIPE_GESTURES("SWIPE GESTURES"),
+    SWIPE_2FINGERS_GESTURES("2FINGERS SWIPE GESTURES"),
+    PINCH_AND_TAP_GESTURES("PINCH & TAP GESTURES"),
+    SYSTEM("SYSTEM");
+
+    override fun toString(): String = label
 }
 
 internal enum class SettingType {
@@ -96,28 +99,8 @@ internal data class AppSettings(
     val plainWallpaper: Boolean = false,
 
     @Setting(
-        title = "One Tap Action",
-        category = SettingCategory.GESTURES,
-        type = SettingType.DROPDOWN,
-        rowId = 1,
-        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
-    )
-    val oneTapAction: Int = Constants.SwipeAction.LOCKSCREEN,
-    val oneTapApp: AppPreference = AppPreference(label = "Not set"),
-
-    @Setting(
-        title = "Double Tap Action",
-        category = SettingCategory.GESTURES,
-        type = SettingType.DROPDOWN,
-        rowId = 2,
-        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
-    )
-    val doubleTapAction: Int = Constants.SwipeAction.NULL,
-    val doubleTapApp: AppPreference = AppPreference(label = "Not set"),
-
-    @Setting(
-        title = "Swipe Up Action",
-        category = SettingCategory.GESTURES,
+        title = "Swipe Up",
+        category = SettingCategory.SWIPE_GESTURES,
         type = SettingType.DROPDOWN,
         rowId = 1,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
@@ -126,8 +109,8 @@ internal data class AppSettings(
     val swipeUpApp: AppPreference = AppPreference(),
 
     @Setting(
-        title = "Swipe Down Action",
-        category = SettingCategory.GESTURES,
+        title = "Swipe Down",
+        category = SettingCategory.SWIPE_GESTURES,
         type = SettingType.DROPDOWN,
         rowId = 2,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
@@ -136,8 +119,8 @@ internal data class AppSettings(
     val swipeDownApp: AppPreference = AppPreference(),
 
     @Setting(
-        title = "Swipe Right Action",
-        category = SettingCategory.GESTURES,
+        title = "Swipe Right",
+        category = SettingCategory.SWIPE_GESTURES,
         type = SettingType.DROPDOWN,
         rowId = 2,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
@@ -146,8 +129,8 @@ internal data class AppSettings(
     val swipeRightApp: AppPreference = AppPreference(label = "Not set"),
 
     @Setting(
-        title = "Swipe Left Action",
-        category = SettingCategory.GESTURES,
+        title = "Swipe Left",
+        category = SettingCategory.SWIPE_GESTURES,
         type = SettingType.DROPDOWN,
         rowId = 1,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
@@ -156,8 +139,8 @@ internal data class AppSettings(
     val swipeLeftApp: AppPreference = AppPreference(label = "Not set"),
 
     @Setting(
-        title = "2Finger Swipe Up Action",
-        category = SettingCategory.GESTURES,
+        title = "2Finger Swipe Up",
+        category = SettingCategory.SWIPE_2FINGERS_GESTURES,
         type = SettingType.DROPDOWN,
         rowId = 1,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
@@ -166,8 +149,8 @@ internal data class AppSettings(
     val twoFingerSwipeUpApp: AppPreference = AppPreference(label = "Not set"),
 
     @Setting(
-        title = "2Finger Swipe Down Action",
-        category = SettingCategory.GESTURES,
+        title = "2Finger Swipe Down",
+        category = SettingCategory.SWIPE_2FINGERS_GESTURES,
         type = SettingType.DROPDOWN,
         rowId = 2,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
@@ -176,8 +159,8 @@ internal data class AppSettings(
     val twoFingerSwipeDownApp: AppPreference = AppPreference(label = "Not set"),
 
     @Setting(
-        title = "2Finger Swipe Right Action",
-        category = SettingCategory.GESTURES,
+        title = "2Finger Swipe Right",
+        category = SettingCategory.SWIPE_2FINGERS_GESTURES,
         type = SettingType.DROPDOWN,
         rowId = 1,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
@@ -186,8 +169,8 @@ internal data class AppSettings(
     val twoFingerSwipeRightApp: AppPreference = AppPreference(label = "Not set"),
 
     @Setting(
-        title = "2Finger Swipe Left Action",
-        category = SettingCategory.GESTURES,
+        title = "2Finger Swipe Left",
+        category = SettingCategory.SWIPE_2FINGERS_GESTURES,
         type = SettingType.DROPDOWN,
         rowId = 2,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
@@ -196,8 +179,28 @@ internal data class AppSettings(
     val twoFingerSwipeLeftApp: AppPreference = AppPreference(label = "Not set"),
 
     @Setting(
-        title = "Pinch In Action",
-        category = SettingCategory.GESTURES,
+        title = "One Tap",
+        category = SettingCategory.PINCH_AND_TAP_GESTURES,
+        type = SettingType.DROPDOWN,
+        rowId = 1,
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
+    )
+    val oneTapAction: Int = Constants.SwipeAction.LOCKSCREEN,
+    val oneTapApp: AppPreference = AppPreference(label = "Not set"),
+
+    @Setting(
+        title = "Double Tap",
+        category = SettingCategory.PINCH_AND_TAP_GESTURES,
+        type = SettingType.DROPDOWN,
+        rowId = 2,
+        options = ["None", "Search", "Notifications", "App", "Lockscreen"]
+    )
+    val doubleTapAction: Int = Constants.SwipeAction.NULL,
+    val doubleTapApp: AppPreference = AppPreference(label = "Not set"),
+
+    @Setting(
+        title = "Pinch In",
+        category = SettingCategory.PINCH_AND_TAP_GESTURES,
         type = SettingType.DROPDOWN,
         rowId = 1,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
@@ -206,8 +209,8 @@ internal data class AppSettings(
     val pinchInApp: AppPreference = AppPreference(label = "Not set"),
 
     @Setting(
-        title = "Pinch Out Action",
-        category = SettingCategory.GESTURES,
+        title = "Pinch Out",
+        category = SettingCategory.PINCH_AND_TAP_GESTURES,
         type = SettingType.DROPDOWN,
         rowId = 2,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"]
@@ -242,10 +245,6 @@ internal class SettingsManager {
         "showAppNames",
         "showHiddenAppsOnSearch",
         "statusBar",
-        "oneTapAction",
-        "oneTapApp",
-        "doubleTapAction",
-        "doubleTapApp",
         "swipeUpAction",
         "swipeUpApp",
         "swipeDownAction",
@@ -262,6 +261,10 @@ internal class SettingsManager {
         "twoFingerSwipeRightApp",
         "twoFingerSwipeLeftAction",
         "twoFingerSwipeLeftApp",
+        "oneTapAction",
+        "oneTapApp",
+        "doubleTapAction",
+        "doubleTapApp",
         "pinchInAction",
         "pinchInApp",
         "pinchOutAction",
@@ -292,26 +295,26 @@ internal class SettingsManager {
             "statusBar" -> settings.copy(statusBar = value as Boolean)
             "searchResultsFontSize" -> settings.copy(searchResultsFontSize = value as Float)
             "plainWallpaper" -> settings.copy(plainWallpaper = value as Boolean)
-            "swipeDownAction" -> settings.copy(swipeDownAction = value as Int)
-            "swipeDownApp" -> settings.copy(swipeDownApp = value as AppPreference)
             "swipeUpAction" -> settings.copy(swipeUpAction = value as Int)
             "swipeUpApp" -> settings.copy(swipeUpApp = value as AppPreference)
-            "twoFingerSwipeDownAction" -> settings.copy(twoFingerSwipeDownAction = value as Int)
-            "twoFingerSwipeDownApp" -> settings.copy(twoFingerSwipeDownApp = value as AppPreference)
-            "twoFingerSwipeUpAction" -> settings.copy(twoFingerSwipeUpAction = value as Int)
-            "twoFingerSwipeUpApp" -> settings.copy(twoFingerSwipeUpApp = value as AppPreference)
-            "swipeLeftAction" -> settings.copy(swipeLeftAction = value as Int)
-            "swipeLeftApp" -> settings.copy(swipeLeftApp = value as AppPreference)
+            "swipeDownAction" -> settings.copy(swipeDownAction = value as Int)
+            "swipeDownApp" -> settings.copy(swipeDownApp = value as AppPreference)
             "swipeRightAction" -> settings.copy(swipeRightAction = value as Int)
             "swipeRightApp" -> settings.copy(swipeRightApp = value as AppPreference)
-            "oneTapAction" -> settings.copy(oneTapAction = value as Int)
-            "oneTapApp" -> settings.copy(oneTapApp = value as AppPreference)
-            "doubleTapAction" -> settings.copy(doubleTapAction = value as Int)
-            "doubleTapApp" -> settings.copy(doubleTapApp = value as AppPreference)
+            "swipeLeftAction" -> settings.copy(swipeLeftAction = value as Int)
+            "swipeLeftApp" -> settings.copy(swipeLeftApp = value as AppPreference)
+            "twoFingerSwipeUpAction" -> settings.copy(twoFingerSwipeUpAction = value as Int)
+            "twoFingerSwipeUpApp" -> settings.copy(twoFingerSwipeUpApp = value as AppPreference)
+            "twoFingerSwipeDownAction" -> settings.copy(twoFingerSwipeDownAction = value as Int)
+            "twoFingerSwipeDownApp" -> settings.copy(twoFingerSwipeDownApp = value as AppPreference)
             "twoFingerSwipeRightAction" -> settings.copy(twoFingerSwipeRightAction = value as Int)
             "twoFingerSwipeRightApp" -> settings.copy(twoFingerSwipeRightApp = value as AppPreference)
             "twoFingerSwipeLeftAction" -> settings.copy(twoFingerSwipeLeftAction = value as Int)
             "twoFingerSwipeLeftApp" -> settings.copy(twoFingerSwipeLeftApp = value as AppPreference)
+            "oneTapAction" -> settings.copy(oneTapAction = value as Int)
+            "oneTapApp" -> settings.copy(oneTapApp = value as AppPreference)
+            "doubleTapAction" -> settings.copy(doubleTapAction = value as Int)
+            "doubleTapApp" -> settings.copy(doubleTapApp = value as AppPreference)
             "pinchInAction" -> settings.copy(pinchInAction = value as Int)
             "pinchInApp" -> settings.copy(pinchInApp = value as AppPreference)
             "pinchOutAction" -> settings.copy(pinchOutAction = value as Int)

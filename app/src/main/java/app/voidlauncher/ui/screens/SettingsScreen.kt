@@ -75,6 +75,7 @@ import kotlin.reflect.KProperty1
 import app.voidlauncher.ui.dialogs.SettingsLockDialog
 import kotlinx.coroutines.CoroutineScope
 import android.content.Context
+import android.net.Uri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -184,7 +185,7 @@ internal fun SettingsScreen(
             for (category in SettingCategory.entries) {
                 val entries = settingsByCategory[category] ?: continue
                 item {
-                    SettingsSection(title = category.name.lowercase().replaceFirstChar { it.titlecase(Locale.getDefault()) }) {
+                    SettingsSection(title = category.toString().replaceFirstChar { it.titlecase(Locale.getDefault()) }) {
                         entries.forEach { (prop, ann) ->
                             val enabled = settingsManager.isSettingEnabled(uiState, prop, ann)
                             when (ann.type) {
@@ -270,16 +271,7 @@ internal fun SettingsScreen(
             }
 
             item {
-                SettingsSection(title = "System") {
-                    SettingsItem(
-                        title = "Set as Default Launcher",
-                        subtitle = if (isClauncherDefault(context)) "VoidLauncher is default" else "VoidLauncher is not default",
-                        transparency = if (isClauncherDefault(context)) 0.7f else 1.0f,
-                        onClick = {
-                            context.startActivity(Intent(android.provider.Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
-                        }
-                    )
-
+                SettingsSection(title = "SYSTEM") {
                     SettingsToggle(
                         title = "Lock Settings",
                         description = "Prevent changes to settings without a PIN",
@@ -296,9 +288,10 @@ internal fun SettingsScreen(
                         title = "About VoidLauncher",
                         subtitle = "Version ${context.packageManager.getPackageInfo(context.packageName, 0).versionName}",
                         onClick = {
-                            coroutineScope.launch {
-                                viewModel.emitEvent(UiEvent.ShowDialog(Constants.Dialog.ABOUT))
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(Constants.URL_ABOUT_VOIDLAUNCHER)).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
                             }
+                            context.startActivity(intent)
                         }
                     )
                 }
@@ -408,13 +401,8 @@ private fun SettingsSection(
     content: @Composable () -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 5.dp)
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -422,6 +410,14 @@ private fun SettingsSection(
             )
         ) {
             Column {
+                    Text(
+            text = title,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleMedium
+        )
                 content()
             }
         }

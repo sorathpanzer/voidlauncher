@@ -52,7 +52,7 @@ internal object Constants {
 
     const val MIN_ANIM_REFRESH_RATE = 10f
 
-    const val URL_ABOUT_CCLAUNCHER = "https://github.com/sorath/voidlauncher"
+    const val URL_ABOUT_VOIDLAUNCHER = "https://github.com/sorathpanzer/voidlauncher"
     const val URL_DUCK_SEARCH = "https://duckduckgo.com?q="
 
     // Need to add the comments below as tooltips when long-tap ig?
