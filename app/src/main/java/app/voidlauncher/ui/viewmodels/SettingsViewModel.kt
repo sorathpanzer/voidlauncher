@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-// import androidx.lifecycle.viewmodel.compose.viewModel
 import app.voidlauncher.MainViewModel
 import app.voidlauncher.data.repository.SettingsRepository
 import app.voidlauncher.data.settings.AppSettings
