@@ -14,7 +14,6 @@
 /build
 /captures
 /app/release.keystore
-/app/build.gradle.kts
 .externalNativeBuild
 .cxx
 google-services.json
