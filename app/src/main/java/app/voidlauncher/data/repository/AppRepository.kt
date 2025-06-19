@@ -37,8 +37,14 @@ internal class AppRepository(
     internal suspend fun loadApps() {
         withContext(Dispatchers.IO) {
             try {
-                val apps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = false)
-                _appList.value = apps
+                val settings = settingsRepository.settings.first()
+                if (settings.showHiddenAppsOnSearch) {
+                    val apps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = true)
+                    _appList.value = apps
+                } else {
+                    val apps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = false)
+                    _appList.value = apps
+                }
             } catch (e: Exception) {
                 throw e
             }
