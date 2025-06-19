@@ -361,13 +361,8 @@ internal class MainViewModel(application: Application, private val appWidgetHost
                     }
                 }
     
-                // Normal app search
-                val filteredApps = if (settings.showHiddenAppsOnSearch) {
-                    appListAll.value.filter { it.appLabel.startsWith(query, true) }
-                } else {
-                    appList.value.filter { it.appLabel.startsWith(query, true) }
-                }
-    
+                val filteredApps = appList.value.filter { it.appLabel?.startsWith(query ?: "", true) == true }
+
                 _appDrawerState.update {
                     it.copy(
                         filteredApps = filteredApps,
