@@ -26,7 +26,6 @@ import android.util.TypedValue
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.LinearInterpolator
-import android.widget.Toast
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
@@ -42,15 +41,6 @@ import kotlinx.coroutines.withContext
 import java.text.Collator
 import kotlin.math.pow
 import kotlin.math.sqrt
-
-private fun Context.showToast(message: String?, duration: Int = Toast.LENGTH_SHORT) {
-    if (message.isNullOrBlank()) return
-    Toast.makeText(this, message, duration).show()
-}
-
-private fun Context.showToast(stringResource: Int, duration: Int = Toast.LENGTH_SHORT) {
-    Toast.makeText(this, getString(stringResource), duration).show()
-}
 
 internal suspend fun getAppsList(
     context: Context,
@@ -181,15 +171,6 @@ internal fun setPlainWallpaper(context: Context, color: Int) {
     }
 }
 
-private fun openAppInfo(context: Context, userHandle: UserHandle, packageName: String) {
-    val launcher = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-    val intent: Intent? = context.packageManager.getLaunchIntentForPackage(packageName)
-
-    intent?.let {
-        launcher.startAppDetailsActivity(intent.component, userHandle, null, null)
-    } ?: context.showToast(context.getString(R.string.unable_to_open_app))
-}
-
 internal fun getScreenDimensions(context: Context): Pair<Int, Int> {
     val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
@@ -274,13 +255,6 @@ internal fun isTablet(context: Context): Boolean {
 
         return diagonalInches >= 7.0
     }
-}
-
-internal fun Context.copyToClipboard(text: String) {
-    val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    val clipData = ClipData.newPlainText(getString(R.string.app_name), text)
-    clipboardManager.setPrimaryClip(clipData)
-    showToast("")
 }
 
 internal fun Context.openUrl(url: String) {

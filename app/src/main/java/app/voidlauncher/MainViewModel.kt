@@ -2,7 +2,6 @@ package app.voidlauncher
 
 import android.app.Application
 import android.appwidget.AppWidgetHost
-import android.appwidget.AppWidgetManager
 import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -53,8 +52,6 @@ internal class MainViewModel(application: Application, private val appWidgetHost
     // Reset launcher state
     private val _launcherResetFailed = MutableStateFlow(false)
     val launcherResetFailed: StateFlow<Boolean> = _launcherResetFailed.asStateFlow()
-
-    val appWidgetManager: AppWidgetManager =  AppWidgetManager.getInstance(appContext)
 
     init {
         viewModelScope.launch {

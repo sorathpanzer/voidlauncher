@@ -1,6 +1,5 @@
 package app.voidlauncher.ui
 
-import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
 
 /**
@@ -22,7 +21,6 @@ internal sealed class UiEvent {
     // Widget config
     data class LaunchWidgetBindIntent(val intent: Intent) : UiEvent()
     data class StartActivityForResult(val intent: Intent, val requestCode: Int) : UiEvent()
-    data class ConfigureWidget(val widgetId: Int, val providerInfo: AppWidgetProviderInfo) : UiEvent()
 
     // App selection
     data class NavigateToAppSelection(val selectionType: AppSelectionType) : UiEvent()

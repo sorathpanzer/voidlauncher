@@ -35,9 +35,6 @@ internal class MyAccessibilityService : AccessibilityService() {
     public override fun onAccessibilityEvent(event: AccessibilityEvent) {
         try {
             val source: AccessibilityNodeInfo = event.source ?: return
-            if ((source.className == "android.widget.FrameLayout") &&
-                (source.contentDescription == getString(R.string.lock_layout_description))
-            )
                 performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
         } catch (_: Exception) {
             return
