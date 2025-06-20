@@ -66,18 +66,6 @@ internal fun CLauncherNavigation(
             is UiEvent.StartActivityForResult -> {
                 try {
                     val activity = context as? Activity
-                    if (activity != null) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                            // For Android 14+ with background activity restrictions
-                            val options = ActivityOptions.makeBasic().apply {
-                                pendingIntentBackgroundActivityStartMode = ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
-                            }
-                            activity.startActivityForResult(event.intent, event.requestCode, options.toBundle())
-                        } else {
-                            // Standard approach for older versions
-                            activity.startActivityForResult(event.intent, event.requestCode)
-                        }
-                    }
                 } catch (e: SecurityException) {
                     // Handle cases where the activity isn't exported
                     Log.e("Navigation", "Security exception starting activity", e)

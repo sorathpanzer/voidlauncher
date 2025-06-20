@@ -1,6 +1,7 @@
 package app.voidlauncher.helper
 
 import android.app.AppOpsManager
+import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -16,23 +17,17 @@ internal class PermissionManager(private val context: Context) {
      * Check if the app has usage stats permission
      */
     private fun hasUsageStatsPermission(): Boolean {
-        val appOps = context.getSystemService(Context.APP_OPS_SERVICE)
-                as AppOpsManager
-
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            appOps.unsafeCheckOpNoThrow(
-                AppOpsManager.OPSTR_GET_USAGE_STATS,
-                android.os.Process.myUid(),
-                context.packageName
-            ) == AppOpsManager.MODE_ALLOWED
-        } else {
-            @Suppress("DEPRECATION")
-            appOps.checkOpNoThrow(
-                AppOpsManager.OPSTR_GET_USAGE_STATS,
-                android.os.Process.myUid(),
-                context.packageName
-            ) == AppOpsManager.MODE_ALLOWED
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+            val now = System.currentTimeMillis()
+            val stats = usageStatsManager.queryUsageStats(
+                UsageStatsManager.INTERVAL_DAILY,
+                now - 1000 * 60,
+                now
+            )
+            return stats != null && stats.isNotEmpty()
         }
+        return false
     }
 
     /**
