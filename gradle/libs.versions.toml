@@ -1,6 +1,7 @@
 [versions]
 activityCompose = "1.10.1"
 appcompat = "1.7.1"
+coreKtx = "1.16.0"
 datastorePreferences = "1.1.7"
 androidGradlePlugin = "8.10.1"
 kotlinReflect = "2.1.21"
@@ -16,6 +17,7 @@ activity-compose = { module = "androidx.activity:activity-compose", version.ref 
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinReflect" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
