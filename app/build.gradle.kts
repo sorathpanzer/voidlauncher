@@ -14,7 +14,10 @@ android {
     compileSdk = 36
     ndkPath = "/nix/store/0h2l3kaf5jdnhf67347jgkh3f9610qgh-android-sdk-ndk-27.0.12077973/libexec/android-sdk/ndk-bundle"
 
-    lint { checkReleaseBuilds = false }
+    lint {
+        checkReleaseBuilds = false
+        disable += listOf("ChromeOsAbiSupport", "MissingApplicationIcon")
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

@@ -54,6 +54,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.voidlauncher.data.Constants
 import app.voidlauncher.data.settings.AppPreference
@@ -288,7 +289,7 @@ internal fun SettingsScreen(
                         title = "About VoidLauncher",
                         subtitle = "Version ${context.packageManager.getPackageInfo(context.packageName, 0).versionName}",
                         onClick = {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(Constants.URL_ABOUT_VOIDLAUNCHER)).apply {
+                            val intent = Intent(Intent.ACTION_VIEW, Constants.URL_ABOUT_VOIDLAUNCHER.toUri()).apply {
                                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
                             }
                             context.startActivity(intent)
