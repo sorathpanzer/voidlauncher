@@ -25,7 +25,7 @@ internal fun HiddenAppsScreen(
     onNavigateBack: () -> Unit
 ) {
     val hiddenApps by viewModel.hiddenApps.collectAsState()
-    val isLoading by remember { mutableStateOf(false) }
+    val Loading by remember { mutableStateOf(false) }
     val errorMessage by viewModel.errorMessage.collectAsState()
 
     // Load hidden apps when screen is shown
@@ -65,7 +65,7 @@ internal fun HiddenAppsScreen(
                     animationSpec = tween(300)
                 )
         ) {
-            if (isLoading) {
+            if (Loading) {
                 // Show loading indicator
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center)

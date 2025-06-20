@@ -227,7 +227,7 @@ AppDrawerSearch(
         }
 
         when {
-            uiState.isLoading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
+            uiState.Loading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
             uiState.error != null -> Box(Modifier.fillMaxSize(), Alignment.Center) { Text("Error: ${uiState.error}") }
             uiState.apps.isEmpty() && searchQuery.isEmpty() -> Box(Modifier.fillMaxSize(), Alignment.Center) { Text("No apps found") }
             uiState.filteredApps.isEmpty() && searchQuery.isNotEmpty() -> {
@@ -280,7 +280,7 @@ AppDrawerSearch(
     if (showContextMenu && selectedApp != null) {
         val app = selectedApp ?: return
         val hiddenApps by viewModel.hiddenApps.collectAsState()
-        val isHidden = hiddenApps.any { it.getKey() == app.getKey() }
+        val Hidden = hiddenApps.any { it.getKey() == app.getKey() }
 
         var renameDialogVisible by remember { mutableStateOf(false) }
         var newAppName by remember { mutableStateOf(app.appLabel) }
@@ -291,7 +291,7 @@ AppDrawerSearch(
             text = {
                 Column {
                     ContextMenuItem("Open App", Icons.Default.AdsClick) { handleAppClick(app); showContextMenu = false; selectedApp = null }
-                    ContextMenuItem(if (isHidden) "Unhide App" else "Hide App", Icons.Default.Settings) { viewModel.toggleAppHidden(app); showContextMenu = false; selectedApp = null }
+                    ContextMenuItem(if (Hidden) "Unhide App" else "Hide App", Icons.Default.Settings) { viewModel.toggleAppHidden(app); showContextMenu = false; selectedApp = null }
                     ContextMenuItem("Rename App", Icons.Default.DriveFileRenameOutline) { renameDialogVisible = true }
                     ContextMenuItem("App Info", Icons.Default.Info) {
                         context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {

@@ -94,11 +94,11 @@ internal suspend fun getAppsList(
 
                     val dupAppKey = "${app.applicationInfo.packageName}/${profile.hashCode()}"
 
-                    val isHidden = hiddenApps.contains(dupAppKey)
+                    val Hidden = hiddenApps.contains(dupAppKey)
 
-                    if (isHidden) {
+                    if (Hidden) {
                         if (includeHiddenApps) {
-                            appList.add(appModel.copy(isHidden = true))
+                            appList.add(appModel.copy(Hidden = true))
                         }
                     } else {
                         if (includeRegularApps) {

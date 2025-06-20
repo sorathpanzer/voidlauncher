@@ -95,7 +95,7 @@ internal fun SettingsScreen(
 
     val effectiveLockState by viewModel.effectiveLockState.collectAsState()
     val showLockDialog by viewModel.showLockDialog.collectAsState()
-    val isSettingPin by viewModel.isSettingPin.collectAsState()
+    val SettingPin by viewModel.SettingPin.collectAsState()
 
     DisposableEffect(Unit) {
         onDispose { viewModel.resetUnlockState() }
@@ -108,10 +108,10 @@ internal fun SettingsScreen(
 
     if (showLockDialog) {
         SettingsLockDialog(
-            isSettingPin = isSettingPin,
+            SettingPin = SettingPin,
             onDismiss = { viewModel.setShowLockDialog(false) },
             onConfirm = { pin ->
-                if (isSettingPin) {
+                if (SettingPin) {
                     viewModel.setPin(pin)
                     viewModel.toggleLockSettings(true)
                 } else if (viewModel.validatePin(pin)) {
@@ -145,7 +145,7 @@ internal fun SettingsScreen(
         }
     ) { paddingValues ->
         when {
-            viewModel.isLoading.value -> {
+            viewModel.Loading.value -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }

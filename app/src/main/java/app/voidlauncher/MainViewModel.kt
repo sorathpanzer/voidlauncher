@@ -80,7 +80,7 @@ internal class MainViewModel(application: Application, private val appWidgetHost
     private fun updateAppDrawerState() {
         _appDrawerState.value = _appDrawerState.value.copy(
             apps = _appList.value,
-            isLoading = false
+            Loading = false
         )
     }
 
@@ -112,12 +112,12 @@ internal class MainViewModel(application: Application, private val appWidgetHost
     internal fun loadApps() {
         viewModelScope.launch {
             try {
-                _appDrawerState.value = _appDrawerState.value.copy(isLoading = true)
+                _appDrawerState.value = _appDrawerState.value.copy(Loading = true)
                 appRepository.loadApps()
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to load apps: ${e.message}"
                 _appDrawerState.value =
-                    _appDrawerState.value.copy(isLoading = false, error = e.message)
+                    _appDrawerState.value.copy(Loading = false, error = e.message)
             }
         }
     }
@@ -128,13 +128,13 @@ internal class MainViewModel(application: Application, private val appWidgetHost
     fun getHiddenApps() {
         viewModelScope.launch {
             try {
-                _appDrawerState.value = _appDrawerState.value.copy(isLoading = true)
+                _appDrawerState.value = _appDrawerState.value.copy(Loading = true)
                 appRepository.loadHiddenApps()
-                _appDrawerState.value = _appDrawerState.value.copy(isLoading = false)
+                _appDrawerState.value = _appDrawerState.value.copy(Loading = false)
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to load hidden apps: ${e.message}"
                 _appDrawerState.value =
-                    _appDrawerState.value.copy(isLoading = false, error = e.message)
+                    _appDrawerState.value.copy(Loading = false, error = e.message)
             }
         }
     }
@@ -363,7 +363,7 @@ internal class MainViewModel(application: Application, private val appWidgetHost
                 _appDrawerState.update {
                     it.copy(
                         filteredApps = filteredApps,
-                        isLoading = false
+                        Loading = false
                     )
                 }
     

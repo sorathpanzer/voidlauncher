@@ -13,7 +13,7 @@ import androidx.compose.ui.window.Dialog
 
 @Composable
 internal fun SettingsLockDialog(
-    isSettingPin: Boolean = false,
+    SettingPin: Boolean = false,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
@@ -34,7 +34,7 @@ internal fun SettingsLockDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = if (isSettingPin) "Set PIN" else "Enter PIN",
+                    text = if (SettingPin) "Set PIN" else "Enter PIN",
                     style = MaterialTheme.typography.headlineSmall
                 )
 
@@ -53,7 +53,7 @@ internal fun SettingsLockDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                if (isSettingPin) {
+                if (SettingPin) {
                     Spacer(modifier = Modifier.height(8.dp))
 
                     OutlinedTextField(
@@ -91,7 +91,7 @@ internal fun SettingsLockDialog(
 
                     Button(
                         onClick = {
-                            if (isSettingPin) {
+                            if (SettingPin) {
                                 if (pin.isEmpty()) {
                                     error = "PIN cannot be empty"
                                 } else if (pin != confirmPin) {

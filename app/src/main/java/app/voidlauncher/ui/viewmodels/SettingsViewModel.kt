@@ -19,26 +19,26 @@ internal class SettingsViewModel(application: Application) : AndroidViewModel(ap
     val settingsState: StateFlow<AppSettings> = _settingsState.asStateFlow()
 
     // Loading state
-    val isLoading = mutableStateOf(true)
+    val Loading = mutableStateOf(true)
 
     // Events manager for UI events
     private val _eventsFlow = MutableSharedFlow<UiEvent>()
     val events: SharedFlow<UiEvent> = _eventsFlow.asSharedFlow()
 
 
-    private val _isLocked = MutableStateFlow(false)
-    val isLocked: StateFlow<Boolean> = _isLocked
+    private val _Locked = MutableStateFlow(false)
+    val Locked: StateFlow<Boolean> = _Locked
 
     private val _showLockDialog = MutableStateFlow(false)
     val showLockDialog: StateFlow<Boolean> = _showLockDialog
 
-    private val _isSettingPin = MutableStateFlow(false)
-    val isSettingPin: StateFlow<Boolean> = _isSettingPin
+    private val _SettingPin = MutableStateFlow(false)
+    val SettingPin: StateFlow<Boolean> = _SettingPin
 
-    private val _isTemporarilyUnlocked = MutableStateFlow(false)
-    val isTemporarilyUnlocked: StateFlow<Boolean> = _isTemporarilyUnlocked
+    private val _TemporarilyUnlocked = MutableStateFlow(false)
+    val TemporarilyUnlocked: StateFlow<Boolean> = _TemporarilyUnlocked
 
-    val effectiveLockState: StateFlow<Boolean> = combine(_isLocked, _isTemporarilyUnlocked) { locked, tempUnlocked ->
+    val effectiveLockState: StateFlow<Boolean> = combine(_Locked, _TemporarilyUnlocked) { locked, tempUnlocked ->
         locked && !tempUnlocked
     }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
@@ -49,8 +49,8 @@ internal class SettingsViewModel(application: Application) : AndroidViewModel(ap
         viewModelScope.launch {
             settingsRepository.settings.collect { settings ->
                 _settingsState.value = settings
-                isLoading.value = false
-                _isLocked.value = settings.lockSettings
+                Loading.value = false
+                _Locked.value = settings.lockSettings
             }
         }
     }
@@ -71,9 +71,9 @@ internal class SettingsViewModel(application: Application) : AndroidViewModel(ap
         }
     }
 
-    internal fun setShowLockDialog(show: Boolean, isSettingPin: Boolean = false) {
+    internal fun setShowLockDialog(show: Boolean, SettingPin: Boolean = false) {
         _showLockDialog.value = show
-        _isSettingPin.value = isSettingPin
+        _SettingPin.value = SettingPin
     }
 
     internal fun validatePin(pin: String): Boolean {
@@ -81,8 +81,7 @@ internal class SettingsViewModel(application: Application) : AndroidViewModel(ap
         viewModelScope.launch {
             isValid = settingsRepository.validateSettingsPin(pin)
             if (isValid) {
-//                _isLocked.value = false
-                _isTemporarilyUnlocked.value = true
+                _TemporarilyUnlocked.value = true
                 _showLockDialog.value = false
             }
         }
@@ -106,6 +105,6 @@ internal class SettingsViewModel(application: Application) : AndroidViewModel(ap
     }
 
     internal fun resetUnlockState() {
-        _isTemporarilyUnlocked.value = false
+        _TemporarilyUnlocked.value = false
     }
 }
