@@ -11,7 +11,7 @@ plugins {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     ndkPath = "/nix/store/0h2l3kaf5jdnhf67347jgkh3f9610qgh-android-sdk-ndk-27.0.12077973/libexec/android-sdk/ndk-bundle"
 
     lint { checkReleaseBuilds = false }
@@ -35,7 +35,7 @@ android {
     defaultConfig {
         applicationId = "app.voidlauncher"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 706
         versionName = "v0.2"
 
@@ -137,6 +137,7 @@ tasks.withType<AbstractArchiveTask>().configureEach {
 
 dependencies {
     implementation(libs.appcompat)
+    implementation(libs.core.ktx)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.material.icons.extended)
