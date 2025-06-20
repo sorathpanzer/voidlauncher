@@ -35,7 +35,7 @@ internal class MyAccessibilityService : AccessibilityService() {
     public override fun onAccessibilityEvent(event: AccessibilityEvent) {
         try {
             val source: AccessibilityNodeInfo = event.source ?: return
-                performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
+            performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
         } catch (_: Exception) {
             return
         }

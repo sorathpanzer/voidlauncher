@@ -17,17 +17,14 @@ internal class PermissionManager(private val context: Context) {
      * Check if the app has usage stats permission
      */
     private fun hasUsageStatsPermission(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-            val now = System.currentTimeMillis()
-            val stats = usageStatsManager.queryUsageStats(
-                UsageStatsManager.INTERVAL_DAILY,
-                now - 1000 * 60,
-                now
-            )
-            return stats != null && stats.isNotEmpty()
-        }
-        return false
+        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val now = System.currentTimeMillis()
+        val stats = usageStatsManager.queryUsageStats(
+            UsageStatsManager.INTERVAL_DAILY,
+            now - 1000 * 60,
+            now
+        )
+        return stats != null && stats.isNotEmpty()
     }
 
     /**
