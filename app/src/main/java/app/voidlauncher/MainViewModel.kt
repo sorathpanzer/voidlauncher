@@ -11,19 +11,19 @@ import app.voidlauncher.data.repository.SettingsRepository
 import app.voidlauncher.data.settings.AppPreference
 import app.voidlauncher.data.settings.AppSettings
 import app.voidlauncher.helper.MyAccessibilityService
-import app.voidlauncher.helper.getScreenDimensions
 import app.voidlauncher.helper.getUserHandleFromString
-import app.voidlauncher.ui.UiEvent
 import app.voidlauncher.ui.AppDrawerUiState
+import app.voidlauncher.ui.UiEvent
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlin.math.ceil
 import net.objecthunter.exp4j.ExpressionBuilder
 
- /**
- * MainViewModel is the primary ViewModel for VoidLauncher that manages app state and user interactions.
+/**
+ * MainViewModel is the primary ViewModel for VoidLauncher that manages app state and user
+ * interactions.
  */
-internal class MainViewModel(application: Application, private val appWidgetHost: AppWidgetHost) : AndroidViewModel(application) {
+internal class MainViewModel(application: Application, private val appWidgetHost: AppWidgetHost) :
+        AndroidViewModel(application) {
     private val appContext = application.applicationContext
     val settingsRepository = SettingsRepository(appContext)
     private val appRepository = AppRepository(appContext, settingsRepository, viewModelScope)
@@ -71,17 +71,12 @@ internal class MainViewModel(application: Application, private val appWidgetHost
 
         // Observe hidden apps changes
         viewModelScope.launch {
-            appRepository.hiddenApps.collect { apps ->
-                _hiddenApps.value = apps
-            }
+            appRepository.hiddenApps.collect { apps -> _hiddenApps.value = apps }
         }
     }
 
     private fun updateAppDrawerState() {
-        _appDrawerState.value = _appDrawerState.value.copy(
-            apps = _appList.value,
-            Loading = false
-        )
+        _appDrawerState.value = _appDrawerState.value.copy(apps = _appList.value, Loading = false)
     }
 
     internal fun renameApp(app: AppModel, newName: String) {
@@ -97,18 +92,12 @@ internal class MainViewModel(application: Application, private val appWidgetHost
         }
     }
 
-    /**
-     * Handle first open of the app
-     */
+    /** Handle first open of the app */
     internal fun firstOpen(value: Boolean) {
-        viewModelScope.launch {
-            settingsRepository.setFirstOpen(value)
-        }
+        viewModelScope.launch { settingsRepository.setFirstOpen(value) }
     }
 
-    /**
-     * Load all apps and visible apps
-     */
+    /** Load all apps and visible apps */
     internal fun loadApps() {
         viewModelScope.launch {
             try {
@@ -117,14 +106,12 @@ internal class MainViewModel(application: Application, private val appWidgetHost
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to load apps: ${e.message}"
                 _appDrawerState.value =
-                    _appDrawerState.value.copy(Loading = false, error = e.message)
+                        _appDrawerState.value.copy(Loading = false, error = e.message)
             }
         }
     }
 
-    /**
-     * Load hidden apps
-     */
+    /** Load hidden apps */
     fun getHiddenApps() {
         viewModelScope.launch {
             try {
@@ -134,14 +121,12 @@ internal class MainViewModel(application: Application, private val appWidgetHost
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to load hidden apps: ${e.message}"
                 _appDrawerState.value =
-                    _appDrawerState.value.copy(Loading = false, error = e.message)
+                        _appDrawerState.value.copy(Loading = false, error = e.message)
             }
         }
     }
 
-    /**
-     * Toggle app hidden state
-     */
+    /** Toggle app hidden state */
     fun toggleAppHidden(app: AppModel) {
         viewModelScope.launch {
             try {
@@ -152,9 +137,7 @@ internal class MainViewModel(application: Application, private val appWidgetHost
         }
     }
 
-    /**
-     * Launch an app
-     */
+    /** Launch an app */
     fun launchApp(app: AppModel) {
         viewModelScope.launch {
             try {
@@ -165,101 +148,98 @@ internal class MainViewModel(application: Application, private val appWidgetHost
         }
     }
 
-    /**
-     * Handle app selection for various functions
-     */
+    /** Handle app selection for various functions */
     fun selectedApp(appModel: AppModel, flag: Int) {
         when (flag) {
             Constants.FLAG_LAUNCH_APP, Constants.FLAG_HIDDEN_APPS -> {
                 launchApp(appModel)
             }
-
             Constants.FLAG_SET_SWIPE_LEFT_APP -> {
                 setSwipeLeftApp(appModel)
             }
-
             Constants.FLAG_SET_SWIPE_RIGHT_APP -> {
                 setSwipeRightApp(appModel)
             }
-
             Constants.FLAG_SET_ONE_TAP_APP -> {
                 setOneTapApp(appModel)
             }
-
             Constants.FLAG_SET_DOUBLE_TAP_APP -> {
                 setDoubleTapApp(appModel)
             }
-
             Constants.FLAG_SET_SWIPE_UP_APP -> {
                 setSwipeUpApp(appModel)
             }
-
             Constants.FLAG_SET_SWIPE_DOWN_APP -> {
                 setSwipeDownApp(appModel)
             }
             Constants.FLAG_SET_TWOFINGER_SWIPE_UP_APP -> {
                 setTwoFingerSwipeUpApp(appModel)
             }
-
             Constants.FLAG_SET_TWOFINGER_SWIPE_DOWN_APP -> {
                 setTwoFingerSwipeDownApp(appModel)
             }
             Constants.FLAG_SET_TWOFINGER_SWIPE_LEFT_APP -> {
                 setTwoFingerSwipeLeftApp(appModel)
             }
-
             Constants.FLAG_SET_TWOFINGER_SWIPE_RIGHT_APP -> {
                 setTwoFingerSwipeRightApp(appModel)
             }
-
             Constants.FLAG_SET_PINCH_IN_APP -> {
                 setPinchInApp(appModel)
             }
-
             Constants.FLAG_SET_PINCH_OUT_APP -> {
                 setPinchOutApp(appModel)
             }
         }
     }
 
-    private fun AppModel.toPreference() = AppPreference(
-        label = appLabel,
-        packageName = appPackage,
-        activityClassName = activityClassName,
-        userString = user.toString()
-    )
+    private fun AppModel.toPreference() =
+            AppPreference(
+                    label = appLabel,
+                    packageName = appPackage,
+                    activityClassName = activityClassName,
+                    userString = user.toString()
+            )
 
     private fun launchAppFromPreference(pref: AppPreference?) {
         pref?.takeIf { it.packageName.isNotEmpty() }?.let {
-            val app = AppModel(
-                appLabel = pref.label,
-                key = null,
-                appPackage = pref.packageName,
-                activityClassName = pref.activityClassName,
-                user = getUserHandleFromString(appContext, pref.userString)
-            )
+            val app =
+                    AppModel(
+                            appLabel = pref.label,
+                            key = null,
+                            appPackage = pref.packageName,
+                            activityClassName = pref.activityClassName,
+                            user = getUserHandleFromString(appContext, pref.userString)
+                    )
             launchApp(app)
         }
     }
 
     private fun setGestureApp(app: AppModel, save: suspend (AppPreference) -> Unit) {
-        viewModelScope.launch {
-            save(app.toPreference())
-        }
+        viewModelScope.launch { save(app.toPreference()) }
     }
 
-    private fun setSwipeLeftApp(app: AppModel) = setGestureApp(app, settingsRepository::setSwipeLeftApp)
-    private fun setSwipeRightApp(app: AppModel) = setGestureApp(app, settingsRepository::setSwipeRightApp)
+    private fun setSwipeLeftApp(app: AppModel) =
+            setGestureApp(app, settingsRepository::setSwipeLeftApp)
+    private fun setSwipeRightApp(app: AppModel) =
+            setGestureApp(app, settingsRepository::setSwipeRightApp)
     private fun setSwipeUpApp(app: AppModel) = setGestureApp(app, settingsRepository::setSwipeUpApp)
-    private fun setSwipeDownApp(app: AppModel) = setGestureApp(app, settingsRepository::setSwipeDownApp)
-    private fun setTwoFingerSwipeLeftApp(app: AppModel) = setGestureApp(app, settingsRepository::setTwoFingerSwipeLeftApp)
-    private fun setTwoFingerSwipeRightApp(app: AppModel) = setGestureApp(app, settingsRepository::setTwoFingerSwipeRightApp)
-    private fun setTwoFingerSwipeUpApp(app: AppModel) = setGestureApp(app, settingsRepository::setTwoFingerSwipeUpApp)
-    private fun setTwoFingerSwipeDownApp(app: AppModel) = setGestureApp(app, settingsRepository::setTwoFingerSwipeDownApp)
+    private fun setSwipeDownApp(app: AppModel) =
+            setGestureApp(app, settingsRepository::setSwipeDownApp)
+    private fun setTwoFingerSwipeLeftApp(app: AppModel) =
+            setGestureApp(app, settingsRepository::setTwoFingerSwipeLeftApp)
+    private fun setTwoFingerSwipeRightApp(app: AppModel) =
+            setGestureApp(app, settingsRepository::setTwoFingerSwipeRightApp)
+    private fun setTwoFingerSwipeUpApp(app: AppModel) =
+            setGestureApp(app, settingsRepository::setTwoFingerSwipeUpApp)
+    private fun setTwoFingerSwipeDownApp(app: AppModel) =
+            setGestureApp(app, settingsRepository::setTwoFingerSwipeDownApp)
     private fun setOneTapApp(app: AppModel) = setGestureApp(app, settingsRepository::setOneTapApp)
-    private fun setDoubleTapApp(app: AppModel) = setGestureApp(app, settingsRepository::setDoubleTapApp)
+    private fun setDoubleTapApp(app: AppModel) =
+            setGestureApp(app, settingsRepository::setDoubleTapApp)
     private fun setPinchInApp(app: AppModel) = setGestureApp(app, settingsRepository::setPinchInApp)
-    private fun setPinchOutApp(app: AppModel) = setGestureApp(app, settingsRepository::setPinchOutApp)
+    private fun setPinchOutApp(app: AppModel) =
+            setGestureApp(app, settingsRepository::setPinchOutApp)
 
     fun launchAppFromSettings(getPref: (AppSettings) -> AppPreference?) {
         viewModelScope.launch {
@@ -283,32 +263,28 @@ internal class MainViewModel(application: Application, private val appWidgetHost
 
     fun lockScreen() {
         viewModelScope.launch {
-            val settings = settingsRepository.settings.first()
-                // Use accessibility service to lock screen
-                val intent = Intent(appContext, MyAccessibilityService::class.java)
-                intent.action = "LOCK_SCREEN"
-                appContext.startService(intent)
+            // Use accessibility service to lock screen
+            val intent = Intent(appContext, MyAccessibilityService::class.java)
+            intent.action = "LOCK_SCREEN"
+            appContext.startService(intent)
         }
     }
 
-    /**
-     * Search apps by query & Math evaluation
-    */
-        
+    /** Search apps by query & Math evaluation */
     private object MathEvaluator {
         fun evaluate(expression: String): String? {
             return try {
                 // Remove all whitespace and replace × with *, ÷ with /
-                val cleanExpr = expression.replace("\\s".toRegex(), "")
-                    .replace("×", "*")
-                    .replace("÷", "/")
-                    .replace("√", "sqrt")
-    
+                val cleanExpr =
+                        expression
+                                .replace("\\s".toRegex(), "")
+                                .replace("×", "*")
+                                .replace("÷", "/")
+                                .replace("√", "sqrt")
+
                 // Build and evaluate the expression
-                val result = ExpressionBuilder(cleanExpr)
-                    .build()
-                    .evaluate()
-    
+                val result = ExpressionBuilder(cleanExpr).build().evaluate()
+
                 // Format the result
                 if (result % 1 == 0.0) {
                     result.toInt().toString()
@@ -321,52 +297,51 @@ internal class MainViewModel(application: Application, private val appWidgetHost
             }
         }
     }
-    
+
     private fun evaluateMathExpression(expression: String): String? {
         return MathEvaluator.evaluate(expression)
-    }    
-        
+    }
+
     private fun isMathExpression(input: String): Boolean {
         if (input.isEmpty()) return false
-        
+
         val mathRegex = Regex("^[\\d\\s+\\-*/^().√!]+$")
-        return input.matches(mathRegex) && 
-               input.any { it.isDigit() } &&  // Must contain at least one digit
-               input.count { it.isDigit() } >= input.count { it in "+-*/^" }  // More numbers than operators
+        return input.matches(mathRegex) &&
+                input.any { it.isDigit() } && // Must contain at least one digit
+                input.count { it.isDigit() } >=
+                        input.count { it in "+-*/^" } // More numbers than operators
     }
-    
+
     fun searchApps(query: String, isEnterPressed: Boolean = false) {
         viewModelScope.launch {
             try {
                 val settings = settingsRepository.settings.first()
-                
+
                 // Clear previous calculator result
                 _appDrawerState.update { it.copy(showCalculatorResult = false) }
-    
+
                 // Handle calculator only when Enter is pressed on a math expression
                 if (isEnterPressed && isMathExpression(query)) {
                     val result = evaluateMathExpression(query)
                     if (result != null) {
                         _appDrawerState.update {
                             it.copy(
-                                calculatorResult = result,
-                                showCalculatorResult = true,
-                                filteredApps = emptyList()
+                                    calculatorResult = result,
+                                    showCalculatorResult = true,
+                                    filteredApps = emptyList()
                             )
                         }
                         return@launch
                     }
                 }
-    
-                val filteredApps = appList.value.filter { it.appLabel?.startsWith(query ?: "", true) == true }
 
-                _appDrawerState.update {
-                    it.copy(
-                        filteredApps = filteredApps,
-                        Loading = false
-                    )
-                }
-    
+                val filteredApps =
+                        appList.value.filter {
+                            it.appLabel.startsWith(query.orEmpty(), ignoreCase = true)
+                        }
+
+                _appDrawerState.update { it.copy(filteredApps = filteredApps, Loading = false) }
+
                 if (filteredApps.size == 1 && settings.autoOpenFilteredApp) {
                     launchApp(filteredApps[0])
                 }
@@ -376,20 +351,14 @@ internal class MainViewModel(application: Application, private val appWidgetHost
         }
     }
 
-    /**
-     * Clear error message
-     */
+    /** Clear error message */
     fun clearError() {
         _errorMessage.value = null
         _appDrawerState.value = _appDrawerState.value.copy(error = null)
     }
-    
-    /**
-     * Emit UI event
-     */
+
+    /** Emit UI event */
     fun emitEvent(event: UiEvent) {
-        viewModelScope.launch {
-            _eventsFlow.emit(event)
-        }
+        viewModelScope.launch { _eventsFlow.emit(event) }
     }
 }
