@@ -5,7 +5,14 @@ import android.util.Log
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import app.voidlauncher.data.Constants
 import app.voidlauncher.data.settings.AppPreference
@@ -14,11 +21,12 @@ import app.voidlauncher.data.settings.SettingsManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 // Extension property for Context to access the DataStore instance
-internal val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "app.voidlauncher.settings")
+internal val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(
+    name = "app.voidlauncher.settings",
+)
 
 /**
  * Repository for managing application settings
@@ -142,7 +150,8 @@ internal class SettingsRepository(
             val swipeLeftApp = getJsonPref(prefs, SWIPE_LEFT_APP_JSON, defaultSwipeLeftApp)
             val swipeRightApp = getJsonPref(prefs, SWIPE_RIGHT_APP_JSON, defaultSwipeRightApp)
             val twoFingerSwipeLeftApp = getJsonPref(prefs, TWOFINGER_SWIPE_LEFT_APP_JSON, defaultTwoFingerSwipeLeftApp)
-            val twoFingerSwipeRightApp = getJsonPref(prefs, TWOFINGER_SWIPE_RIGHT_APP_JSON, defaultTwoFingerSwipeRightApp)
+            val twoFingerSwipeRightApp =
+                getJsonPref(prefs, TWOFINGER_SWIPE_RIGHT_APP_JSON, defaultTwoFingerSwipeRightApp)
             val oneTapApp = getJsonPref(prefs, ONE_TAP_APP_JSON, defaultOneTapApp)
             val doubleTapApp = getJsonPref(prefs, DOUBLE_TAP_APP_JSON, defaultDoubleTapApp)
             val swipeUpApp = getJsonPref(prefs, SWIPE_UP_APP_JSON, defaultSwipeUpApp)
@@ -298,7 +307,9 @@ internal class SettingsRepository(
                         "twoFingerSwipeUpApp" -> prefs[TWOFINGER_SWIPE_UP_APP_JSON] = json.encodeToString(newValue)
                         "twoFingerSwipeDownApp" -> prefs[TWOFINGER_SWIPE_DOWN_APP_JSON] = json.encodeToString(newValue)
                         "twoFingerSwipeLeftApp" -> prefs[TWOFINGER_SWIPE_LEFT_APP_JSON] = json.encodeToString(newValue)
-                        "twoFingerSwipeRightApp" -> prefs[TWOFINGER_SWIPE_RIGHT_APP_JSON] = json.encodeToString(newValue)
+                        "twoFingerSwipeRightApp" ->
+                            prefs[TWOFINGER_SWIPE_RIGHT_APP_JSON] =
+                                json.encodeToString(newValue)
                         "pinchInApp" -> prefs[PINCH_IN_APP_JSON] = json.encodeToString(newValue)
                         "pinchOutApp" -> prefs[PINCH_OUT_APP_JSON] = json.encodeToString(newValue)
                         "renamedApps" -> prefs[RENAMED_APPS_JSON] = json.encodeToString(newValue)

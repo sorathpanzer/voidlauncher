@@ -7,7 +7,10 @@ import app.voidlauncher.data.AppModel
 import app.voidlauncher.helper.getAppsList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
 /**
@@ -34,10 +37,12 @@ internal class AppRepository(
             try {
                 val settings = settingsRepository.settings.first()
                 if (settings.showHiddenAppsOnSearch) {
-                    val apps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = true)
+                    val apps =
+                        getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = true)
                     _appList.value = apps
                 } else {
-                    val apps = getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = false)
+                    val apps =
+                        getAppsList(context, settingsRepository, includeRegularApps = true, includeHiddenApps = false)
                     _appList.value = apps
                 }
             } catch (e: Exception) {
@@ -49,7 +54,8 @@ internal class AppRepository(
     internal suspend fun loadHiddenApps() {
         withContext(Dispatchers.IO) {
             try {
-                val hiddenApps = getAppsList(context, settingsRepository, includeRegularApps = false, includeHiddenApps = true)
+                val hiddenApps =
+                    getAppsList(context, settingsRepository, includeRegularApps = false, includeHiddenApps = true)
                 _hiddenApps.value = hiddenApps
             } catch (e: Exception) {
                 throw e

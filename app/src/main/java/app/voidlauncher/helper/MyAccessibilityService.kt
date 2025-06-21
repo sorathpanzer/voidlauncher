@@ -4,7 +4,6 @@ import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.os.Build
 import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityNodeInfo
 import androidx.annotation.RequiresApi
 import app.voidlauncher.data.repository.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
@@ -37,7 +36,6 @@ internal class MyAccessibilityService : AccessibilityService() {
     @RequiresApi(Build.VERSION_CODES.P)
     public override fun onAccessibilityEvent(event: AccessibilityEvent) {
         try {
-            val source: AccessibilityNodeInfo = event.source ?: return
             performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
         } catch (_: Exception) {
             return

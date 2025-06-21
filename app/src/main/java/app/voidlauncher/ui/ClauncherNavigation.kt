@@ -61,12 +61,6 @@ internal fun CLauncherNavigation(
 
             is UiEvent.StartActivityForResult -> {
                 try {
-                    val activity = context as? Activity
-                } catch (e: SecurityException) {
-                    // Handle cases where the activity isn't exported
-                    Log.e("Navigation", "Security exception starting activity", e)
-                    try {
-                        // Try again with different flags
                         event.intent.addFlags(
                             Intent.FLAG_ACTIVITY_NEW_TASK or
                                 Intent.FLAG_ACTIVITY_CLEAR_TASK or
@@ -82,7 +76,7 @@ internal fun CLauncherNavigation(
                                 Toast.LENGTH_LONG,
                             ).show()
                     }
-                } catch (e: Exception) {
+                catch (e: Exception) {
                     Log.e("Navigation", "Failed to start activity for result", e)
                     Toast
                         .makeText(
@@ -211,10 +205,9 @@ internal fun CLauncherNavigation(
         Box(modifier = Modifier.fillMaxSize()) {
             when (screen) {
                 Navigation.HOME -> {
-                    HomeScreen(
+                    homeScreen(
                         viewModel = viewModel,
                         settingsViewModel = settingsViewModel,
-                        appWidgetHost = appWidgetHost,
                         onNavigateToAppDrawer = {
                             onScreenChange(Navigation.APP_DRAWER)
                         },
@@ -224,7 +217,7 @@ internal fun CLauncherNavigation(
                     )
                 }
                 Navigation.APP_DRAWER -> {
-                    AppDrawerScreen(
+                    appDrawerScreen(
                         viewModel = viewModel,
                         settingsViewModel = settingsViewModel,
                         onAppClick = { app ->
@@ -301,7 +294,7 @@ internal fun CLauncherNavigation(
                     )
                 }
                 Navigation.HIDDEN_APPS -> {
-                    HiddenAppsScreen(
+                    hiddenAppsScreen(
                         viewModel = viewModel,
                         onNavigateBack = {
                             onScreenChange(Navigation.SETTINGS)

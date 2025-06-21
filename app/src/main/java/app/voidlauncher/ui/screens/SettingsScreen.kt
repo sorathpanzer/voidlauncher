@@ -68,7 +68,7 @@ import app.voidlauncher.helper.setPlainWallpaperByTheme
 import app.voidlauncher.ui.AppSelectionType
 import app.voidlauncher.ui.BackHandler
 import app.voidlauncher.ui.UiEvent
-import app.voidlauncher.ui.dialogs.SettingsLockDialog
+import app.voidlauncher.ui.dialogs.settingsLockDialog
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -105,7 +105,7 @@ internal fun SettingsScreen(
     }
 
     if (showLockDialog) {
-        SettingsLockDialog(
+        settingsLockDialog(
             SettingPin = SettingPin,
             onDismiss = { viewModel.setShowLockDialog(false) },
             onConfirm = { pin ->
@@ -165,7 +165,11 @@ internal fun SettingsScreen(
                                 tint = MaterialTheme.colorScheme.primary,
                             )
                             Spacer(Modifier.height(16.dp))
-                            Text("Settings are locked", style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
+                            Text(
+                                "Settings are locked",
+                                style = MaterialTheme.typography.headlineSmall,
+                                textAlign = TextAlign.Center,
+                            )
                             Spacer(Modifier.height(8.dp))
                             Text(
                                 "Enter your PIN to access settings",
@@ -187,7 +191,9 @@ internal fun SettingsScreen(
             for (category in SettingCategory.entries) {
                 val entries = settingsByCategory[category] ?: continue
                 item {
-                    SettingsSection(title = category.toString().replaceFirstChar { it.titlecase(Locale.getDefault()) }) {
+                    SettingsSection(
+                        title = category.toString().replaceFirstChar { it.titlecase(Locale.getDefault()) },
+                    ) {
                         entries.forEach { (prop, ann) ->
                             val enabled = settingsManager.isSettingEnabled(uiState, prop, ann)
                             when (ann.type) {
@@ -207,7 +213,12 @@ internal fun SettingsScreen(
                                         subtitle =
                                             when (prop.returnType.classifier) {
                                                 Int::class -> "${prop.get(uiState)}"
-                                                Float::class -> String.format(Locale.getDefault(), "%.1f", prop.get(uiState))
+                                                Float::class ->
+                                                    String.format(
+                                                        Locale.getDefault(),
+                                                        "%.1f",
+                                                        prop.get(uiState),
+                                                    )
                                                 else -> ""
                                             },
                                         description = ann.description.ifBlank { null },
@@ -226,13 +237,17 @@ internal fun SettingsScreen(
                                         SettingsItem(
                                             title = ann.title,
                                             subtitle =
-                                                if (prop.name.endsWith("Action") && value == Constants.SwipeAction.APP) {
+                                                if (prop.name.endsWith("Action") &&
+                                                    value == Constants.SwipeAction.APP
+                                                ) {
                                                     val appName =
                                                         (
                                                             AppSettings::class
                                                                 .members
-                                                                .firstOrNull { it.name == prop.name.replace("Action", "App") }
-                                                                ?.call(uiState) as? AppPreference
+                                                                .firstOrNull {
+                                                                    it.name ==
+                                                                        prop.name.replace("Action", "App")
+                                                                }?.call(uiState) as? AppPreference
                                                         )?.label ?: "Select app"
                                                     "$display: $appName"
                                                 } else {
@@ -297,7 +312,10 @@ internal fun SettingsScreen(
 
                     SettingsItem(
                         title = "About VoidLauncher",
-                        subtitle = "Version ${context.packageManager.getPackageInfo(context.packageName, 0).versionName}",
+                        subtitle = "Version ${context.packageManager.getPackageInfo(
+                            context.packageName,
+                            0,
+                        ).versionName}",
                         onClick = {
                             val intent =
                                 Intent(Intent.ACTION_VIEW, Constants.URL_ABOUT_VOIDLAUNCHER.toUri()).apply {
@@ -369,7 +387,9 @@ private fun ShowSettingsDialog(
                                 .filterIsInstance<KProperty1<AppSettings, *>>()
                                 .firstOrNull { it.name == prop.name.replace("Action", "App") }
                                 ?.let { appProp ->
-                                    viewModel.emitEvent(UiEvent.NavigateToAppSelection(propNameToSelection(appProp.name)))
+                                    viewModel.emitEvent(
+                                        UiEvent.NavigateToAppSelection(propNameToSelection(appProp.name)),
+                                    )
                                 }
                         }
                         onDismiss()

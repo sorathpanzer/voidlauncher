@@ -1,6 +1,5 @@
 package app.voidlauncher.ui.screens
 
-import android.appwidget.AppWidgetHost
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
@@ -40,10 +39,9 @@ private fun checkAccessibilityAndLock(
 }
 
 @Composable
-internal fun HomeScreen(
+internal fun homeScreen(
     viewModel: MainViewModel,
     settingsViewModel: SettingsViewModel,
-    appWidgetHost: AppWidgetHost,
     onNavigateToAppDrawer: () -> Unit,
     onNavigateToSettings: () -> Unit,
 ) {

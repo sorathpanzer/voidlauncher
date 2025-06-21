@@ -1,15 +1,11 @@
-@file:Suppress("unused")
-
 package app.voidlauncher.helper
 
-import android.annotation.SuppressLint
 import android.app.SearchManager
 import android.app.WallpaperManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
-import android.graphics.Point
 import android.os.Build
 import android.os.UserHandle
 import android.os.UserManager
@@ -17,6 +13,7 @@ import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.View
+import android.view.WindowInsets
 import android.view.WindowManager
 import android.view.animation.LinearInterpolator
 import androidx.annotation.AttrRes
@@ -24,7 +21,6 @@ import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
-import app.voidlauncher.R
 import app.voidlauncher.data.AppModel
 import app.voidlauncher.data.Constants
 import app.voidlauncher.data.repository.SettingsRepository
@@ -90,9 +86,9 @@ internal suspend fun getAppsList(
 
                     val dupAppKey = "${app.applicationInfo.packageName}/${profile.hashCode()}"
 
-                    val Hidden = hiddenApps.contains(dupAppKey)
+                    val hidden = hiddenApps.contains(dupAppKey)
 
-                    if (Hidden) {
+                    if (hidden) {
                         if (includeHiddenApps) {
                             appList.add(appModel.copy(Hidden = true))
                         }
@@ -180,22 +176,35 @@ internal fun setPlainWallpaper(
     }
 }
 
+// internal fun getScreenDimensions(context: Context): Pair<Int, Int> {
+//     val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+
+//     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//         val metrics = windowManager.currentWindowMetrics
+//         val bounds = metrics.bounds
+//         Pair(bounds.width(), bounds.height())
+//     } else {
+//         // Fallback for older versions
+//         val display = windowManager.defaultDisplay
+//         val point = Point()
+//         display.getRealSize(point)
+//         Pair(point.x, point.y)
+//     }
+// }
+
 internal fun getScreenDimensions(context: Context): Pair<Int, Int> {
     val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        val metrics = windowManager.currentWindowMetrics
-        val bounds = metrics.bounds
-        Pair(bounds.width(), bounds.height())
-    } else {
-        // Fallback for older versions
-        @Suppress("DEPRECATION")
-        val display = windowManager.defaultDisplay
-        val point = Point()
-        @Suppress("DEPRECATION")
-        display.getRealSize(point)
-        Pair(point.x, point.y)
-    }
+    val metrics = windowManager.currentWindowMetrics
+    val insets =
+        metrics.windowInsets.getInsetsIgnoringVisibility(
+            WindowInsets.Type.systemBars(),
+        )
+
+    val width = metrics.bounds.width() - insets.left - insets.right
+    val height = metrics.bounds.height() - insets.top - insets.bottom
+
+    return Pair(width, height)
 }
 
 internal fun openSearch(context: Context) {
@@ -204,7 +213,7 @@ internal fun openSearch(context: Context) {
     context.startActivity(intent)
 }
 
-@SuppressLint("WrongConstant")
+// @SuppressLint("WrongConstant")
 internal fun expandNotificationDrawer(context: Context) {
     try {
         // Fall back -> reflection for older versions
@@ -237,7 +246,8 @@ internal fun isAccessServiceEnabled(context: Context): Boolean {
                 context.contentResolver,
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
             )
-        return enabledServicesString?.contains(context.packageName + "/" + MyAccessibilityService::class.java.name) ?: false
+        return enabledServicesString?.contains(context.packageName + "/" + MyAccessibilityService::class.java.name)
+            ?: false
     }
     return false
 }

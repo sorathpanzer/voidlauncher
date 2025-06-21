@@ -54,7 +54,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -77,7 +76,7 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-internal fun AppDrawerScreen(
+internal fun appDrawerScreen(
     viewModel: MainViewModel,
     settingsViewModel: SettingsViewModel = viewModel(),
     onAppClick: (AppModel) -> Unit,
@@ -98,7 +97,6 @@ internal fun AppDrawerScreen(
 
     var isSearchFocused by remember { mutableStateOf(false) }
 
-    val configuration = LocalConfiguration.current
     val searchResultsFontSize = settings.searchResultsFontSize
 
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
@@ -129,7 +127,9 @@ internal fun AppDrawerScreen(
     val scrollState = rememberLazyListState()
 
     LaunchedEffect(searchQuery, scrollState) {
-        if (searchQuery.isEmpty() && (scrollState.firstVisibleItemIndex != 0 || scrollState.firstVisibleItemScrollOffset != 0)) {
+        if (searchQuery.isEmpty() &&
+            (scrollState.firstVisibleItemIndex != 0 || scrollState.firstVisibleItemScrollOffset != 0)
+        ) {
             scrollState.scrollToItem(0)
         }
     }
@@ -194,7 +194,7 @@ internal fun AppDrawerScreen(
             )
         }
 
-        AppDrawerSearch(
+        appDrawerSearch(
             searchQuery = searchQuery,
             onSearchChanged = { query ->
                 searchQuery = query
@@ -226,7 +226,10 @@ internal fun AppDrawerScreen(
         when {
             uiState.Loading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
             uiState.error != null -> Box(Modifier.fillMaxSize(), Alignment.Center) { Text("Error: ${uiState.error}") }
-            uiState.apps.isEmpty() && searchQuery.isEmpty() -> Box(Modifier.fillMaxSize(), Alignment.Center) { Text("No apps found") }
+            uiState.apps.isEmpty() && searchQuery.isEmpty() ->
+                Box(Modifier.fillMaxSize(), Alignment.Center) {
+                    Text("No apps found")
+                }
             uiState.filteredApps.isEmpty() && searchQuery.isNotEmpty() -> {
                 Box(Modifier.fillMaxSize()) {
                     Column(
@@ -240,7 +243,9 @@ internal fun AppDrawerScreen(
                             Button(
                                 onClick = {
                                     if (searchQuery.startsWith("!")) {
-                                        context.openSearch(Constants.URL_DUCK_SEARCH + searchQuery.substring(1).replace(" ", "%20"))
+                                        context.openSearch(
+                                            Constants.URL_DUCK_SEARCH + searchQuery.substring(1).replace(" ", "%20"),
+                                        )
                                     } else {
                                         context.openSearch(searchQuery.trim())
                                     }
@@ -261,7 +266,7 @@ internal fun AppDrawerScreen(
                         key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" },
                     ) { app ->
                         if (settings.showAppNames) {
-                            AppListItem(
+                            appListItem(
                                 app = app,
                                 showAppNames = settings.showAppNames,
                                 fontScale = searchResultsFontSize,
@@ -287,7 +292,7 @@ internal fun AppDrawerScreen(
     if (showContextMenu && selectedApp != null) {
         val app = selectedApp ?: return
         val hiddenApps by viewModel.hiddenApps.collectAsState()
-        val Hidden = hiddenApps.any { it.getKey() == app.getKey() }
+        val hidden = hiddenApps.any { it.getKey() == app.getKey() }
 
         var renameDialogVisible by remember { mutableStateOf(false) }
         var newAppName by remember { mutableStateOf(app.appLabel) }
@@ -300,19 +305,19 @@ internal fun AppDrawerScreen(
             title = { Text(app.appLabel) },
             text = {
                 Column {
-                    ContextMenuItem("Open App", Icons.Default.AdsClick) {
+                    contextMenuItem("Open App", Icons.Default.AdsClick) {
                         handleAppClick(app)
                         showContextMenu = false
                         selectedApp = null
                     }
-                    ContextMenuItem(if (Hidden) "Unhide App" else "Hide App", Icons.Default.Settings) {
+                    contextMenuItem(if (hidden) "Unhide App" else "Hide App", Icons.Default.Settings) {
                         viewModel.toggleAppHidden(app)
                         showContextMenu =
                             false
                         selectedApp = null
                     }
-                    ContextMenuItem("Rename App", Icons.Default.DriveFileRenameOutline) { renameDialogVisible = true }
-                    ContextMenuItem("App Info", Icons.Default.Info) {
+                    contextMenuItem("Rename App", Icons.Default.DriveFileRenameOutline) { renameDialogVisible = true }
+                    contextMenuItem("App Info", Icons.Default.Info) {
                         context.startActivity(
                             Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                                 data = Uri.fromParts("package", app.appPackage, null)
@@ -366,7 +371,7 @@ internal fun AppDrawerScreen(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun AppListItem(
+private fun appListItem(
     app: AppModel,
     showAppNames: Boolean,
     fontScale: Float,
@@ -398,7 +403,7 @@ private fun AppListItem(
 }
 
 @Composable
-private fun ContextMenuItem(
+private fun contextMenuItem(
     text: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     onClick: () -> Unit,
@@ -413,7 +418,7 @@ private fun ContextMenuItem(
 }
 
 @Composable
-private fun AppDrawerSearch(
+private fun appDrawerSearch(
     searchQuery: String,
     onSearchChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
