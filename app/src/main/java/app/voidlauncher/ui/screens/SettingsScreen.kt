@@ -92,7 +92,7 @@ internal fun settingsScreen(
 
     val effectiveLockState by viewModel.effectiveLockState.collectAsState()
     val showLockDialog by viewModel.showLockDialog.collectAsState()
-    val settingPin by viewModel.SettingPin.collectAsState()
+    val SettingPin by viewModel.SettingPin.collectAsState()
 
     DisposableEffect(Unit) {
         onDispose { viewModel.resetUnlockState() }
@@ -105,10 +105,10 @@ internal fun settingsScreen(
 
     if (showLockDialog) {
         settingsLockDialog(
-            SettingPin = settingPin,
+            SettingPin = SettingPin,
             onDismiss = { viewModel.setShowLockDialog(false) },
             onConfirm = { pin ->
-                if (settingPin) {
+                if (SettingPin) {
                     viewModel.setPin(pin)
                     viewModel.toggleLockSettings(true)
                 } else if (viewModel.validatePin(pin)) {
