@@ -102,7 +102,6 @@ internal class MainActivity : ComponentActivity() {
                     onScreenChange = { screen ->
                         currentScreen = screen
                     },
-                    appWidgetHost = appWidgetHost,
                 )
             }
         }

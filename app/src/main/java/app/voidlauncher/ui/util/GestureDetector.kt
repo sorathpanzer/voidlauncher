@@ -1,17 +1,14 @@
 package app.voidlauncher.ui.util
 
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-// import androidx.compose.ui.unit.IntSize
-import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.ui.input.pointer.PointerId
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.pointerInput
 import kotlin.math.abs
-// import kotlin.math.atan2
 import kotlin.math.hypot
-import androidx.compose.ui.input.pointer.*
-// import kotlinx.coroutines.coroutineScope
-// import kotlinx.coroutines.delay
-// import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Adds swipe gesture detection to a composable
@@ -127,7 +124,7 @@ internal fun Modifier.detectPinchGestures(onPinch: (zoomDelta: Float) -> Unit): 
                 }
             }
 
-            var previousDistance = distanceBetween(pointer1!!.position, pointer2!!.position)
+            var previousDistance = distanceBetween(pointer1.position, pointer2.position)
 
             while (true) {
                 val event = awaitPointerEvent()

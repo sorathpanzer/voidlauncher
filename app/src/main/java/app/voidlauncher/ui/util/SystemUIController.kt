@@ -15,7 +15,7 @@ import androidx.compose.ui.platform.LocalView
  * Controls system UI elements like status bar
  */
 @Composable
-internal fun SystemUIController(showStatusBar: Boolean) {
+internal fun systemUIController(showStatusBar: Boolean) {
     val view = LocalView.current
     val context = LocalContext.current
     val window = remember { (context as? Activity)?.window }

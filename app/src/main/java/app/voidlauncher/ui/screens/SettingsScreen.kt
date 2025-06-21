@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
@@ -77,7 +76,7 @@ import kotlin.reflect.KProperty1
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun SettingsScreen(
+internal fun settingsScreen(
     viewModel: SettingsViewModel = viewModel(),
     onNavigateBack: () -> Unit,
     onNavigateToHiddenApps: () -> Unit = {},
@@ -93,7 +92,7 @@ internal fun SettingsScreen(
 
     val effectiveLockState by viewModel.effectiveLockState.collectAsState()
     val showLockDialog by viewModel.showLockDialog.collectAsState()
-    val SettingPin by viewModel.SettingPin.collectAsState()
+    val settingPin by viewModel.SettingPin.collectAsState()
 
     DisposableEffect(Unit) {
         onDispose { viewModel.resetUnlockState() }
@@ -106,10 +105,10 @@ internal fun SettingsScreen(
 
     if (showLockDialog) {
         settingsLockDialog(
-            SettingPin = SettingPin,
+            SettingPin = settingPin,
             onDismiss = { viewModel.setShowLockDialog(false) },
             onConfirm = { pin ->
-                if (SettingPin) {
+                if (settingPin) {
                     viewModel.setPin(pin)
                     viewModel.toggleLockSettings(true)
                 } else if (viewModel.validatePin(pin)) {
@@ -119,7 +118,7 @@ internal fun SettingsScreen(
         )
     }
 
-    ShowSettingsDialog(
+    showSettingsDialog(
         dialogType = showingDialog,
         currentProperty = currentProperty,
         currentAnnotation = currentAnnotation,
@@ -191,14 +190,14 @@ internal fun SettingsScreen(
             for (category in SettingCategory.entries) {
                 val entries = settingsByCategory[category] ?: continue
                 item {
-                    SettingsSection(
+                    settingsSection(
                         title = category.toString().replaceFirstChar { it.titlecase(Locale.getDefault()) },
                     ) {
                         entries.forEach { (prop, ann) ->
                             val enabled = settingsManager.isSettingEnabled(uiState, prop, ann)
                             when (ann.type) {
                                 SettingType.TOGGLE -> {
-                                    SettingsToggle(
+                                    settingsToggle(
                                         title = ann.title,
                                         description = ann.description.ifBlank { null },
                                         isChecked = prop.get(uiState) as Boolean,
@@ -208,7 +207,7 @@ internal fun SettingsScreen(
                                     }
                                 }
                                 SettingType.SLIDER -> {
-                                    SettingsItem(
+                                    settingsItem(
                                         title = ann.title,
                                         subtitle =
                                             when (prop.returnType.classifier) {
@@ -234,7 +233,7 @@ internal fun SettingsScreen(
                                     if (ann.options.isNotEmpty() && prop.returnType.classifier == Int::class) {
                                         val value = prop.get(uiState) as Int
                                         val display = ann.options.getOrElse(value) { "Unknown" }
-                                        SettingsItem(
+                                        settingsItem(
                                             title = ann.title,
                                             subtitle =
                                                 if (prop.name.endsWith("Action") &&
@@ -264,7 +263,7 @@ internal fun SettingsScreen(
                                     }
                                 }
                                 SettingType.BUTTON -> {
-                                    SettingsAction(
+                                    settingsAction(
                                         title = ann.title,
                                         description = ann.description.ifBlank { null },
                                         enabled = enabled,
@@ -276,7 +275,7 @@ internal fun SettingsScreen(
                                 }
                                 SettingType.APP_PICKER -> {
                                     val appName = (prop.get(uiState) as? AppPreference)?.label ?: "Not set"
-                                    SettingsItem(
+                                    settingsItem(
                                         title = ann.title,
                                         subtitle = appName,
                                         description = ann.description.ifBlank { null },
@@ -294,8 +293,8 @@ internal fun SettingsScreen(
             }
 
             item {
-                SettingsSection(title = "SYSTEM") {
-                    SettingsToggle(
+                settingsSection(title = "SYSTEM") {
+                    settingsToggle(
                         title = "Lock Settings",
                         description = "Prevent changes to settings without a PIN",
                         isChecked = uiState.lockSettings,
@@ -308,9 +307,9 @@ internal fun SettingsScreen(
                         },
                     )
 
-                    SettingsItem(title = "Hidden Apps", onClick = onNavigateToHiddenApps)
+                    settingsItem(title = "Hidden Apps", onClick = onNavigateToHiddenApps)
 
-                    SettingsItem(
+                    settingsItem(
                         title = "About VoidLauncher",
                         subtitle = "Version ${context.packageManager.getPackageInfo(
                             context.packageName,
@@ -333,7 +332,7 @@ internal fun SettingsScreen(
 private enum class SettingsDialogType { SLIDER, DROPDOWN, APP_PICKER, BUTTON }
 
 @Composable
-private fun ShowSettingsDialog(
+private fun showSettingsDialog(
     dialogType: SettingsDialogType?,
     currentProperty: KProperty1<AppSettings, *>?,
     currentAnnotation: Setting?,
@@ -353,7 +352,7 @@ private fun ShowSettingsDialog(
                         Float::class -> prop.get(uiState) as Float
                         else -> 0f
                     }
-                SliderSettingDialog(
+                sliderSettingDialog(
                     title = ann.title,
                     currentValue = initialValue,
                     min = ann.min,
@@ -373,7 +372,7 @@ private fun ShowSettingsDialog(
             currentProperty?.takeIf { currentAnnotation != null }?.let { prop ->
                 val ann = currentAnnotation!!
                 val index = prop.get(uiState) as? Int ?: 0
-                DropdownSettingDialog(
+                dropdownSettingDialog(
                     title = ann.title,
                     options = ann.options.toList(),
                     selectedIndex = index,
@@ -435,7 +434,7 @@ private fun propNameToSelection(name: String) =
     }
 
 @Composable
-private fun SettingsSection(
+private fun settingsSection(
     title: String,
     content: @Composable () -> Unit,
 ) {
@@ -466,7 +465,7 @@ private fun SettingsSection(
 }
 
 @Composable
-private fun SettingsItem(
+private fun settingsItem(
     title: String,
     subtitle: String? = null,
     description: String? = null,
@@ -507,7 +506,7 @@ private fun SettingsItem(
 }
 
 @Composable
-private fun SettingsToggle(
+private fun settingsToggle(
     title: String,
     description: String? = null,
     isChecked: Boolean,
@@ -558,7 +557,7 @@ private fun SettingsToggle(
 }
 
 @Composable
-private fun SettingsAction(
+private fun settingsAction(
     title: String,
     description: String? = null,
     enabled: Boolean = true,
@@ -611,7 +610,7 @@ private fun SettingsAction(
 }
 
 @Composable
-private fun SliderSettingDialog(
+private fun sliderSettingDialog(
     title: String,
     currentValue: Float,
     min: Float,
@@ -657,7 +656,7 @@ private fun SliderSettingDialog(
 }
 
 @Composable
-private fun DropdownSettingDialog(
+private fun dropdownSettingDialog(
     title: String,
     options: List<String>,
     selectedIndex: Int,

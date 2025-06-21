@@ -1,7 +1,6 @@
 package app.voidlauncher.ui
 
 import android.app.Activity
-import android.appwidget.AppWidgetHost
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
@@ -21,7 +20,7 @@ import app.voidlauncher.MainViewModel
 import app.voidlauncher.data.Constants
 import app.voidlauncher.data.Navigation
 import app.voidlauncher.ui.screens.*
-import app.voidlauncher.ui.util.SystemUIController
+import app.voidlauncher.ui.util.systemUIController
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.flow.collectLatest
 
@@ -32,13 +31,12 @@ internal fun CLauncherNavigation(
     settingsViewModel: SettingsViewModel,
     currentScreen: String,
     onScreenChange: (String) -> Unit,
-    appWidgetHost: AppWidgetHost,
 ) {
     val context = LocalContext.current
     val settings by settingsViewModel.settingsState.collectAsState()
 
     // Apply system UI settings
-    SystemUIController(showStatusBar = settings.statusBar)
+    systemUIController(showStatusBar = settings.statusBar)
 
     var showAppSelectionDialog by remember { mutableStateOf(false) }
     var currentSelectionType by remember { mutableStateOf<AppSelectionType?>(null) }
@@ -283,7 +281,7 @@ internal fun CLauncherNavigation(
                     )
                 }
                 Navigation.SETTINGS -> {
-                    SettingsScreen(
+                    settingsScreen(
                         viewModel = settingsViewModel,
                         onNavigateBack = {
                             onScreenChange(Navigation.HOME)
