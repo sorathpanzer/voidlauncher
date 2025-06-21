@@ -2,18 +2,18 @@ package app.voidlauncher.data.repository
 
 import android.content.Context
 import android.util.Log
+import android.view.Gravity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import app.voidlauncher.data.Constants
+import app.voidlauncher.data.settings.AppPreference
 import app.voidlauncher.data.settings.AppSettings
 import app.voidlauncher.data.settings.SettingsManager
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.first
-import android.view.Gravity
-import androidx.appcompat.app.AppCompatDelegate
-import app.voidlauncher.data.settings.AppPreference
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -23,10 +23,14 @@ internal val Context.settingsDataStore: DataStore<Preferences> by preferencesDat
 /**
  * Repository for managing application settings
  */
-@Suppress("NullableBooleanElvis")
-internal class SettingsRepository(private val context: Context) {
-
-    private val json = Json { ignoreUnknownKeys = true; prettyPrint = false } // Configure Json instance
+internal class SettingsRepository(
+    private val context: Context,
+) {
+    private val json =
+        Json {
+            ignoreUnknownKeys = true
+            prettyPrint = false
+        } // Configure Json instance
 
     private val settingsManager = SettingsManager()
 
@@ -103,8 +107,6 @@ internal class SettingsRepository(private val context: Context) {
         val HOME_SCREEN_COLUMNS = intPreferencesKey("HOME_SCREEN_COLUMNS")
 
         val SELECTED_ICON_PACK = stringPreferencesKey("SELECTED_ICON_PACK")
-
-
     }
 
     private val defaultAppSettings = AppSettings.getDefault()
@@ -125,115 +127,117 @@ internal class SettingsRepository(private val context: Context) {
      * Flow of settings that emits whenever any setting changes
      */
 
-    inline fun <reified T> getJsonPref(prefs: Preferences, key: Preferences.Key<String>, default: T): T {
-        return prefs[key]?.let { json.decodeFromStringCatching(it, default) } ?: default
-        
-    }
+    inline fun <reified T> getJsonPref(
+        prefs: Preferences,
+        key: Preferences.Key<String>,
+        default: T,
+    ): T =
+        prefs[key]?.let {
+            json.decodeFromStringCatching(it, default)
+        } ?: default
 
-    val settings: Flow<AppSettings> = context.settingsDataStore.data.map { prefs ->
-        
-        val swipeLeftApp = getJsonPref(prefs, SWIPE_LEFT_APP_JSON, defaultSwipeLeftApp)
-        val swipeRightApp = getJsonPref(prefs, SWIPE_RIGHT_APP_JSON, defaultSwipeRightApp)
-        val twoFingerSwipeLeftApp = getJsonPref(prefs, TWOFINGER_SWIPE_LEFT_APP_JSON, defaultTwoFingerSwipeLeftApp)
-        val twoFingerSwipeRightApp = getJsonPref(prefs, TWOFINGER_SWIPE_RIGHT_APP_JSON, defaultTwoFingerSwipeRightApp)
-        val oneTapApp = getJsonPref(prefs, ONE_TAP_APP_JSON, defaultOneTapApp)
-        val doubleTapApp = getJsonPref(prefs, DOUBLE_TAP_APP_JSON, defaultDoubleTapApp)
-        val swipeUpApp = getJsonPref(prefs, SWIPE_UP_APP_JSON, defaultSwipeUpApp)
-        val swipeDownApp = getJsonPref(prefs, SWIPE_DOWN_APP_JSON, defaultSwipeDownApp)
-        val twoFingerSwipeUpApp = getJsonPref(prefs, TWOFINGER_SWIPE_UP_APP_JSON, defaultTwoFingerSwipeUpApp)
-        val twoFingerSwipeDownApp = getJsonPref(prefs, TWOFINGER_SWIPE_DOWN_APP_JSON, defaultTwoFingerSwipeDownApp)
-        val pinchInApp = getJsonPref(prefs, PINCH_IN_APP_JSON, defaultPinchInApp)
-        val pinchOutApp = getJsonPref(prefs, PINCH_OUT_APP_JSON, defaultPinchOutApp)
+    val settings: Flow<AppSettings> =
+        context.settingsDataStore.data.map { prefs ->
 
-        val renamedApps = prefs[RENAMED_APPS_JSON]?.let {
-            try {
-                json.decodeFromString<Map<String, String>>(it)
-            } catch (e: Exception) {
-                Log.e("SettingsRepo", "Failed to decode renamed apps JSON: ${e.message}")
-                mapOf<String, String>()
-            }
-        } ?: mapOf()
+            val swipeLeftApp = getJsonPref(prefs, SWIPE_LEFT_APP_JSON, defaultSwipeLeftApp)
+            val swipeRightApp = getJsonPref(prefs, SWIPE_RIGHT_APP_JSON, defaultSwipeRightApp)
+            val twoFingerSwipeLeftApp = getJsonPref(prefs, TWOFINGER_SWIPE_LEFT_APP_JSON, defaultTwoFingerSwipeLeftApp)
+            val twoFingerSwipeRightApp = getJsonPref(prefs, TWOFINGER_SWIPE_RIGHT_APP_JSON, defaultTwoFingerSwipeRightApp)
+            val oneTapApp = getJsonPref(prefs, ONE_TAP_APP_JSON, defaultOneTapApp)
+            val doubleTapApp = getJsonPref(prefs, DOUBLE_TAP_APP_JSON, defaultDoubleTapApp)
+            val swipeUpApp = getJsonPref(prefs, SWIPE_UP_APP_JSON, defaultSwipeUpApp)
+            val swipeDownApp = getJsonPref(prefs, SWIPE_DOWN_APP_JSON, defaultSwipeDownApp)
+            val twoFingerSwipeUpApp = getJsonPref(prefs, TWOFINGER_SWIPE_UP_APP_JSON, defaultTwoFingerSwipeUpApp)
+            val twoFingerSwipeDownApp = getJsonPref(prefs, TWOFINGER_SWIPE_DOWN_APP_JSON, defaultTwoFingerSwipeDownApp)
+            val pinchInApp = getJsonPref(prefs, PINCH_IN_APP_JSON, defaultPinchInApp)
+            val pinchOutApp = getJsonPref(prefs, PINCH_OUT_APP_JSON, defaultPinchOutApp)
 
-        AppSettings(
-            // General settings
-            showAppNames = prefs[SHOW_APP_NAMES] ?: false,
-            showHiddenAppsOnSearch = prefs[SHOW_HIDDEN_APPS_IN_SEARCH] ?: false,
-            searchType = prefs[SEARCH_TYPE] ?: Constants.SearchType.STARTS_WITH,
+            val renamedApps =
+                prefs[RENAMED_APPS_JSON]?.let {
+                    try {
+                        json.decodeFromString<Map<String, String>>(it)
+                    } catch (e: Exception) {
+                        Log.e("SettingsRepo", "Failed to decode renamed apps JSON: ${e.message}")
+                        mapOf<String, String>()
+                    }
+                } ?: mapOf()
 
-            // Appearance settings
-            appTheme = prefs[APP_THEME] ?: AppCompatDelegate.MODE_NIGHT_YES,
+            AppSettings(
+                // General settings
+                showAppNames = prefs[SHOW_APP_NAMES] ?: false,
+                showHiddenAppsOnSearch = prefs[SHOW_HIDDEN_APPS_IN_SEARCH] ?: false,
+                searchType = prefs[SEARCH_TYPE] ?: Constants.SearchType.STARTS_WITH,
+                // Appearance settings
+                appTheme = prefs[APP_THEME] ?: AppCompatDelegate.MODE_NIGHT_YES,
+                // Layout settings
+                statusBar = prefs[STATUS_BAR] ?: false,
+                // Gestures settings
+                swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeAction.NOTIFICATIONS,
+                swipeUpAction = prefs[SWIPE_UP_ACTION] ?: Constants.SwipeAction.SEARCH,
+                twoFingerSwipeDownAction = prefs[TWOFINGER_SWIPE_DOWN_ACTION] ?: Constants.SwipeAction.NULL,
+                twoFingerSwipeUpAction = prefs[TWOFINGER_SWIPE_UP_ACTION] ?: Constants.SwipeAction.NULL,
+                twoFingerSwipeRightAction = prefs[TWOFINGER_SWIPE_RIGHT_ACTION] ?: Constants.SwipeAction.NULL,
+                twoFingerSwipeLeftAction = prefs[TWOFINGER_SWIPE_LEFT_ACTION] ?: Constants.SwipeAction.NULL,
+                swipeLeftAction = prefs[SWIPE_LEFT_ACTION] ?: Constants.SwipeAction.NULL,
+                swipeRightAction = prefs[SWIPE_RIGHT_ACTION] ?: Constants.SwipeAction.NULL,
+                oneTapAction = prefs[ONE_TAP_ACTION] ?: Constants.SwipeAction.LOCKSCREEN,
+                doubleTapAction = prefs[DOUBLE_TAP_ACTION] ?: Constants.SwipeAction.NULL,
+                pinchInAction = prefs[PINCH_IN_ACTION] ?: Constants.SwipeAction.NULL,
+                pinchOutAction = prefs[PINCH_OUT_ACTION] ?: Constants.SwipeAction.NULL,
+                lockSettings = prefs[LOCK_SETTINGS] ?: false,
+                settingsLockPin = prefs[SETTINGS_LOCK_PIN] ?: "",
+                // Other properties
+                firstOpen = prefs[FIRST_OPEN] ?: true,
+                firstOpenTime = prefs[FIRST_OPEN_TIME] ?: 0L,
+                firstSettingsOpen = prefs[FIRST_SETTINGS_OPEN] ?: true,
+                firstHide = prefs[FIRST_HIDE] ?: true,
+                lockMode = prefs[LOCK_MODE] ?: false,
+                keyboardMessage = prefs[KEYBOARD_MESSAGE] ?: false,
+                plainWallpaper = prefs[PLAIN_WALLPAPER] ?: false,
+                appLabelAlignment = prefs[APP_LABEL_ALIGNMENT] ?: Gravity.START,
+                hiddenApps = prefs[HIDDEN_APPS] ?: emptySet(),
+                hiddenAppsUpdated = prefs[HIDDEN_APPS_UPDATED] ?: false,
+                showHintCounter = prefs[SHOW_HINT_COUNTER] ?: 1,
+                aboutClicked = prefs[ABOUT_CLICKED] ?: false,
+                searchResultsFontSize = prefs[SEARCH_RESULTS_FONT_SIZE] ?: 1.0f,
+                swipeLeftApp = swipeLeftApp,
+                swipeRightApp = swipeRightApp,
+                oneTapApp = oneTapApp,
+                doubleTapApp = doubleTapApp,
+                swipeUpApp = swipeUpApp,
+                swipeDownApp = swipeDownApp,
+                twoFingerSwipeUpApp = twoFingerSwipeUpApp,
+                twoFingerSwipeDownApp = twoFingerSwipeDownApp,
+                twoFingerSwipeLeftApp = twoFingerSwipeLeftApp,
+                twoFingerSwipeRightApp = twoFingerSwipeRightApp,
+                pinchInApp = pinchInApp,
+                pinchOutApp = pinchOutApp,
+                renamedApps = renamedApps,
+            )
+        }
 
-            // Layout settings
-            statusBar = prefs[STATUS_BAR] ?: false,
-
-            // Gestures settings
-            swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeAction.NOTIFICATIONS,
-            swipeUpAction = prefs[SWIPE_UP_ACTION] ?: Constants.SwipeAction.SEARCH,
-            twoFingerSwipeDownAction = prefs[TWOFINGER_SWIPE_DOWN_ACTION] ?: Constants.SwipeAction.NULL,
-            twoFingerSwipeUpAction = prefs[TWOFINGER_SWIPE_UP_ACTION] ?: Constants.SwipeAction.NULL,
-            twoFingerSwipeRightAction = prefs[TWOFINGER_SWIPE_RIGHT_ACTION] ?: Constants.SwipeAction.NULL,
-            twoFingerSwipeLeftAction = prefs[TWOFINGER_SWIPE_LEFT_ACTION] ?: Constants.SwipeAction.NULL,
-            swipeLeftAction = prefs[SWIPE_LEFT_ACTION] ?: Constants.SwipeAction.NULL,
-            swipeRightAction = prefs[SWIPE_RIGHT_ACTION] ?: Constants.SwipeAction.NULL,
-            oneTapAction = prefs[ONE_TAP_ACTION] ?: Constants.SwipeAction.LOCKSCREEN,
-            doubleTapAction = prefs[DOUBLE_TAP_ACTION] ?: Constants.SwipeAction.NULL,
-            pinchInAction = prefs[PINCH_IN_ACTION] ?: Constants.SwipeAction.NULL,
-            pinchOutAction = prefs[PINCH_OUT_ACTION] ?: Constants.SwipeAction.NULL,
-
-            lockSettings = prefs[LOCK_SETTINGS] ?: false,
-            settingsLockPin = prefs[SETTINGS_LOCK_PIN] ?: "",
-
-            // Other properties
-            firstOpen = prefs[FIRST_OPEN] ?: true,
-            firstOpenTime = prefs[FIRST_OPEN_TIME] ?: 0L,
-            firstSettingsOpen = prefs[FIRST_SETTINGS_OPEN] ?: true,
-            firstHide = prefs[FIRST_HIDE] ?: true,
-            lockMode = prefs[LOCK_MODE] ?: false,
-            keyboardMessage = prefs[KEYBOARD_MESSAGE] ?: false,
-            plainWallpaper = prefs[PLAIN_WALLPAPER] ?: false,
-            appLabelAlignment = prefs[APP_LABEL_ALIGNMENT] ?: Gravity.START,
-            hiddenApps = prefs[HIDDEN_APPS] ?: emptySet(),
-            hiddenAppsUpdated = prefs[HIDDEN_APPS_UPDATED] ?: false,
-            showHintCounter = prefs[SHOW_HINT_COUNTER] ?: 1,
-            aboutClicked = prefs[ABOUT_CLICKED] ?: false,
-            searchResultsFontSize = prefs[SEARCH_RESULTS_FONT_SIZE] ?: 1.0f,
-
-            swipeLeftApp = swipeLeftApp,
-            swipeRightApp = swipeRightApp,
-            oneTapApp = oneTapApp,
-            doubleTapApp = doubleTapApp,
-            swipeUpApp = swipeUpApp,
-            swipeDownApp = swipeDownApp,
-            twoFingerSwipeUpApp = twoFingerSwipeUpApp,
-            twoFingerSwipeDownApp = twoFingerSwipeDownApp,
-            twoFingerSwipeLeftApp = twoFingerSwipeLeftApp,
-            twoFingerSwipeRightApp = twoFingerSwipeRightApp,
-            pinchInApp = pinchInApp,
-            pinchOutApp = pinchOutApp,
-            renamedApps = renamedApps
-        )
-    }
-
-    private inline fun <reified T> Json.decodeFromStringCatching(jsonString: String, default: T): T {
-        return try {
+    private inline fun <reified T> Json.decodeFromStringCatching(
+        jsonString: String,
+        default: T,
+    ): T =
+        try {
             this.decodeFromString<T>(jsonString)
         } catch (e: Exception) {
             Log.e("SettingsRepo", "Failed to decode JSON for ${T::class.simpleName}: ${e.message}. Using default.")
             default
         }
-    }
 
     internal suspend fun updateSetting(update: (AppSettings) -> AppSettings) {
         val currentSettings = settings.first()
         val updatedSettings = update(currentSettings)
-    
+
         context.settingsDataStore.edit { prefs ->
             AppSettings::class.java.declaredFields.forEach { field ->
                 field.isAccessible = true
                 val name = field.name
                 val currentValue = field.get(currentSettings)
                 val newValue = field.get(updatedSettings)
-    
+
                 if (currentValue != newValue) {
                     @Suppress("UNCHECKED_CAST")
                     when (name) {
@@ -241,14 +245,14 @@ internal class SettingsRepository(private val context: Context) {
                         "showAppNames" -> prefs[SHOW_APP_NAMES] = newValue as Boolean
                         "showHiddenAppsOnSearch" -> prefs[SHOW_HIDDEN_APPS_IN_SEARCH] = newValue as Boolean
                         "searchType" -> prefs[SEARCH_TYPE] = newValue as Int
-    
+
                         // Appearance settings
                         "appTheme" -> prefs[APP_THEME] = newValue as Int
-    
+
                         // Layout settings
                         "statusBar" -> prefs[STATUS_BAR] = newValue as Boolean
                         "showHomeScreenIcons" -> prefs[SHOW_HOME_SCREEN_ICONS] = newValue as Boolean
-    
+
                         // Gestures settings
                         "swipeDownAction" -> prefs[SWIPE_DOWN_ACTION] = newValue as Int
                         "swipeUpAction" -> prefs[SWIPE_UP_ACTION] = newValue as Int
@@ -262,13 +266,13 @@ internal class SettingsRepository(private val context: Context) {
                         "doubleTapAction" -> prefs[DOUBLE_TAP_ACTION] = newValue as Int
                         "pinchInAction" -> prefs[PINCH_IN_ACTION] = newValue as Int
                         "pinchOutAction" -> prefs[PINCH_OUT_ACTION] = newValue as Int
-    
+
                         // Search result appearance
                         "searchResultsFontSize" -> prefs[SEARCH_RESULTS_FONT_SIZE] = newValue as Float
-    
+
                         "lockSettings" -> prefs[LOCK_SETTINGS] = newValue as Boolean
                         "settingsLockPin" -> prefs[SETTINGS_LOCK_PIN] = newValue as String
-    
+
                         // Other properties
                         "firstOpen" -> prefs[FIRST_OPEN] = newValue as Boolean
                         "firstOpenTime" -> prefs[FIRST_OPEN_TIME] = newValue as Long
@@ -281,10 +285,10 @@ internal class SettingsRepository(private val context: Context) {
                         "hiddenAppsUpdated" -> prefs[HIDDEN_APPS_UPDATED] = newValue as Boolean
                         "showHintCounter" -> prefs[SHOW_HINT_COUNTER] = newValue as Int
                         "aboutClicked" -> prefs[ABOUT_CLICKED] = newValue as Boolean
-    
+
                         // Special handling for complex types
                         "hiddenApps" -> prefs[HIDDEN_APPS] = newValue as Set<String>
-    
+
                         "swipeLeftApp" -> prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(newValue)
                         "swipeRightApp" -> prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(newValue)
                         "oneTapApp" -> prefs[ONE_TAP_APP_JSON] = json.encodeToString(newValue)
@@ -298,9 +302,9 @@ internal class SettingsRepository(private val context: Context) {
                         "pinchInApp" -> prefs[PINCH_IN_APP_JSON] = json.encodeToString(newValue)
                         "pinchOutApp" -> prefs[PINCH_OUT_APP_JSON] = json.encodeToString(newValue)
                         "renamedApps" -> prefs[RENAMED_APPS_JSON] = json.encodeToString(newValue)
-    
+
                         // Add other fields if needed
-    
+
                         else -> {
                             // Unknown property - optionally log or ignore
                         }
@@ -313,7 +317,10 @@ internal class SettingsRepository(private val context: Context) {
     /**
      * Update a setting by property name
      */
-    internal suspend fun updateSetting(propertyName: String, value: Any) {
+    internal suspend fun updateSetting(
+        propertyName: String,
+        value: Any,
+    ) {
         val currentSettings = settings.first()
         val updatedSettings = settingsManager.updateSetting(currentSettings, propertyName, value)
         updateSetting { updatedSettings }
@@ -323,25 +330,39 @@ internal class SettingsRepository(private val context: Context) {
      * Methods for managing other settable apps
      */
 
-    internal suspend fun setGestureApp(key: Preferences.Key<String>, app: AppPreference) {
+    internal suspend fun setGestureApp(
+        key: Preferences.Key<String>,
+        app: AppPreference,
+    ) {
         context.settingsDataStore.edit { prefs ->
             prefs[key] = json.encodeToString(app)
         }
     }
 
     suspend fun setSwipeLeftApp(app: AppPreference) = setGestureApp(SWIPE_LEFT_APP_JSON, app)
+
     suspend fun setSwipeRightApp(app: AppPreference) = setGestureApp(SWIPE_RIGHT_APP_JSON, app)
+
     suspend fun setSwipeUpApp(app: AppPreference) = setGestureApp(SWIPE_UP_APP_JSON, app)
+
     suspend fun setSwipeDownApp(app: AppPreference) = setGestureApp(SWIPE_DOWN_APP_JSON, app)
+
     suspend fun setTwoFingerSwipeLeftApp(app: AppPreference) = setGestureApp(TWOFINGER_SWIPE_LEFT_APP_JSON, app)
+
     suspend fun setTwoFingerSwipeRightApp(app: AppPreference) = setGestureApp(TWOFINGER_SWIPE_RIGHT_APP_JSON, app)
+
     suspend fun setTwoFingerSwipeUpApp(app: AppPreference) = setGestureApp(TWOFINGER_SWIPE_UP_APP_JSON, app)
+
     suspend fun setTwoFingerSwipeDownApp(app: AppPreference) = setGestureApp(TWOFINGER_SWIPE_DOWN_APP_JSON, app)
+
     suspend fun setOneTapApp(app: AppPreference) = setGestureApp(ONE_TAP_APP_JSON, app)
+
     suspend fun setDoubleTapApp(app: AppPreference) = setGestureApp(DOUBLE_TAP_APP_JSON, app)
+
     suspend fun setPinchInApp(app: AppPreference) = setGestureApp(PINCH_IN_APP_JSON, app)
+
     suspend fun setPinchOutApp(app: AppPreference) = setGestureApp(PINCH_OUT_APP_JSON, app)
-    
+
     internal suspend fun setSettingsLock(locked: Boolean) {
         updateSetting { it.copy(lockSettings = locked) }
     }
@@ -350,9 +371,7 @@ internal class SettingsRepository(private val context: Context) {
         updateSetting { it.copy(settingsLockPin = pin) }
     }
 
-    internal suspend fun validateSettingsPin(pin: String): Boolean {
-        return settings.first().settingsLockPin == pin
-    }
+    internal suspend fun validateSettingsPin(pin: String): Boolean = settings.first().settingsLockPin == pin
 
     /**
      * Methods for managing hidden apps
@@ -377,7 +396,10 @@ internal class SettingsRepository(private val context: Context) {
         updateSetting { it.copy(appTheme = value) }
     }
 
-    internal suspend fun setAppCustomName(appKey: String, customName: String) {
+    internal suspend fun setAppCustomName(
+        appKey: String,
+        customName: String,
+    ) {
         val currentSettings = settings.first()
         val updatedRenamedApps = currentSettings.renamedApps.toMutableMap()
 
@@ -401,6 +423,4 @@ internal class SettingsRepository(private val context: Context) {
             prefs[RENAMED_APPS_JSON] = json.encodeToString(updatedRenamedApps)
         }
     }
-
-
 }

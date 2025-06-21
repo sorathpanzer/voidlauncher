@@ -9,12 +9,15 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -31,7 +34,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -56,11 +58,13 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.voidlauncher.MainViewModel
 import app.voidlauncher.data.AppModel
@@ -70,14 +74,6 @@ import app.voidlauncher.ui.BackHandler
 import app.voidlauncher.ui.util.detectSwipeGestures
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.width
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.foundation.layout.height
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -133,7 +129,7 @@ internal fun AppDrawerScreen(
     val scrollState = rememberLazyListState()
 
     LaunchedEffect(searchQuery, scrollState) {
-        if (searchQuery.isEmpty() && (scrollState.firstVisibleItemIndex != 0 || scrollState.firstVisibleItemScrollOffset != 0) ) {
+        if (searchQuery.isEmpty() && (scrollState.firstVisibleItemIndex != 0 || scrollState.firstVisibleItemScrollOffset != 0)) {
             scrollState.scrollToItem(0)
         }
     }
@@ -146,17 +142,18 @@ internal fun AppDrawerScreen(
             Triple(
                 scrollState.firstVisibleItemIndex,
                 scrollState.firstVisibleItemScrollOffset,
-                scrollState.isScrollInProgress
+                scrollState.isScrollInProgress,
             )
         }.collect { (currentIndex, currentOffset, isScrolling) ->
             if (isScrolling) {
                 val actualScrollHappened = currentIndex != previousIndex || currentOffset != previousOffset
                 if (actualScrollHappened) {
-                    val verticalScrollDelta = when {
-                        currentIndex > previousIndex -> 1
-                        currentIndex < previousIndex -> -1
-                        else -> currentOffset - previousOffset
-                    }
+                    val verticalScrollDelta =
+                        when {
+                            currentIndex > previousIndex -> 1
+                            currentIndex < previousIndex -> -1
+                            else -> currentOffset - previousOffset
+                        }
 
                     if (verticalScrollDelta > 0) {
                         if (isSearchFocused) {
@@ -178,44 +175,44 @@ internal fun AppDrawerScreen(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .detectSwipeGestures(
-                onSwipeDown = { onSwipeDown() },
-                onSwipeUp = {
-                    if (scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset == 0) {
-                        onSwipeDown()
-                    }
-                }
-            )
-            .statusBarsPadding()
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .detectSwipeGestures(
+                    onSwipeDown = { onSwipeDown() },
+                    onSwipeUp = {
+                        if (scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset == 0) {
+                            onSwipeDown()
+                        }
+                    },
+                ).statusBarsPadding(),
     ) {
         if (selectionMode) {
             TopAppBar(
                 title = { Text(selectionTitle) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
         }
 
-AppDrawerSearch(
-    searchQuery = searchQuery,
-    onSearchChanged = { query ->
-        searchQuery = query
-        viewModel.searchApps(query)
-    },
-    modifier = Modifier.focusRequester(focusRequester),
-    onEnterPressed = {
-        if (uiState.filteredApps.isNotEmpty()) {
-            handleAppClick(uiState.filteredApps[0])
-        }
-    },
-    onFocusStateChanged = { focused ->
-        isSearchFocused = focused
-    },
-    showCalculatorResult = uiState.showCalculatorResult,
-    calculatorResult = uiState.calculatorResult,
-    viewModel = viewModel  // Add this line to pass the viewModel
-)
+        AppDrawerSearch(
+            searchQuery = searchQuery,
+            onSearchChanged = { query ->
+                searchQuery = query
+                viewModel.searchApps(query)
+            },
+            modifier = Modifier.focusRequester(focusRequester),
+            onEnterPressed = {
+                if (uiState.filteredApps.isNotEmpty()) {
+                    handleAppClick(uiState.filteredApps[0])
+                }
+            },
+            onFocusStateChanged = { focused ->
+                isSearchFocused = focused
+            },
+            showCalculatorResult = uiState.showCalculatorResult,
+            calculatorResult = uiState.calculatorResult,
+            viewModel = viewModel, // Add this line to pass the viewModel
+        )
 
         val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
 
@@ -233,10 +230,11 @@ AppDrawerSearch(
             uiState.filteredApps.isEmpty() && searchQuery.isNotEmpty() -> {
                 Box(Modifier.fillMaxSize()) {
                     Column(
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(top = 250.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        modifier =
+                            Modifier
+                                .align(Alignment.TopCenter)
+                                .padding(top = 250.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         if (!uiState.showCalculatorResult) {
                             Button(
@@ -247,7 +245,7 @@ AppDrawerSearch(
                                         context.openSearch(searchQuery.trim())
                                     }
                                 },
-                                modifier = Modifier.padding(top = 16.dp)
+                                modifier = Modifier.padding(top = 16.dp),
                             ) { Text("Search Web") }
                         }
                     }
@@ -260,17 +258,26 @@ AppDrawerSearch(
                 ) {
                     items(
                         items = appsToShow,
-                        key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" }
+                        key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" },
                     ) { app ->
-                         if (settings.showAppNames) {
+                        if (settings.showAppNames) {
                             AppListItem(
-                                app = app, showAppNames = settings.showAppNames,
+                                app = app,
+                                showAppNames = settings.showAppNames,
                                 fontScale = searchResultsFontSize,
                                 onClick = { handleAppClick(app) },
-                                onLongClick = { selectedApp = app; showContextMenu = true },
-                                modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null, placementSpec = tween(durationMillis = 300))
+                                onLongClick = {
+                                    selectedApp = app
+                                    showContextMenu = true
+                                },
+                                modifier =
+                                    Modifier.animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null,
+                                        placementSpec = tween(durationMillis = 300),
+                                    ),
                             )
-                         }
+                        }
                     }
                 }
             }
@@ -286,23 +293,43 @@ AppDrawerSearch(
         var newAppName by remember { mutableStateOf(app.appLabel) }
 
         AlertDialog(
-            onDismissRequest = { showContextMenu = false; selectedApp = null },
+            onDismissRequest = {
+                showContextMenu = false
+                selectedApp = null
+            },
             title = { Text(app.appLabel) },
             text = {
                 Column {
-                    ContextMenuItem("Open App", Icons.Default.AdsClick) { handleAppClick(app); showContextMenu = false; selectedApp = null }
-                    ContextMenuItem(if (Hidden) "Unhide App" else "Hide App", Icons.Default.Settings) { viewModel.toggleAppHidden(app); showContextMenu = false; selectedApp = null }
+                    ContextMenuItem("Open App", Icons.Default.AdsClick) {
+                        handleAppClick(app)
+                        showContextMenu = false
+                        selectedApp = null
+                    }
+                    ContextMenuItem(if (Hidden) "Unhide App" else "Hide App", Icons.Default.Settings) {
+                        viewModel.toggleAppHidden(app)
+                        showContextMenu =
+                            false
+                        selectedApp = null
+                    }
                     ContextMenuItem("Rename App", Icons.Default.DriveFileRenameOutline) { renameDialogVisible = true }
                     ContextMenuItem("App Info", Icons.Default.Info) {
-                        context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                            data = Uri.fromParts("package", app.appPackage, null)
-                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        })
-                        showContextMenu = false; selectedApp = null
+                        context.startActivity(
+                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", app.appPackage, null)
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            },
+                        )
+                        showContextMenu = false
+                        selectedApp = null
                     }
                 }
             },
-            confirmButton = { TextButton({ showContextMenu = false; selectedApp = null }) { Text("Close") } }
+            confirmButton = {
+                TextButton({
+                    showContextMenu = false
+                    selectedApp = null
+                }) { Text("Close") }
+            },
         )
 
         if (renameDialogVisible) {
@@ -314,7 +341,7 @@ AppDrawerSearch(
                         value = newAppName,
                         onValueChange = { newAppName = it },
                         label = { Text("New name") },
-                        singleLine = true
+                        singleLine = true,
                     )
                 },
                 confirmButton = {
@@ -331,7 +358,7 @@ AppDrawerSearch(
                     TextButton(onClick = { renameDialogVisible = false }) {
                         Text("Cancel")
                     }
-                }
+                },
             )
         }
     }
@@ -345,34 +372,40 @@ private fun AppListItem(
     fontScale: Float,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .animateContentSize(animationSpec = tween(durationMillis = 300))
-            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .animateContentSize(animationSpec = tween(durationMillis = 300))
+                .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = if (showAppNames) app.appLabel else "",
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontSize = MaterialTheme.typography.bodyLarge.fontSize * fontScale,
-            ),
+            style =
+                MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * fontScale,
+                ),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
     }
 }
 
 @Composable
-private fun ContextMenuItem(text: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
+private fun ContextMenuItem(
+    text: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit,
+) {
     Row(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 12.dp, horizontal = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(icon, text, Modifier.padding(end = 16.dp))
         Text(text, style = MaterialTheme.typography.bodyLarge)
@@ -388,35 +421,37 @@ private fun AppDrawerSearch(
     onFocusStateChanged: (Boolean) -> Unit,
     showCalculatorResult: Boolean,
     calculatorResult: String,
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Calculator result display
         if (showCalculatorResult) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                contentAlignment = Alignment.Center,
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = searchQuery,
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     )
                     Text(
                         text = calculatorResult,
-                        style = MaterialTheme.typography.displayLarge.copy(
-                            fontSize = 64.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = MaterialTheme.colorScheme.primary
+                        style =
+                            MaterialTheme.typography.displayLarge.copy(
+                                fontSize = 64.sp,
+                                fontWeight = FontWeight.Bold,
+                            ),
+                        color = MaterialTheme.colorScheme.primary,
                     )
                 }
             }
@@ -424,10 +459,11 @@ private fun AppDrawerSearch(
 
         // Search field
         BoxWithConstraints(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+            contentAlignment = Alignment.Center,
         ) {
             val maxTextFieldWidth = 600.dp
             val calculatedWidth = if (maxWidth < maxTextFieldWidth) maxWidth else maxTextFieldWidth
@@ -435,43 +471,48 @@ private fun AppDrawerSearch(
             TextField(
                 value = searchQuery,
                 onValueChange = onSearchChanged,
-                modifier = Modifier
-                    .width(calculatedWidth)
-                    .onFocusChanged { focusState ->
-                        onFocusStateChanged(focusState.isFocused)
-                        if (focusState.isFocused) {
-                            keyboardController?.show()
-                        }
-                    },
+                modifier =
+                    Modifier
+                        .width(calculatedWidth)
+                        .onFocusChanged { focusState ->
+                            onFocusStateChanged(focusState.isFocused)
+                            if (focusState.isFocused) {
+                                keyboardController?.show()
+                            }
+                        },
                 placeholder = {
                     Text(
                         text = "Search App...",
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 },
                 singleLine = true,
-                textStyle = TextStyle(
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurface
-                ),
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Search,
-                    // keyboardType = KeyboardType.Number
-                ),
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        keyboardController?.hide()
-                        viewModel.searchApps(searchQuery, true)
-                        onEnterPressed()
-                    }
-                ),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                )
+                textStyle =
+                    TextStyle(
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    ),
+                keyboardOptions =
+                    KeyboardOptions(
+                        imeAction = ImeAction.Search,
+                        // keyboardType = KeyboardType.Number
+                    ),
+                keyboardActions =
+                    KeyboardActions(
+                        onSearch = {
+                            keyboardController?.hide()
+                            viewModel.searchApps(searchQuery, true)
+                            onEnterPressed()
+                        },
+                    ),
+                colors =
+                    TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
             )
         }
     }

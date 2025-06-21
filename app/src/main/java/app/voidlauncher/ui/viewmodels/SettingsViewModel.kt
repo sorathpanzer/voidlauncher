@@ -4,14 +4,15 @@ import android.app.Application
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import app.voidlauncher.MainViewModel
 import app.voidlauncher.data.repository.SettingsRepository
 import app.voidlauncher.data.settings.AppSettings
 import app.voidlauncher.ui.UiEvent
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-internal class SettingsViewModel(application: Application) : AndroidViewModel(application) {
+internal class SettingsViewModel(
+    application: Application,
+) : AndroidViewModel(application) {
     val settingsRepository = SettingsRepository(application.applicationContext)
 
     // UI state for settings
@@ -25,7 +26,6 @@ internal class SettingsViewModel(application: Application) : AndroidViewModel(ap
     private val _eventsFlow = MutableSharedFlow<UiEvent>()
     val events: SharedFlow<UiEvent> = _eventsFlow.asSharedFlow()
 
-
     private val _Locked = MutableStateFlow(false)
     val Locked: StateFlow<Boolean> = _Locked
 
@@ -38,11 +38,10 @@ internal class SettingsViewModel(application: Application) : AndroidViewModel(ap
     private val _TemporarilyUnlocked = MutableStateFlow(false)
     val TemporarilyUnlocked: StateFlow<Boolean> = _TemporarilyUnlocked
 
-    val effectiveLockState: StateFlow<Boolean> = combine(_Locked, _TemporarilyUnlocked) { locked, tempUnlocked ->
-        locked && !tempUnlocked
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
-
-
+    val effectiveLockState: StateFlow<Boolean> =
+        combine(_Locked, _TemporarilyUnlocked) { locked, tempUnlocked ->
+            locked && !tempUnlocked
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     init {
         // Load settings from repository
@@ -58,7 +57,10 @@ internal class SettingsViewModel(application: Application) : AndroidViewModel(ap
     /**
      * Update a setting by property name
      */
-    internal suspend fun updateSetting(propertyName: String, value: Any) {
+    internal suspend fun updateSetting(
+        propertyName: String,
+        value: Any,
+    ) {
         settingsRepository.updateSetting(propertyName, value)
     }
 
@@ -71,7 +73,10 @@ internal class SettingsViewModel(application: Application) : AndroidViewModel(ap
         }
     }
 
-    internal fun setShowLockDialog(show: Boolean, SettingPin: Boolean = false) {
+    internal fun setShowLockDialog(
+        show: Boolean,
+        SettingPin: Boolean = false,
+    ) {
         _showLockDialog.value = show
         _SettingPin.value = SettingPin
     }

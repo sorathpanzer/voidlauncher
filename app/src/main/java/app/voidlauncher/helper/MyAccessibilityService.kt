@@ -6,7 +6,6 @@ import android.os.Build
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.annotation.RequiresApi
-import app.voidlauncher.R
 import app.voidlauncher.data.repository.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +15,11 @@ internal class MyAccessibilityService : AccessibilityService() {
     private val serviceScope = CoroutineScope(Dispatchers.Main)
 
     @RequiresApi(Build.VERSION_CODES.P)
-    public override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    public override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         if (intent?.action == "LOCK_SCREEN") {
             performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
         }

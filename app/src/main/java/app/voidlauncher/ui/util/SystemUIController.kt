@@ -15,9 +15,7 @@ import androidx.compose.ui.platform.LocalView
  * Controls system UI elements like status bar
  */
 @Composable
-internal fun SystemUIController(
-    showStatusBar: Boolean
-) {
+internal fun SystemUIController(showStatusBar: Boolean) {
     val view = LocalView.current
     val context = LocalContext.current
     val window = remember { (context as? Activity)?.window }
@@ -38,7 +36,10 @@ internal fun SystemUIController(
 /**
  * Non-composable function to safely update status bar visibility
  */
-internal fun updateStatusBarVisibility(activity: Activity?, showStatusBar: Boolean) {
+internal fun updateStatusBarVisibility(
+    activity: Activity?,
+    showStatusBar: Boolean,
+) {
     if (activity == null || !activity.window.isActive) return
 
     try {
@@ -51,7 +52,7 @@ internal fun updateStatusBarVisibility(activity: Activity?, showStatusBar: Boole
             } else {
                 @Suppress("DEPRECATION")
                 decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
             }
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -62,7 +63,7 @@ internal fun updateStatusBarVisibility(activity: Activity?, showStatusBar: Boole
             } else {
                 @Suppress("DEPRECATION")
                 decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE or
-                        View.SYSTEM_UI_FLAG_FULLSCREEN
+                    View.SYSTEM_UI_FLAG_FULLSCREEN
             }
         }
     } catch (e: Exception) {
@@ -71,21 +72,27 @@ internal fun updateStatusBarVisibility(activity: Activity?, showStatusBar: Boole
     }
 }
 
-private fun showStatusBar(window: android.view.Window, view: View) {
+private fun showStatusBar(
+    window: android.view.Window,
+    view: View,
+) {
     try {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.show(WindowInsets.Type.statusBars())
         } else {
             @Suppress("DEPRECATION")
             view.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         }
     } catch (e: Exception) {
         e.printStackTrace()
     }
 }
 
-private fun hideStatusBar(window: android.view.Window, view: View) {
+private fun hideStatusBar(
+    window: android.view.Window,
+    view: View,
+) {
     try {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             window.insetsController?.let {
@@ -95,7 +102,7 @@ private fun hideStatusBar(window: android.view.Window, view: View) {
         } else {
             @Suppress("DEPRECATION")
             view.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE or
-                    View.SYSTEM_UI_FLAG_FULLSCREEN
+                View.SYSTEM_UI_FLAG_FULLSCREEN
         }
     } catch (e: Exception) {
         e.printStackTrace()

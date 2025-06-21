@@ -21,32 +21,33 @@ internal fun AppItem(
     modifier: Modifier = Modifier,
     app: AppModel,
     onClick: () -> Unit,
-    onLongClick: () -> Unit = {}
+    onLongClick: () -> Unit = {},
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            )
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongClick,
+                ).padding(horizontal = 20.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         app.appIcon?.let { icon ->
             Image(
                 bitmap = icon,
                 contentDescription = null,
-                modifier = Modifier
-                    .size(40.dp)
-                    .padding(end = 16.dp)
+                modifier =
+                    Modifier
+                        .size(40.dp)
+                        .padding(end = 16.dp),
             )
         }
 
         Text(
             text = app.appLabel,
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
     }
 }

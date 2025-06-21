@@ -5,23 +5,16 @@ package app.voidlauncher.helper
 import android.annotation.SuppressLint
 import android.app.SearchManager
 import android.app.WallpaperManager
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
-import android.content.res.Configuration
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.graphics.Point
 import android.os.Build
 import android.os.UserHandle
 import android.os.UserManager
-import android.provider.AlarmClock
-import android.provider.CalendarContract
 import android.provider.Settings
 import android.util.DisplayMetrics
-import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.WindowManager
@@ -47,8 +40,8 @@ internal suspend fun getAppsList(
     settingsRepository: SettingsRepository,
     includeRegularApps: Boolean = true,
     includeHiddenApps: Boolean = false,
-): MutableList<AppModel> {
-    return withContext(Dispatchers.IO) {
+): MutableList<AppModel> =
+    withContext(Dispatchers.IO) {
         val appList: MutableList<AppModel> = mutableListOf()
 
         try {
@@ -65,32 +58,35 @@ internal suspend fun getAppsList(
                     // Skip VoidLauncher itself
                     if (app.applicationInfo.packageName == context.packageName) continue
 
-                    val tempAppModel = AppModel(
-                        "temp",
-                        null,
-                        app.applicationInfo.packageName,
-                        app.componentName.className,
-                        false,
-                        profile,
-                        null,
-                        false,
-                        profile.toString()
-                    )
+                    val tempAppModel =
+                        AppModel(
+                            "temp",
+                            null,
+                            app.applicationInfo.packageName,
+                            app.componentName.className,
+                            false,
+                            profile,
+                            null,
+                            false,
+                            profile.toString(),
+                        )
                     val appKey = tempAppModel.getKey()
 
-                    val defaultLabel = app.label.toString() +
+                    val defaultLabel =
+                        app.label.toString() +
                             if (profile != android.os.Process.myUserHandle()) " (Clone)" else ""
 
                     val appLabelShown = renamedApps[appKey] ?: defaultLabel
 
-                    val appModel = AppModel(
-                        appLabelShown,
-                        collator.getCollationKey(app.label.toString()),
-                        app.applicationInfo.packageName,
-                        app.componentName.className,
-                        (System.currentTimeMillis() - app.firstInstallTime) < Constants.ONE_HOUR_IN_MILLIS,
-                        profile,
-                    )
+                    val appModel =
+                        AppModel(
+                            appLabelShown,
+                            collator.getCollationKey(app.label.toString()),
+                            app.applicationInfo.packageName,
+                            app.componentName.className,
+                            (System.currentTimeMillis() - app.firstInstallTime) < Constants.ONE_HOUR_IN_MILLIS,
+                            profile,
+                        )
 
                     val dupAppKey = "${app.applicationInfo.packageName}/${profile.hashCode()}"
 
@@ -108,22 +104,27 @@ internal suspend fun getAppsList(
                 }
             }
             appList.sortBy { it.appLabel.lowercase() }
-
         } catch (e: Exception) {
             println("Error loading apps: ${e.message}")
             e.printStackTrace()
         }
         appList
     }
-}
 
-private fun isPackageInstalled(context: Context, packageName: String, userString: String): Boolean {
+private fun isPackageInstalled(
+    context: Context,
+    packageName: String,
+    userString: String,
+): Boolean {
     val launcher = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
     val activityInfo = launcher.getActivityList(packageName, getUserHandleFromString(context, userString))
     return activityInfo.isNotEmpty()
 }
 
-internal fun getUserHandleFromString(context: Context, userHandleString: String): UserHandle {
+internal fun getUserHandleFromString(
+    context: Context,
+    userHandleString: String,
+): UserHandle {
     val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
     for (userHandle in userManager.userProfiles) {
         if (userHandle.toString() == userHandleString) {
@@ -146,10 +147,15 @@ private fun getDefaultLauncherPackage(context: Context): String {
     val result = packageManager.resolveActivity(intent, 0)
     return if (result?.activityInfo != null) {
         result.activityInfo.packageName
-    } else "android"
+    } else {
+        "android"
+    }
 }
 
-internal fun setPlainWallpaperByTheme(context: Context, appTheme: Int) {
+internal fun setPlainWallpaperByTheme(
+    context: Context,
+    appTheme: Int,
+) {
     when (appTheme) {
         AppCompatDelegate.MODE_NIGHT_YES -> setPlainWallpaper(context, android.R.color.black)
         AppCompatDelegate.MODE_NIGHT_NO -> setPlainWallpaper(context, android.R.color.white)
@@ -159,7 +165,10 @@ internal fun setPlainWallpaperByTheme(context: Context, appTheme: Int) {
     }
 }
 
-internal fun setPlainWallpaper(context: Context, color: Int) {
+internal fun setPlainWallpaper(
+    context: Context,
+    color: Int,
+) {
     try {
         val bitmap = createBitmap(1000, 2000)
         bitmap.eraseColor(context.getColor(color))
@@ -189,7 +198,6 @@ internal fun getScreenDimensions(context: Context): Pair<Int, Int> {
     }
 }
 
-
 internal fun openSearch(context: Context) {
     val intent = Intent(Intent.ACTION_WEB_SEARCH)
     intent.putExtra(SearchManager.QUERY, "")
@@ -216,14 +224,19 @@ internal fun expandNotificationDrawer(context: Context) {
 }
 
 internal fun isAccessServiceEnabled(context: Context): Boolean {
-    val enabled = try {
-        Settings.Secure.getInt(context.applicationContext.contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        0
-    }
+    val enabled =
+        try {
+            Settings.Secure.getInt(context.applicationContext.contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            0
+        }
     if (enabled == 1) {
-        val enabledServicesString: String? = Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+        val enabledServicesString: String? =
+            Settings.Secure.getString(
+                context.contentResolver,
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+            )
         return enabledServicesString?.contains(context.packageName + "/" + MyAccessibilityService::class.java.name) ?: false
     }
     return false
@@ -268,8 +281,10 @@ internal fun Context.isSystemApp(packageName: String): Boolean {
     if (packageName.isBlank()) return true
     return try {
         val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
-        ((applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0)
-                || (applicationInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0))
+        (
+            (applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0) ||
+                (applicationInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0)
+        )
     } catch (e: Exception) {
         e.printStackTrace()
         false

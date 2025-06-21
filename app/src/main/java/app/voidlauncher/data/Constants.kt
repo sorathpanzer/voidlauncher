@@ -1,7 +1,6 @@
 package app.voidlauncher.data
 
 internal object Constants {
-
     object Dialog {
         const val ABOUT = "ABOUT"
     }
@@ -43,8 +42,6 @@ internal object Constants {
     const val REQUEST_CODE_ENABLE_ADMIN = 666
     const val REQUEST_CODE_LAUNCHER_SELECTOR = 678
 
-    const val HINT_RATE_US = 25
-
     const val LONG_PRESS_DELAY_MS = 500L
     const val ONE_DAY_IN_MILLIS = 86400000L
     const val ONE_HOUR_IN_MILLIS = 3600000L
@@ -57,7 +54,7 @@ internal object Constants {
 
     // Need to add the comments below as tooltips when long-tap ig?
     object SearchType {
-        const val STARTS_WITH = 0   // Only match beginning of app names (Default)
+        const val STARTS_WITH = 0 // Only match beginning of app names (Default)
     }
 }
 
@@ -67,5 +64,3 @@ internal object Navigation {
     const val SETTINGS = "settings"
     const val HIDDEN_APPS = "hidden_apps"
 }
-
-

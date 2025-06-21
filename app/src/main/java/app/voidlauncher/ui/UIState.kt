@@ -9,5 +9,5 @@ internal data class AppDrawerUiState(
     val Loading: Boolean = false,
     val error: String? = null,
     val calculatorResult: String = "",
-    val showCalculatorResult: Boolean = false
+    val showCalculatorResult: Boolean = false,
 )

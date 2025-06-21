@@ -1,38 +1,36 @@
 package app.voidlauncher.helper
 
-import android.app.AppOpsManager
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
 
 /**
  * Manager for handling permission-related operations
  */
-internal class PermissionManager(private val context: Context) {
-
+internal class PermissionManager(
+    private val context: Context,
+) {
     /**
      * Check if the app has usage stats permission
      */
     private fun hasUsageStatsPermission(): Boolean {
         val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val now = System.currentTimeMillis()
-        val stats = usageStatsManager.queryUsageStats(
-            UsageStatsManager.INTERVAL_DAILY,
-            now - 1000 * 60,
-            now
-        )
+        val stats =
+            usageStatsManager.queryUsageStats(
+                UsageStatsManager.INTERVAL_DAILY,
+                now - 1000 * 60,
+                now,
+            )
         return stats != null && stats.isNotEmpty()
     }
 
     /**
      * Check if the app has accessibility service permission
      */
-    private fun hasAccessibilityPermission(): Boolean {
-        return isAccessServiceEnabled(context)
-    }
+    private fun hasAccessibilityPermission(): Boolean = isAccessServiceEnabled(context)
 
     /**
      * Open the usage access settings screen

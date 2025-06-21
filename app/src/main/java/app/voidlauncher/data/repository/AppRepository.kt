@@ -8,7 +8,6 @@ import app.voidlauncher.helper.getAppsList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
@@ -17,19 +16,18 @@ import kotlinx.coroutines.withContext
 internal class AppRepository(
     private val context: Context,
     private val settingsRepository: SettingsRepository,
-    private val coroutineScope: CoroutineScope
+    private val coroutineScope: CoroutineScope,
 ) {
     private val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
 
-    private val _appListAll = MutableStateFlow<List<AppModel>>(emptyList())
-    val appListAll: StateFlow<List<AppModel>> = _appListAll.asStateFlow()
+    // private val _appListAll = MutableStateFlow<List<AppModel>>(emptyList())
+    // val appListAll: StateFlow<List<AppModel>> = _appListAll.asStateFlow()
 
     private val _appList = MutableStateFlow<List<AppModel>>(emptyList())
     val appList: StateFlow<List<AppModel>> = _appList.asStateFlow()
 
     private val _hiddenApps = MutableStateFlow<List<AppModel>>(emptyList())
     val hiddenApps: StateFlow<List<AppModel>> = _hiddenApps.asStateFlow()
-
 
     /**
      * Load all visible apps
@@ -88,10 +86,11 @@ internal class AppRepository(
     internal suspend fun launchApp(appModel: AppModel) {
         withContext(Dispatchers.Main) {
             try {
-                val component = ComponentName(
-                    appModel.appPackage,
-                    appModel.activityClassName ?: ""
-                )
+                val component =
+                    ComponentName(
+                        appModel.appPackage,
+                        appModel.activityClassName ?: "",
+                    )
                 launcherApps.startMainActivity(component, appModel.user, null, null)
             } catch (e: SecurityException) {
                 throw AppLaunchException("Security error launching ${appModel.appLabel}", e)
@@ -106,5 +105,8 @@ internal class AppRepository(
     /**
      * Exception for app launch failures
      */
-    class AppLaunchException(message: String, cause: Throwable? = null) : Exception(message, cause)
+    class AppLaunchException(
+        message: String,
+        cause: Throwable? = null,
+    ) : Exception(message, cause)
 }

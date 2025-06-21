@@ -1,8 +1,8 @@
 package app.voidlauncher.data
 
 import android.os.UserHandle
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.ImageBitmap
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import java.text.CollationKey
@@ -21,12 +21,13 @@ internal data class AppModel(
     @Transient
     val appIcon: ImageBitmap? = null,
     val Hidden: Boolean = false,
-    val userString: String = user.toString()
+    val userString: String = user.toString(),
 ) : Comparable<AppModel> {
-    override fun compareTo(other: AppModel): Int = when {
-        key != null && other.key != null -> key.compareTo(other.key)
-        else -> appLabel.compareTo(other.appLabel, true)
-    }
+    override fun compareTo(other: AppModel): Int =
+        when {
+            key != null && other.key != null -> key.compareTo(other.key)
+            else -> appLabel.compareTo(other.appLabel, true)
+        }
 
-    internal fun getKey(): String = "$appPackage/${userString}"
+    internal fun getKey(): String = "$appPackage/$userString"
 }

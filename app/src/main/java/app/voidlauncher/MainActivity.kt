@@ -1,6 +1,7 @@
 package app.voidlauncher
 
 import android.app.Application
+import android.appwidget.AppWidgetHost
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
@@ -14,6 +15,7 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.*
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -27,8 +29,6 @@ import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import android.appwidget.AppWidgetHost
-import androidx.lifecycle.ViewModel
 
 internal class MainActivity : ComponentActivity() {
     private lateinit var viewModel: MainViewModel
@@ -38,11 +38,10 @@ internal class MainActivity : ComponentActivity() {
     private val APPWIDGET_HOST_ID = 1024
 
     protected override fun onCreate(savedInstanceState: Bundle?) {
-
         // Use hardware acceleration
         window.setFlags(
             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
-            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
         )
 
         // Initialize settings repository
@@ -100,13 +99,16 @@ internal class MainActivity : ComponentActivity() {
         initObservers()
         viewModel.loadApps()
 
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            public override fun handleOnBackPressed() {
-                lifecycleScope.launch {
-                    viewModel.emitEvent(UiEvent.NavigateBack)
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                public override fun handleOnBackPressed() {
+                    lifecycleScope.launch {
+                        viewModel.emitEvent(UiEvent.NavigateBack)
+                    }
                 }
-            }
-        })
+            },
+        )
     }
 
     protected override fun onStart() {
@@ -126,7 +128,6 @@ internal class MainActivity : ComponentActivity() {
             Log.e("MainActivity", "Error stopping widget host listening", e)
         }
     }
-
 
     private fun initObservers() {
         lifecycleScope.launch {
@@ -173,7 +174,7 @@ internal class MainActivity : ComponentActivity() {
 
 private class MainViewModelFactory(
     private val application: Application,
-    private val appWidgetHost: AppWidgetHost
+    private val appWidgetHost: AppWidgetHost,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {

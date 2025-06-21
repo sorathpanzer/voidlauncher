@@ -22,7 +22,7 @@ import app.voidlauncher.ui.components.AppItem
 @Composable
 internal fun HiddenAppsScreen(
     viewModel: MainViewModel,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
 ) {
     val hiddenApps by viewModel.hiddenApps.collectAsState()
     val Loading by remember { mutableStateOf(false) }
@@ -49,59 +49,62 @@ internal fun HiddenAppsScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = "Back",
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
-        }
+        },
     ) { paddingValues ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .animateContentSize(
-                    animationSpec = tween(300)
-                )
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .animateContentSize(
+                        animationSpec = tween(300),
+                    ),
         ) {
             if (Loading) {
                 // Show loading indicator
                 CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier.align(Alignment.Center),
                 )
             } else if (hiddenApps.isEmpty()) {
                 // Show empty state with animation
                 AnimatedVisibility(
                     visible = true,
-                    enter = fadeIn(animationSpec = tween(300)) +
+                    enter =
+                        fadeIn(animationSpec = tween(300)) +
                             expandVertically(animationSpec = tween(300)),
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier.align(Alignment.Center),
                 ) {
                     Column(
-                        modifier = Modifier
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        modifier =
+                            Modifier
+                                .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
                             text = "No hidden apps",
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyLarge,
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Long-press on any app in the app drawer to hide it",
                             style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
                         )
                     }
                 }
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 ) {
                     items(
                         items = hiddenApps,
-                        key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" }
+                        key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" },
                     ) { app ->
                         AppItem(
                             app = app,
@@ -112,8 +115,12 @@ internal fun HiddenAppsScreen(
                                 // Unhide app and refresh list
                                 viewModel.toggleAppHidden(app)
                             },
-                            modifier = Modifier.animateItem(fadeInSpec = null, fadeOutSpec = null, placementSpec = tween(durationMillis = 300)
-                            )
+                            modifier =
+                                Modifier.animateItem(
+                                    fadeInSpec = null,
+                                    fadeOutSpec = null,
+                                    placementSpec = tween(durationMillis = 300),
+                                ),
                         )
                     }
                 }
