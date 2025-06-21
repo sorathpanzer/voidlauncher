@@ -20,9 +20,6 @@ internal class AppRepository(
 ) {
     private val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
 
-    // private val _appListAll = MutableStateFlow<List<AppModel>>(emptyList())
-    // val appListAll: StateFlow<List<AppModel>> = _appListAll.asStateFlow()
-
     private val _appList = MutableStateFlow<List<AppModel>>(emptyList())
     val appList: StateFlow<List<AppModel>> = _appList.asStateFlow()
 

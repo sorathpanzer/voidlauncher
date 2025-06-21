@@ -41,9 +41,6 @@ internal class MainViewModel(
     private val _appList = MutableStateFlow<List<AppModel>>(emptyList())
     val appList: StateFlow<List<AppModel>> = _appList.asStateFlow()
 
-    // private val _appListAll = MutableStateFlow<List<AppModel>>(emptyList())
-    // val appListAll: StateFlow<List<AppModel>> = _appListAll.asStateFlow()
-
     private val _hiddenApps = MutableStateFlow<List<AppModel>>(emptyList())
     val hiddenApps: StateFlow<List<AppModel>> = _hiddenApps.asStateFlow()
 
@@ -56,13 +53,6 @@ internal class MainViewModel(
     val launcherResetFailed: StateFlow<Boolean> = _launcherResetFailed.asStateFlow()
 
     init {
-        // viewModelScope.launch {
-        //     appRepository.appListAll.collect { apps ->
-        //         _appListAll.value = apps
-        //         updateAppDrawerState()
-        //     }
-        // }
-
         // Observe app list changes
         viewModelScope.launch {
             appRepository.appList.collect { apps ->
