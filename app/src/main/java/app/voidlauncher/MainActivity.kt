@@ -13,7 +13,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -35,7 +38,7 @@ internal class MainActivity : ComponentActivity() {
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var settingsRepository: SettingsRepository
     private lateinit var appWidgetHost: AppWidgetHost
-    private val APPWIDGET_HOST_ID = 1024
+    private val appHostWidgetID = 1024
 
     protected override fun onCreate(savedInstanceState: Bundle?) {
         // Use hardware acceleration
@@ -47,10 +50,15 @@ internal class MainActivity : ComponentActivity() {
         // Initialize settings repository
         settingsRepository = SettingsRepository(applicationContext)
 
-        appWidgetHost = AppWidgetHost(applicationContext, APPWIDGET_HOST_ID)
-        Log.d("MainActivity", "AppWidgetHost created with ID: $APPWIDGET_HOST_ID")
+        appWidgetHost = AppWidgetHost(applicationContext, appHostWidgetID)
+        Log.d("MainActivity", "AppWidgetHost created with ID: $appHostWidgetID")
 
-        viewModel = ViewModelProvider(this, MainViewModelFactory(application, appWidgetHost))[MainViewModel::class.java] // Use factory
+        viewModel =
+            ViewModelProvider(
+                this,
+                MainViewModelFactory(application, appWidgetHost),
+            )[MainViewModel::class.java]
+
         settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
 
         super.onCreate(savedInstanceState)
@@ -71,7 +79,10 @@ internal class MainActivity : ComponentActivity() {
             delay(500)
             settingsRepository.settings.first().let { settings ->
                 try {
-                    updateStatusBarVisibility(this@MainActivity, settings.statusBar)
+                    updateStatusBarVisibility(
+                        this@MainActivity,
+                        settings.statusBar,
+                    )
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -81,7 +92,7 @@ internal class MainActivity : ComponentActivity() {
         window.addFlags(FLAG_LAYOUT_NO_LIMITS)
 
         setContent {
-            CLauncherTheme {
+            voidLauncherTheme {
                 var currentScreen by remember { mutableStateOf(Navigation.HOME) }
 
                 CLauncherNavigation(
@@ -152,7 +163,9 @@ internal class MainActivity : ComponentActivity() {
             val settings = settingsRepository.settings.first()
             AppCompatDelegate.setDefaultNightMode(settings.appTheme)
 
-            if (settings.plainWallpaper && AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+            if (settings.plainWallpaper &&
+                AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            ) {
                 setPlainWallpaper(this@MainActivity, android.R.color.black)
                 recreate()
             }

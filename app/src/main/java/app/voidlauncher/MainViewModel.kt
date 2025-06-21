@@ -5,7 +5,8 @@ import android.appwidget.AppWidgetHost
 import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import app.voidlauncher.data.*
+import app.voidlauncher.data.AppModel
+import app.voidlauncher.data.Constants
 import app.voidlauncher.data.repository.AppRepository
 import app.voidlauncher.data.repository.SettingsRepository
 import app.voidlauncher.data.settings.AppPreference
@@ -14,7 +15,14 @@ import app.voidlauncher.helper.MyAccessibilityService
 import app.voidlauncher.helper.getUserHandleFromString
 import app.voidlauncher.ui.AppDrawerUiState
 import app.voidlauncher.ui.UiEvent
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.objecthunter.exp4j.ExpressionBuilder
 
@@ -32,7 +40,7 @@ internal class MainViewModel(
 
     // Events manager for UI events
     private val _eventsFlow = MutableSharedFlow<UiEvent>()
-    val events: SharedFlow<UiEvent> = _eventsFlow.asSharedFlow()
+    val eventsFlow: SharedFlow<UiEvent> = _eventsFlow.asSharedFlow()
 
     private val _appDrawerState = MutableStateFlow(AppDrawerUiState())
     val appDrawerState: StateFlow<AppDrawerUiState> = _appDrawerState.asStateFlow()
@@ -228,13 +236,16 @@ internal class MainViewModel(
 
     private fun setSwipeDownApp(app: AppModel) = setGestureApp(app, settingsRepository::setSwipeDownApp)
 
-    private fun setTwoFingerSwipeLeftApp(app: AppModel) = setGestureApp(app, settingsRepository::setTwoFingerSwipeLeftApp)
+    private fun setTwoFingerSwipeLeftApp(app: AppModel) =
+        setGestureApp(app, settingsRepository::setTwoFingerSwipeLeftApp)
 
-    private fun setTwoFingerSwipeRightApp(app: AppModel) = setGestureApp(app, settingsRepository::setTwoFingerSwipeRightApp)
+    private fun setTwoFingerSwipeRightApp(app: AppModel) =
+        setGestureApp(app, settingsRepository::setTwoFingerSwipeRightApp)
 
     private fun setTwoFingerSwipeUpApp(app: AppModel) = setGestureApp(app, settingsRepository::setTwoFingerSwipeUpApp)
 
-    private fun setTwoFingerSwipeDownApp(app: AppModel) = setGestureApp(app, settingsRepository::setTwoFingerSwipeDownApp)
+    private fun setTwoFingerSwipeDownApp(app: AppModel) =
+        setGestureApp(app, settingsRepository::setTwoFingerSwipeDownApp)
 
     private fun setOneTapApp(app: AppModel) = setGestureApp(app, settingsRepository::setOneTapApp)
 

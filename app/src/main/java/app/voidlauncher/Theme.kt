@@ -183,7 +183,7 @@ private fun scaledTypography(scaleFactor: Float): Typography {
 }
 
 @Composable
-internal fun CLauncherTheme(content: @Composable () -> Unit) {
+internal fun voidLauncherTheme(content: @Composable () -> Unit) {
     val context = LocalContext.current
     val settingsRepository = remember { SettingsRepository(context) }
 

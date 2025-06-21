@@ -111,7 +111,7 @@ internal fun CLauncherNavigation(
 
     // Collect events from MainViewModel
     LaunchedEffect(key1 = viewModel) {
-        viewModel.events.collectLatest { event ->
+        viewModel.eventsFlow.collectLatest { event ->
             handleEvent(event)
         }
     }
