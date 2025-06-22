@@ -1,17 +1,34 @@
 package app.voidlauncher.ui
 
-import android.app.Activity
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -19,14 +36,17 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import app.voidlauncher.MainViewModel
 import app.voidlauncher.data.Constants
 import app.voidlauncher.data.Navigation
-import app.voidlauncher.ui.screens.*
+import app.voidlauncher.ui.screens.appDrawerScreen
+import app.voidlauncher.ui.screens.hiddenAppsScreen
+import app.voidlauncher.ui.screens.homeScreen
+import app.voidlauncher.ui.screens.settingsScreen
 import app.voidlauncher.ui.util.systemUIController
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-internal fun CLauncherNavigation(
+internal fun voidlauncherNavigation(
     viewModel: MainViewModel,
     settingsViewModel: SettingsViewModel,
     currentScreen: String,
@@ -59,22 +79,21 @@ internal fun CLauncherNavigation(
 
             is UiEvent.StartActivityForResult -> {
                 try {
-                        event.intent.addFlags(
-                            Intent.FLAG_ACTIVITY_NEW_TASK or
-                                Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                                Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS,
-                        )
-                        context.startActivity(event.intent)
-                    } catch (e2: Exception) {
-                        Log.e("Navigation", "Fallback failed too", e2)
-                        Toast
-                            .makeText(
-                                context,
-                                "Failed to configure widget. Please check app permissions.",
-                                Toast.LENGTH_LONG,
-                            ).show()
-                    }
-                catch (e: Exception) {
+                    event.intent.addFlags(
+                        Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                            Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS,
+                    )
+                    context.startActivity(event.intent)
+                } catch (e2: Exception) {
+                    Log.e("Navigation", "Fallback failed too", e2)
+                    Toast
+                        .makeText(
+                            context,
+                            "Failed to configure widget. Please check app permissions.",
+                            Toast.LENGTH_LONG,
+                        ).show()
+                } catch (e: Exception) {
                     Log.e("Navigation", "Failed to start activity for result", e)
                     Toast
                         .makeText(
@@ -222,8 +241,16 @@ internal fun CLauncherNavigation(
                             // Check if we're in app selection mode
                             if (currentSelectionType != null) {
                                 when (currentSelectionType) {
-                                    AppSelectionType.SWIPE_UP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_UP_APP)
-                                    AppSelectionType.SWIPE_DOWN_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_DOWN_APP)
+                                    AppSelectionType.SWIPE_UP_APP ->
+                                        viewModel.selectedApp(
+                                            app,
+                                            Constants.FLAG_SET_SWIPE_UP_APP,
+                                        )
+                                    AppSelectionType.SWIPE_DOWN_APP ->
+                                        viewModel.selectedApp(
+                                            app,
+                                            Constants.FLAG_SET_SWIPE_DOWN_APP,
+                                        )
                                     AppSelectionType.TWOFINGER_SWIPE_UP_APP ->
                                         viewModel.selectedApp(
                                             app,
@@ -234,8 +261,16 @@ internal fun CLauncherNavigation(
                                             app,
                                             Constants.FLAG_SET_TWOFINGER_SWIPE_DOWN_APP,
                                         )
-                                    AppSelectionType.SWIPE_LEFT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_LEFT_APP)
-                                    AppSelectionType.SWIPE_RIGHT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_SWIPE_RIGHT_APP)
+                                    AppSelectionType.SWIPE_LEFT_APP ->
+                                        viewModel.selectedApp(
+                                            app,
+                                            Constants.FLAG_SET_SWIPE_LEFT_APP,
+                                        )
+                                    AppSelectionType.SWIPE_RIGHT_APP ->
+                                        viewModel.selectedApp(
+                                            app,
+                                            Constants.FLAG_SET_SWIPE_RIGHT_APP,
+                                        )
                                     AppSelectionType.TWOFINGER_SWIPE_LEFT_APP ->
                                         viewModel.selectedApp(
                                             app,
@@ -246,10 +281,26 @@ internal fun CLauncherNavigation(
                                             app,
                                             Constants.FLAG_SET_TWOFINGER_SWIPE_RIGHT_APP,
                                         )
-                                    AppSelectionType.ONE_TAP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_ONE_TAP_APP)
-                                    AppSelectionType.DOUBLE_TAP_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_DOUBLE_TAP_APP)
-                                    AppSelectionType.PINCH_IN_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_PINCH_IN_APP)
-                                    AppSelectionType.PINCH_OUT_APP -> viewModel.selectedApp(app, Constants.FLAG_SET_PINCH_OUT_APP)
+                                    AppSelectionType.ONE_TAP_APP ->
+                                        viewModel.selectedApp(
+                                            app,
+                                            Constants.FLAG_SET_ONE_TAP_APP,
+                                        )
+                                    AppSelectionType.DOUBLE_TAP_APP ->
+                                        viewModel.selectedApp(
+                                            app,
+                                            Constants.FLAG_SET_DOUBLE_TAP_APP,
+                                        )
+                                    AppSelectionType.PINCH_IN_APP ->
+                                        viewModel.selectedApp(
+                                            app,
+                                            Constants.FLAG_SET_PINCH_IN_APP,
+                                        )
+                                    AppSelectionType.PINCH_OUT_APP ->
+                                        viewModel.selectedApp(
+                                            app,
+                                            Constants.FLAG_SET_PINCH_OUT_APP,
+                                        )
                                     else -> {}
                                 }
                                 // After selection, reset and go back to settings
@@ -305,7 +356,7 @@ internal fun CLauncherNavigation(
 }
 
 @Composable
-internal fun BackHandler(
+internal fun backHandler(
     enabled: Boolean = true,
     onBack: () -> Unit,
 ) {

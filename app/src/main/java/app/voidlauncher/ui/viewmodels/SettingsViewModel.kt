@@ -7,7 +7,15 @@ import androidx.lifecycle.viewModelScope
 import app.voidlauncher.data.repository.SettingsRepository
 import app.voidlauncher.data.settings.AppSettings
 import app.voidlauncher.ui.UiEvent
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 internal class SettingsViewModel(
@@ -20,26 +28,26 @@ internal class SettingsViewModel(
     val settingsState: StateFlow<AppSettings> = _settingsState.asStateFlow()
 
     // Loading state
-    val Loading = mutableStateOf(true)
+    val loading = mutableStateOf(true)
 
     // Events manager for UI events
-    private val _eventsFlow = MutableSharedFlow<UiEvent>()
-    val events: SharedFlow<UiEvent> = _eventsFlow.asSharedFlow()
+    private val _events = MutableSharedFlow<UiEvent>()
+    val events: SharedFlow<UiEvent> = _events.asSharedFlow()
 
-    private val _Locked = MutableStateFlow(false)
-    val Locked: StateFlow<Boolean> = _Locked
+    private val _locked = MutableStateFlow(false)
+    val locked: StateFlow<Boolean> = _locked
 
     private val _showLockDialog = MutableStateFlow(false)
     val showLockDialog: StateFlow<Boolean> = _showLockDialog
 
-    private val _SettingPin = MutableStateFlow(false)
-    val SettingPin: StateFlow<Boolean> = _SettingPin
+    private val _settingPin = MutableStateFlow(false)
+    val settingPin: StateFlow<Boolean> = _settingPin
 
-    private val _TemporarilyUnlocked = MutableStateFlow(false)
-    val TemporarilyUnlocked: StateFlow<Boolean> = _TemporarilyUnlocked
+    private val _temporarilyUnlocked = MutableStateFlow(false)
+    val temporarilyUnlocked: StateFlow<Boolean> = _temporarilyUnlocked
 
     val effectiveLockState: StateFlow<Boolean> =
-        combine(_Locked, _TemporarilyUnlocked) { locked, tempUnlocked ->
+        combine(_locked, _temporarilyUnlocked) { locked, tempUnlocked ->
             locked && !tempUnlocked
         }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
@@ -48,8 +56,8 @@ internal class SettingsViewModel(
         viewModelScope.launch {
             settingsRepository.settings.collect { settings ->
                 _settingsState.value = settings
-                Loading.value = false
-                _Locked.value = settings.lockSettings
+                loading.value = false
+                _locked.value = settings.lockSettings
             }
         }
     }
@@ -69,16 +77,16 @@ internal class SettingsViewModel(
      */
     internal fun emitEvent(event: UiEvent) {
         viewModelScope.launch {
-            _eventsFlow.emit(event)
+            _events.emit(event)
         }
     }
 
     internal fun setShowLockDialog(
         show: Boolean,
-        SettingPin: Boolean = false,
+        settingPin: Boolean = false,
     ) {
         _showLockDialog.value = show
-        _SettingPin.value = SettingPin
+        _settingPin.value = settingPin
     }
 
     internal fun validatePin(pin: String): Boolean {
@@ -86,7 +94,7 @@ internal class SettingsViewModel(
         viewModelScope.launch {
             isValid = settingsRepository.validateSettingsPin(pin)
             if (isValid) {
-                _TemporarilyUnlocked.value = true
+                _temporarilyUnlocked.value = true
                 _showLockDialog.value = false
             }
         }
@@ -110,6 +118,6 @@ internal class SettingsViewModel(
     }
 
     internal fun resetUnlockState() {
-        _TemporarilyUnlocked.value = false
+        _temporarilyUnlocked.value = false
     }
 }

@@ -25,10 +25,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import app.voidlauncher.data.Navigation
 import app.voidlauncher.data.repository.SettingsRepository
 import app.voidlauncher.helper.setPlainWallpaper
-import app.voidlauncher.ui.CLauncherNavigation
 import app.voidlauncher.ui.UiEvent
 import app.voidlauncher.ui.util.updateStatusBarVisibility
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
+import app.voidlauncher.ui.voidlauncherNavigation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -95,7 +95,7 @@ internal class MainActivity : ComponentActivity() {
             voidLauncherTheme {
                 var currentScreen by remember { mutableStateOf(Navigation.HOME) }
 
-                CLauncherNavigation(
+                voidlauncherNavigation(
                     viewModel = viewModel,
                     settingsViewModel = settingsViewModel,
                     currentScreen = currentScreen,

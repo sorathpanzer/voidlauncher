@@ -13,7 +13,6 @@ import app.voidlauncher.data.settings.AppPreference
 import app.voidlauncher.data.settings.AppSettings
 import app.voidlauncher.helper.MyAccessibilityService
 import app.voidlauncher.helper.getUserHandleFromString
-import app.voidlauncher.ui.AppDrawerUiState
 import app.voidlauncher.ui.UiEvent
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,6 +29,17 @@ import net.objecthunter.exp4j.ExpressionBuilder
  * MainViewModel is the primary ViewModel for VoidLauncher that manages app state and user
  * interactions.
  */
+
+internal data class AppDrawerUiState(
+    val apps: List<AppModel> = emptyList(),
+    val filteredApps: List<AppModel> = emptyList(),
+    val searchQuery: String = "",
+    val Loading: Boolean = false,
+    val error: String? = null,
+    val calculatorResult: String = "",
+    val showCalculatorResult: Boolean = false,
+)
+
 internal class MainViewModel(
     application: Application,
     private val appWidgetHost: AppWidgetHost,

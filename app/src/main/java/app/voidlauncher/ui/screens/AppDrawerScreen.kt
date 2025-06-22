@@ -69,7 +69,7 @@ import app.voidlauncher.MainViewModel
 import app.voidlauncher.data.AppModel
 import app.voidlauncher.data.Constants
 import app.voidlauncher.helper.openSearch
-import app.voidlauncher.ui.BackHandler
+import app.voidlauncher.ui.backHandler
 import app.voidlauncher.ui.util.detectSwipeGestures
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
@@ -84,7 +84,7 @@ internal fun appDrawerScreen(
     selectionTitle: String = "",
     onSwipeDown: () -> Unit,
 ) {
-    BackHandler(onBack = onSwipeDown)
+    backHandler(onBack = onSwipeDown)
 
     val context = LocalContext.current
     val uiState by viewModel.appDrawerState.collectAsState()
