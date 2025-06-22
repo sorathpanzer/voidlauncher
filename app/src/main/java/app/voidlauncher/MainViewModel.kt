@@ -24,6 +24,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.objecthunter.exp4j.ExpressionBuilder
+import java.io.IOException
+import android.content.ActivityNotFoundException
+import android.util.Log
 
 /**
  * MainViewModel is the primary ViewModel for VoidLauncher that manages app state and user
@@ -34,7 +37,7 @@ internal data class AppDrawerUiState(
     val apps: List<AppModel> = emptyList(),
     val filteredApps: List<AppModel> = emptyList(),
     val searchQuery: String = "",
-    val Loading: Boolean = false,
+    val loading: Boolean = false,
     val error: String? = null,
     val calculatorResult: String = "",
     val showCalculatorResult: Boolean = false,
@@ -42,7 +45,6 @@ internal data class AppDrawerUiState(
 
 internal class MainViewModel(
     application: Application,
-    private val appWidgetHost: AppWidgetHost,
 ) : AndroidViewModel(application) {
     private val appContext = application.applicationContext
     val settingsRepository = SettingsRepository(appContext)
@@ -86,7 +88,7 @@ internal class MainViewModel(
     }
 
     private fun updateAppDrawerState() {
-        _appDrawerState.value = _appDrawerState.value.copy(apps = _appList.value, Loading = false)
+        _appDrawerState.value = _appDrawerState.value.copy(apps = _appList.value, loading = false)
     }
 
     internal fun renameApp(
@@ -114,12 +116,12 @@ internal class MainViewModel(
     internal fun loadApps() {
         viewModelScope.launch {
             try {
-                _appDrawerState.value = _appDrawerState.value.copy(Loading = true)
+                _appDrawerState.value = _appDrawerState.value.copy(loading = true)
                 appRepository.loadApps()
-            } catch (e: Exception) {
+            } catch (e: IOException) {
                 _errorMessage.value = "Failed to load apps: ${e.message}"
                 _appDrawerState.value =
-                    _appDrawerState.value.copy(Loading = false, error = e.message)
+                    _appDrawerState.value.copy(loading = false, error = e.message)
             }
         }
     }
@@ -128,13 +130,13 @@ internal class MainViewModel(
     fun getHiddenApps() {
         viewModelScope.launch {
             try {
-                _appDrawerState.value = _appDrawerState.value.copy(Loading = true)
+                _appDrawerState.value = _appDrawerState.value.copy(loading = true)
                 appRepository.loadHiddenApps()
-                _appDrawerState.value = _appDrawerState.value.copy(Loading = false)
-            } catch (e: Exception) {
+                _appDrawerState.value = _appDrawerState.value.copy(loading = false)
+            } catch (e: IOException) {
                 _errorMessage.value = "Failed to load hidden apps: ${e.message}"
                 _appDrawerState.value =
-                    _appDrawerState.value.copy(Loading = false, error = e.message)
+                    _appDrawerState.value.copy(loading = false, error = e.message)
             }
         }
     }
@@ -144,7 +146,7 @@ internal class MainViewModel(
         viewModelScope.launch {
             try {
                 appRepository.toggleAppHidden(app)
-            } catch (e: Exception) {
+            } catch (e: IOException) {
                 _errorMessage.value = "Failed to toggle app visibility: ${e.message}"
             }
         }
@@ -155,7 +157,7 @@ internal class MainViewModel(
         viewModelScope.launch {
             try {
                 appRepository.launchApp(app)
-            } catch (e: Exception) {
+            } catch (e: ActivityNotFoundException) {
                 _errorMessage.value = "Failed to launch app: ${e.message}"
             }
         }
@@ -305,32 +307,30 @@ internal class MainViewModel(
         }
     }
 
-    /** Search apps by query & Math evaluation */
-    private object MathEvaluator {
-        fun evaluate(expression: String): String? =
-            try {
-                // Remove all whitespace and replace × with *, ÷ with /
-                val cleanExpr =
-                    expression
-                        .replace("\\s".toRegex(), "")
-                        .replace("×", "*")
-                        .replace("÷", "/")
-                        .replace("√", "sqrt")
+    /** Search apps by query or Math evaluation */
+private object MathEvaluator {
+    private const val TAG = "MathEvaluator"
 
-                // Build and evaluate the expression
-                val result = ExpressionBuilder(cleanExpr).build().evaluate()
+    fun evaluate(expression: String): String? =
+        try {
+            val cleanExpr = expression
+                .replace("\\s".toRegex(), "")
+                .replace("×", "*")
+                .replace("÷", "/")
+                .replace("√", "sqrt")
 
-                // Format the result
-                if (result % 1 == 0.0) {
-                    result.toInt().toString()
-                } else {
-                    // Limit to 6 decimal places to avoid long decimals
-                    "%.6f".format(result).replace(Regex("\\.?0+$"), "")
-                }
-            } catch (e: Exception) {
-                null
+            val result = ExpressionBuilder(cleanExpr).build().evaluate()
+
+            if (result % 1 == 0.0) {
+                result.toInt().toString()
+            } else {
+                "%.6f".format(result).replace(Regex("\\.?0+$"), "")
             }
-    }
+        } catch (e: IllegalArgumentException) {
+            Log.w(TAG, "Invalid expression: $expression", e)
+            null
+        }
+}
 
     private fun evaluateMathExpression(expression: String): String? = MathEvaluator.evaluate(expression)
 
@@ -376,12 +376,12 @@ internal class MainViewModel(
                         it.appLabel.startsWith(query.orEmpty(), ignoreCase = true)
                     }
 
-                _appDrawerState.update { it.copy(filteredApps = filteredApps, Loading = false) }
+                _appDrawerState.update { it.copy(filteredApps = filteredApps, loading = false) }
 
                 if (filteredApps.size == 1 && settings.autoOpenFilteredApp) {
                     launchApp(filteredApps[0])
                 }
-            } catch (e: Exception) {
+            } catch (e: IllegalArgumentException) {
                 _errorMessage.value = "Search failed: ${e.message}"
             }
         }

@@ -224,7 +224,7 @@ internal fun appDrawerScreen(
         }
 
         when {
-            uiState.Loading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
+            uiState.loading -> Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
             uiState.error != null -> Box(Modifier.fillMaxSize(), Alignment.Center) { Text("Error: ${uiState.error}") }
             uiState.apps.isEmpty() && searchQuery.isEmpty() ->
                 Box(Modifier.fillMaxSize(), Alignment.Center) {

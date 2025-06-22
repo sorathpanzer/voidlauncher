@@ -26,19 +26,18 @@ import app.voidlauncher.data.Navigation
 import app.voidlauncher.data.repository.SettingsRepository
 import app.voidlauncher.helper.setPlainWallpaper
 import app.voidlauncher.ui.UiEvent
-import app.voidlauncher.ui.util.updateStatusBarVisibility
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import app.voidlauncher.ui.voidlauncherNavigation
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+
+private const val APP_WIDGETHOST_ID = 1024
 
 internal class MainActivity : ComponentActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var settingsViewModel: SettingsViewModel
     private lateinit var settingsRepository: SettingsRepository
     private lateinit var appWidgetHost: AppWidgetHost
-    private val appHostWidgetID = 1024
 
     protected override fun onCreate(savedInstanceState: Bundle?) {
         // Use hardware acceleration
@@ -50,8 +49,8 @@ internal class MainActivity : ComponentActivity() {
         // Initialize settings repository
         settingsRepository = SettingsRepository(applicationContext)
 
-        appWidgetHost = AppWidgetHost(applicationContext, appHostWidgetID)
-        Log.d("MainActivity", "AppWidgetHost created with ID: $appHostWidgetID")
+        appWidgetHost = AppWidgetHost(applicationContext, APP_WIDGETHOST_ID)
+        Log.d("MainActivity", "AppWidgetHost created with ID: $APP_WIDGETHOST_ID")
 
         viewModel =
             ViewModelProvider(
@@ -70,22 +69,6 @@ internal class MainActivity : ComponentActivity() {
                 viewModel.firstOpen(false)
                 settingsRepository.setFirstOpen(false)
                 settingsRepository.updateSetting { it.copy(firstOpenTime = System.currentTimeMillis()) }
-            }
-        }
-
-        // Update status bar visibility
-        lifecycleScope.launch {
-            // Ensure window is ready
-            delay(500)
-            settingsRepository.settings.first().let { settings ->
-                try {
-                    updateStatusBarVisibility(
-                        this@MainActivity,
-                        settings.statusBar,
-                    )
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
             }
         }
 
@@ -119,24 +102,6 @@ internal class MainActivity : ComponentActivity() {
                 }
             },
         )
-    }
-
-    protected override fun onStart() {
-        super.onStart()
-        try {
-            appWidgetHost.startListening()
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Error starting widget host listening", e)
-        }
-    }
-
-    protected override fun onStop() {
-        super.onStop()
-        try {
-            appWidgetHost.stopListening() // Stop listening to save resources
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Error stopping widget host listening", e)
-        }
     }
 
     private fun initObservers() {
@@ -191,7 +156,7 @@ private class MainViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MainViewModel(application, appWidgetHost) as T
+            return MainViewModel(application) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
