@@ -1,8 +1,9 @@
 package app.voidlauncher
 
 import android.app.Application
-import android.appwidget.AppWidgetHost
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.voidlauncher.data.AppModel
@@ -25,8 +26,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.objecthunter.exp4j.ExpressionBuilder
 import java.io.IOException
-import android.content.ActivityNotFoundException
-import android.util.Log
 
 /**
  * MainViewModel is the primary ViewModel for VoidLauncher that manages app state and user
@@ -308,29 +307,30 @@ internal class MainViewModel(
     }
 
     /** Search apps by query or Math evaluation */
-private object MathEvaluator {
-    private const val TAG = "MathEvaluator"
+    private object MathEvaluator {
+        private const val TAG = "MathEvaluator"
 
-    fun evaluate(expression: String): String? =
-        try {
-            val cleanExpr = expression
-                .replace("\\s".toRegex(), "")
-                .replace("×", "*")
-                .replace("÷", "/")
-                .replace("√", "sqrt")
+        fun evaluate(expression: String): String? =
+            try {
+                val cleanExpr =
+                    expression
+                        .replace("\\s".toRegex(), "")
+                        .replace("×", "*")
+                        .replace("÷", "/")
+                        .replace("√", "sqrt")
 
-            val result = ExpressionBuilder(cleanExpr).build().evaluate()
+                val result = ExpressionBuilder(cleanExpr).build().evaluate()
 
-            if (result % 1 == 0.0) {
-                result.toInt().toString()
-            } else {
-                "%.6f".format(result).replace(Regex("\\.?0+$"), "")
+                if (result % 1 == 0.0) {
+                    result.toInt().toString()
+                } else {
+                    "%.6f".format(result).replace(Regex("\\.?0+$"), "")
+                }
+            } catch (e: IllegalArgumentException) {
+                Log.w(TAG, "Invalid expression: $expression", e)
+                null
             }
-        } catch (e: IllegalArgumentException) {
-            Log.w(TAG, "Invalid expression: $expression", e)
-            null
-        }
-}
+    }
 
     private fun evaluateMathExpression(expression: String): String? = MathEvaluator.evaluate(expression)
 
