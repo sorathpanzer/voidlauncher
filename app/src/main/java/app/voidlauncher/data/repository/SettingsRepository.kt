@@ -21,6 +21,7 @@ import app.voidlauncher.data.settings.SettingsManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
 // Extension property for Context to access the DataStore instance
@@ -165,7 +166,7 @@ internal class SettingsRepository(
                 prefs[RENAMED_APPS_JSON]?.let {
                     try {
                         json.decodeFromString<Map<String, String>>(it)
-                    } catch (e: Exception) {
+                    } catch (e: SerializationException) {
                         Log.e("SettingsRepo", "Failed to decode renamed apps JSON: ${e.message}")
                         mapOf<String, String>()
                     }
@@ -231,7 +232,7 @@ internal class SettingsRepository(
     ): T =
         try {
             this.decodeFromString<T>(jsonString)
-        } catch (e: Exception) {
+        } catch (e: SerializationException) {
             Log.e("SettingsRepo", "Failed to decode JSON for ${T::class.simpleName}: ${e.message}. Using default.")
             default
         }
@@ -403,9 +404,9 @@ internal class SettingsRepository(
         updateSetting { it.copy(firstOpen = value) }
     }
 
-    private suspend fun setAppTheme(value: Int) {
-        updateSetting { it.copy(appTheme = value) }
-    }
+    // private suspend fun setAppTheme(value: Int) {
+    //     updateSetting { it.copy(appTheme = value) }
+    // }
 
     internal suspend fun setAppCustomName(
         appKey: String,

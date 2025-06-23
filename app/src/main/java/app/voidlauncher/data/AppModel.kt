@@ -15,12 +15,12 @@ internal data class AppModel(
     val key: CollationKey? = null,
     val appPackage: String,
     val activityClassName: String?,
-    val New: Boolean = false,
+    val isNew: Boolean = false,
     @Transient
     val user: UserHandle = android.os.Process.myUserHandle(),
     @Transient
     val appIcon: ImageBitmap? = null,
-    val Hidden: Boolean = false,
+    val isHidden: Boolean = false,
     val userString: String = user.toString(),
 ) : Comparable<AppModel> {
     override fun compareTo(other: AppModel): Int =

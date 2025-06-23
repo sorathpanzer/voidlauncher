@@ -90,7 +90,7 @@ internal suspend fun getAppsList(
 
                     if (hidden) {
                         if (includeHiddenApps) {
-                            appList.add(appModel.copy(Hidden = true))
+                            appList.add(appModel.copy(isHidden = true))
                         }
                     } else {
                         if (includeRegularApps) {
