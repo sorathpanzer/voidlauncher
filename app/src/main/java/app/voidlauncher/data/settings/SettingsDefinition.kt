@@ -17,7 +17,6 @@ internal annotation class Setting(
     val min: Float = 0f,
     val max: Float = 100f,
     val step: Float = 1f,
-    val rowId: Int = -1, // <- Add this line
     val options: Array<String> = [],
 )
 
@@ -97,7 +96,6 @@ internal data class AppSettings(
         title = "Swipe Up",
         category = SettingCategory.SWIPE_GESTURES,
         type = SettingType.DROPDOWN,
-        rowId = 1,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"],
     )
     val swipeUpAction: Int = Constants.SwipeAction.SEARCH,
@@ -106,7 +104,6 @@ internal data class AppSettings(
         title = "Swipe Down",
         category = SettingCategory.SWIPE_GESTURES,
         type = SettingType.DROPDOWN,
-        rowId = 2,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"],
     )
     val swipeDownAction: Int = Constants.SwipeAction.NOTIFICATIONS,
@@ -115,7 +112,6 @@ internal data class AppSettings(
         title = "Swipe Right",
         category = SettingCategory.SWIPE_GESTURES,
         type = SettingType.DROPDOWN,
-        rowId = 2,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"],
     )
     val swipeRightAction: Int = Constants.SwipeAction.NULL,
@@ -124,7 +120,6 @@ internal data class AppSettings(
         title = "Swipe Left",
         category = SettingCategory.SWIPE_GESTURES,
         type = SettingType.DROPDOWN,
-        rowId = 1,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"],
     )
     val swipeLeftAction: Int = Constants.SwipeAction.NULL,
@@ -133,7 +128,6 @@ internal data class AppSettings(
         title = "2Finger Swipe Up",
         category = SettingCategory.SWIPE_2FINGERS_GESTURES,
         type = SettingType.DROPDOWN,
-        rowId = 1,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"],
     )
     val twoFingerSwipeUpAction: Int = Constants.SwipeAction.NULL,
@@ -142,7 +136,6 @@ internal data class AppSettings(
         title = "2Finger Swipe Down",
         category = SettingCategory.SWIPE_2FINGERS_GESTURES,
         type = SettingType.DROPDOWN,
-        rowId = 2,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"],
     )
     val twoFingerSwipeDownAction: Int = Constants.SwipeAction.NULL,
@@ -151,7 +144,6 @@ internal data class AppSettings(
         title = "2Finger Swipe Right",
         category = SettingCategory.SWIPE_2FINGERS_GESTURES,
         type = SettingType.DROPDOWN,
-        rowId = 1,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"],
     )
     val twoFingerSwipeRightAction: Int = Constants.SwipeAction.NULL,
@@ -160,7 +152,6 @@ internal data class AppSettings(
         title = "2Finger Swipe Left",
         category = SettingCategory.SWIPE_2FINGERS_GESTURES,
         type = SettingType.DROPDOWN,
-        rowId = 2,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"],
     )
     val twoFingerSwipeLeftAction: Int = Constants.SwipeAction.NULL,
@@ -169,7 +160,6 @@ internal data class AppSettings(
         title = "One Tap",
         category = SettingCategory.PINCH_AND_TAP_GESTURES,
         type = SettingType.DROPDOWN,
-        rowId = 1,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"],
     )
     val oneTapAction: Int = Constants.SwipeAction.LOCKSCREEN,
@@ -178,7 +168,6 @@ internal data class AppSettings(
         title = "Double Tap",
         category = SettingCategory.PINCH_AND_TAP_GESTURES,
         type = SettingType.DROPDOWN,
-        rowId = 2,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"],
     )
     val doubleTapAction: Int = Constants.SwipeAction.NULL,
@@ -187,7 +176,6 @@ internal data class AppSettings(
         title = "Pinch In",
         category = SettingCategory.PINCH_AND_TAP_GESTURES,
         type = SettingType.DROPDOWN,
-        rowId = 1,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"],
     )
     val pinchInAction: Int = Constants.SwipeAction.NULL,
@@ -196,7 +184,6 @@ internal data class AppSettings(
         title = "Pinch Out",
         category = SettingCategory.PINCH_AND_TAP_GESTURES,
         type = SettingType.DROPDOWN,
-        rowId = 2,
         options = ["None", "Search", "Notifications", "App", "Lockscreen"],
     )
     val pinchOutAction: Int = Constants.SwipeAction.NULL,
@@ -314,7 +301,6 @@ internal class SettingsManager {
 
     internal fun isSettingEnabled(
         settings: AppSettings,
-        property: KProperty1<AppSettings, *>,
         annotation: Setting,
     ): Boolean {
         val dependsOn = annotation.dependsOn

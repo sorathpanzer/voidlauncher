@@ -408,7 +408,7 @@ private fun settingItem(
     context: android.content.Context,
     coroutineScope: kotlinx.coroutines.CoroutineScope,
 ) {
-    val isEnabled = settingsManager.isSettingEnabled(uiState, property, annotation)
+    val isEnabled = settingsManager.isSettingEnabled(uiState, annotation)
 
     when (annotation.type) {
         SettingType.TOGGLE -> {
