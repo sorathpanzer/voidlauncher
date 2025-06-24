@@ -11,9 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 
-/**
- * Controls system UI elements like status bar
- */
+ // * Controls system UI elements like status bar
 @Composable
 internal fun systemUIController(showStatusBar: Boolean) {
     val view = LocalView.current
@@ -33,9 +31,7 @@ internal fun systemUIController(showStatusBar: Boolean) {
     }
 }
 
-/**
- * Non-composable function to safely update status bar visibility
- */
+ // * Non-composable function to safely update status bar visibility
 internal fun updateStatusBarVisibility(
     activity: Activity?,
     showStatusBar: Boolean,

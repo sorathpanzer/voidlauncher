@@ -14,9 +14,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
-/**
- * Repository for app-related operations
- */
+ // * Repository for app-related operations
 internal class AppRepository(
     private val context: Context,
     private val settingsRepository: SettingsRepository,
@@ -34,9 +32,7 @@ internal class AppRepository(
         cause: Throwable,
     ) : Exception(message, cause)
 
-    /**
-     * Load all visible apps
-     */
+     // * Load all visible apps
     internal suspend fun loadApps() {
         withContext(Dispatchers.IO) {
             try {
@@ -68,9 +64,7 @@ internal class AppRepository(
         }
     }
 
-    /**
-     * Toggle app hidden state
-     */
+     // * Toggle app hidden state
     internal suspend fun toggleAppHidden(app: AppModel) {
         withContext(Dispatchers.IO) {
             try {
@@ -88,9 +82,7 @@ internal class AppRepository(
         }
     }
 
-    /**
-     * Launch an app
-     */
+     // * Launch an app
     internal suspend fun launchApp(appModel: AppModel) {
         withContext(Dispatchers.Main) {
             try {
@@ -108,9 +100,7 @@ internal class AppRepository(
         }
     }
 
-    /**
-     * Exception for app launch failures
-     */
+     // * Exception for app launch failures
     class AppLaunchException(
         message: String,
         cause: Throwable? = null,

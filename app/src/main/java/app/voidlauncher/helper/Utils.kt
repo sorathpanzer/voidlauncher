@@ -6,10 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
+import android.content.ActivityNotFoundException
 import android.os.Build
 import android.os.UserHandle
 import android.os.UserManager
 import android.provider.Settings
+import android.provider.Settings.SettingNotFoundException
 import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.View
@@ -30,6 +32,11 @@ import kotlinx.coroutines.withContext
 import java.text.Collator
 import kotlin.math.pow
 import kotlin.math.sqrt
+import java.io.IOException
+
+private const val WALLPAPER_WIDTH = 1000
+private const val WALLPAPER_HEIGHT = 2000
+private class AppLoadingException(message: String, cause: Throwable) : Exception(message, cause)
 
 internal suspend fun getAppsList(
     context: Context,
@@ -100,22 +107,12 @@ internal suspend fun getAppsList(
                 }
             }
             appList.sortBy { it.appLabel.lowercase() }
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             println("Error loading apps: ${e.message}")
             e.printStackTrace()
         }
         appList
     }
-
-private fun isPackageInstalled(
-    context: Context,
-    packageName: String,
-    userString: String,
-): Boolean {
-    val launcher = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
-    val activityInfo = launcher.getActivityList(packageName, getUserHandleFromString(context, userString))
-    return activityInfo.isNotEmpty()
-}
 
 internal fun getUserHandleFromString(
     context: Context,
@@ -166,45 +163,14 @@ internal fun setPlainWallpaper(
     color: Int,
 ) {
     try {
-        val bitmap = createBitmap(1000, 2000)
+        val bitmap = createBitmap(WALLPAPER_WIDTH, WALLPAPER_HEIGHT)
         bitmap.eraseColor(context.getColor(color))
         val manager = WallpaperManager.getInstance(context)
         manager.setBitmap(bitmap, null, false, WallpaperManager.FLAG_SYSTEM)
         manager.setBitmap(bitmap, null, false, WallpaperManager.FLAG_LOCK)
-    } catch (e: Exception) {
-        e.printStackTrace()
+    } catch (e: IOException) {
+        throw AppLoadingException("Failed to set wallpaper", e)
     }
-}
-
-// internal fun getScreenDimensions(context: Context): Pair<Int, Int> {
-//     val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-
-//     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//         val metrics = windowManager.currentWindowMetrics
-//         val bounds = metrics.bounds
-//         Pair(bounds.width(), bounds.height())
-//     } else {
-//         // Fallback for older versions
-//         val display = windowManager.defaultDisplay
-//         val point = Point()
-//         display.getRealSize(point)
-//         Pair(point.x, point.y)
-//     }
-// }
-
-internal fun getScreenDimensions(context: Context): Pair<Int, Int> {
-    val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-
-    val metrics = windowManager.currentWindowMetrics
-    val insets =
-        metrics.windowInsets.getInsetsIgnoringVisibility(
-            WindowInsets.Type.systemBars(),
-        )
-
-    val width = metrics.bounds.width() - insets.left - insets.right
-    val height = metrics.bounds.height() - insets.top - insets.bottom
-
-    return Pair(width, height)
 }
 
 internal fun openSearch(context: Context) {
@@ -213,7 +179,6 @@ internal fun openSearch(context: Context) {
     context.startActivity(intent)
 }
 
-// @SuppressLint("WrongConstant")
 internal fun expandNotificationDrawer(context: Context) {
     try {
         // Fall back -> reflection for older versions
@@ -226,7 +191,7 @@ internal fun expandNotificationDrawer(context: Context) {
         try {
             val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
             context.startActivity(intent)
-        } catch (e2: Exception) {
+        } catch (e2: ActivityNotFoundException) {
             e2.printStackTrace()
         }
     }
@@ -236,8 +201,8 @@ internal fun isAccessServiceEnabled(context: Context): Boolean {
     val enabled =
         try {
             Settings.Secure.getInt(context.applicationContext.contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED)
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (e: SettingNotFoundException) {
+            throw AppLoadingException("Failed to enable service", e)
             0
         }
     if (enabled == 1) {
@@ -250,72 +215,4 @@ internal fun isAccessServiceEnabled(context: Context): Boolean {
             ?: false
     }
     return false
-}
-
-internal fun isTablet(context: Context): Boolean {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val metrics = context.resources.displayMetrics
-
-        val bounds = windowManager.currentWindowMetrics.bounds
-        val widthPixels = bounds.width()
-        val heightPixels = bounds.height()
-
-        val widthInches = widthPixels / metrics.xdpi
-        val heightInches = heightPixels / metrics.ydpi
-        val diagonalInches = sqrt(widthInches.toDouble().pow(2.0) + heightInches.toDouble().pow(2.0))
-
-        return diagonalInches >= 7.0
-    } else {
-        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val metrics = DisplayMetrics()
-        @Suppress("DEPRECATION")
-        windowManager.defaultDisplay.getMetrics(metrics)
-
-        val widthInches = metrics.widthPixels / metrics.xdpi
-        val heightInches = metrics.heightPixels / metrics.ydpi
-        val diagonalInches = sqrt(widthInches.toDouble().pow(2.0) + heightInches.toDouble().pow(2.0))
-
-        return diagonalInches >= 7.0
-    }
-}
-
-internal fun Context.openUrl(url: String) {
-    if (url.isEmpty()) return
-    val intent = Intent(Intent.ACTION_VIEW)
-    intent.data = url.toUri()
-    startActivity(intent)
-}
-
-internal fun Context.isSystemApp(packageName: String): Boolean {
-    if (packageName.isBlank()) return true
-    return try {
-        val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
-        (
-            (applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM != 0) ||
-                (applicationInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0)
-        )
-    } catch (e: Exception) {
-        e.printStackTrace()
-        false
-    }
-}
-
-@ColorInt
-internal fun Context.getColorFromAttr(
-    @AttrRes attrColor: Int,
-    typedValue: TypedValue = TypedValue(),
-    resolveRefs: Boolean = true,
-): Int {
-    theme.resolveAttribute(attrColor, typedValue, resolveRefs)
-    return typedValue.data
-}
-
-internal fun View.animateAlpha(alpha: Float = 1.0f) {
-    this.animate().apply {
-        interpolator = LinearInterpolator()
-        duration = 200
-        alpha(alpha)
-        start()
-    }
 }

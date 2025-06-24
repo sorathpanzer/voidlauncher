@@ -10,9 +10,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import kotlin.math.abs
 import kotlin.math.hypot
 
-/**
- * Adds swipe gesture detection to a composable
- */
+ // * Adds swipe gesture detection to a composable
 internal fun Modifier.detectSwipeGestures(
     onSwipeUp: () -> Unit = {},
     onSwipeDown: () -> Unit = {},

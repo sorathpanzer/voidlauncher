@@ -62,9 +62,7 @@ internal class SettingsViewModel(
         }
     }
 
-    /**
-     * Update a setting by property name
-     */
+     // * Update a setting by property name
     internal suspend fun updateSetting(
         propertyName: String,
         value: Any,
@@ -72,9 +70,7 @@ internal class SettingsViewModel(
         settingsRepository.updateSetting(propertyName, value)
     }
 
-    /**
-     * Emit UI event
-     */
+     // * Emit UI event
     internal fun emitEvent(event: UiEvent) {
         viewModelScope.launch {
             _events.emit(event)
