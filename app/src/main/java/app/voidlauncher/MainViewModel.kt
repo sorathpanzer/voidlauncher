@@ -47,7 +47,7 @@ internal class MainViewModel(
 ) : AndroidViewModel(application) {
     private val appContext = application.applicationContext
     val settingsRepository = SettingsRepository(appContext)
-    private val appRepository = AppRepository(appContext, settingsRepository, viewModelScope)
+    private val appRepository = AppRepository(appContext, settingsRepository)
 
     // Events manager for UI events
     private val _eventsFlow = MutableSharedFlow<UiEvent>()
