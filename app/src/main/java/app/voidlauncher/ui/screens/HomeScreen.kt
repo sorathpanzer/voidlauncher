@@ -22,6 +22,8 @@ import app.voidlauncher.ui.util.detectSwipeGestures
 import app.voidlauncher.ui.util.detectTwoFingerSwipes
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 
+private const val ZOOM_DELTA_VAL = 150f
+
 private fun checkAccessibilityAndLock(
     context: Context,
     viewModel: MainViewModel,
@@ -114,13 +116,13 @@ internal fun homeScreen(
                     },
                 ).detectPinchGestures { zoomDelta ->
                     when {
-                        zoomDelta > 150f -> {
+                        zoomDelta > ZOOM_DELTA_VAL -> {
                             // Pinch out (zoom in)
                             handleAction(context, viewModel, settings.pinchOutAction) {
                                 viewModel.launchPinchOutApp()
                             }
                         }
-                        zoomDelta < -150f -> {
+                        zoomDelta < -ZOOM_DELTA_VAL -> {
                             // Pinch in (zoom out)
                             handleAction(context, viewModel, settings.pinchInAction) {
                                 viewModel.launchPinchInApp()
@@ -145,6 +147,6 @@ internal fun homeScreen(
                     )
                 },
     ) {
-        // TODO: Add your HomeScreen UI content here
+        // * Add your HomeScreen UI content here
     }
 }

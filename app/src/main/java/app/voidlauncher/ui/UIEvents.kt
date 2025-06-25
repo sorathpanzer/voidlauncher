@@ -2,7 +2,7 @@ package app.voidlauncher.ui
 
 import android.content.Intent
 
- // * UI Events for navigation and actions
+// * UI Events for navigation and actions
 internal sealed class UiEvent {
     // Navigation
     object NavigateToAppDrawer : UiEvent()

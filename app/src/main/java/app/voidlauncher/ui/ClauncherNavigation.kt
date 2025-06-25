@@ -1,5 +1,6 @@
 package app.voidlauncher.ui
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
@@ -44,6 +45,8 @@ import app.voidlauncher.ui.util.systemUIController
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.flow.collectLatest
 
+private const val ANIMATION_TWEEN_VAL = 300
+
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 internal fun voidlauncherNavigation(
@@ -85,7 +88,7 @@ internal fun voidlauncherNavigation(
                             Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS,
                     )
                     context.startActivity(event.intent)
-                } catch (e2: Exception) {
+                } catch (e2: ActivityNotFoundException) {
                     Log.e("Navigation", "Fallback failed too", e2)
                     Toast
                         .makeText(
@@ -93,7 +96,7 @@ internal fun voidlauncherNavigation(
                             "Failed to configure widget. Please check app permissions.",
                             Toast.LENGTH_LONG,
                         ).show()
-                } catch (e: Exception) {
+                } catch (e: ActivityNotFoundException) {
                     Log.e("Navigation", "Failed to start activity for result", e)
                     Toast
                         .makeText(
@@ -146,11 +149,11 @@ internal fun voidlauncherNavigation(
                             // App drawer to home: slide down
                             slideInVertically(
                                 initialOffsetY = { -it },
-                                animationSpec = tween(300),
+                                animationSpec = tween(ANIMATION_TWEEN_VAL),
                             ).togetherWith(
                                 slideOutVertically(
                                     targetOffsetY = { it },
-                                    animationSpec = tween(300),
+                                    animationSpec = tween(ANIMATION_TWEEN_VAL),
                                 ),
                             )
                         }
@@ -158,11 +161,11 @@ internal fun voidlauncherNavigation(
                             // Settings/Hidden apps to home: slide right
                             slideInHorizontally(
                                 initialOffsetX = { -it },
-                                animationSpec = tween(300),
+                                animationSpec = tween(ANIMATION_TWEEN_VAL),
                             ).togetherWith(
                                 slideOutHorizontally(
                                     targetOffsetX = { it },
-                                    animationSpec = tween(300),
+                                    animationSpec = tween(ANIMATION_TWEEN_VAL),
                                 ),
                             )
                         }
@@ -172,11 +175,11 @@ internal fun voidlauncherNavigation(
                     // Home to app drawer: slide up
                     slideInVertically(
                         initialOffsetY = { it },
-                        animationSpec = tween(300),
+                        animationSpec = tween(ANIMATION_TWEEN_VAL),
                     ).togetherWith(
                         slideOutVertically(
                             targetOffsetY = { -it },
-                            animationSpec = tween(300),
+                            animationSpec = tween(ANIMATION_TWEEN_VAL),
                         ),
                     )
                 }
@@ -184,11 +187,11 @@ internal fun voidlauncherNavigation(
                     // Home to settings: slide left
                     slideInHorizontally(
                         initialOffsetX = { it },
-                        animationSpec = tween(300),
+                        animationSpec = tween(ANIMATION_TWEEN_VAL),
                     ).togetherWith(
                         slideOutHorizontally(
                             targetOffsetX = { -it },
-                            animationSpec = tween(300),
+                            animationSpec = tween(ANIMATION_TWEEN_VAL),
                         ),
                     )
                 }
@@ -196,22 +199,22 @@ internal fun voidlauncherNavigation(
                     // Settings to hidden apps: slide left
                     slideInHorizontally(
                         initialOffsetX = { it },
-                        animationSpec = tween(300),
+                        animationSpec = tween(ANIMATION_TWEEN_VAL),
                     ).togetherWith(
                         slideOutHorizontally(
                             targetOffsetX = { -it },
-                            animationSpec = tween(300),
+                            animationSpec = tween(ANIMATION_TWEEN_VAL),
                         ),
                     )
                 }
                 else -> {
                     // Default animation with fade and scale
                     (
-                        fadeIn(animationSpec = tween(300)) +
-                            scaleIn(initialScale = 0.95f, animationSpec = tween(300))
+                        fadeIn(animationSpec = tween(ANIMATION_TWEEN_VAL)) +
+                            scaleIn(initialScale = 0.95f, animationSpec = tween(ANIMATION_TWEEN_VAL))
                     ).togetherWith(
-                        fadeOut(animationSpec = tween(300)) +
-                            scaleOut(targetScale = 0.95f, animationSpec = tween(300)),
+                        fadeOut(animationSpec = tween(ANIMATION_TWEEN_VAL)) +
+                            scaleOut(targetScale = 0.95f, animationSpec = tween(ANIMATION_TWEEN_VAL)),
                     )
                 }
             }

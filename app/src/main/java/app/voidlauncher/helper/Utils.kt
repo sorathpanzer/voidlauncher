@@ -2,41 +2,32 @@ package app.voidlauncher.helper
 
 import android.app.SearchManager
 import android.app.WallpaperManager
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
-import android.content.ActivityNotFoundException
-import android.os.Build
 import android.os.UserHandle
 import android.os.UserManager
 import android.provider.Settings
 import android.provider.Settings.SettingNotFoundException
-import android.util.DisplayMetrics
-import android.util.TypedValue
-import android.view.View
-import android.view.WindowInsets
-import android.view.WindowManager
-import android.view.animation.LinearInterpolator
-import androidx.annotation.AttrRes
-import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.graphics.createBitmap
-import androidx.core.net.toUri
 import app.voidlauncher.data.AppModel
 import app.voidlauncher.data.Constants
 import app.voidlauncher.data.repository.SettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import java.text.Collator
-import kotlin.math.pow
-import kotlin.math.sqrt
 import java.io.IOException
+import java.text.Collator
 
 private const val WALLPAPER_WIDTH = 1000
 private const val WALLPAPER_HEIGHT = 2000
-private class AppLoadingException(message: String, cause: Throwable) : Exception(message, cause)
+
+private class AppLoadingException(
+    message: String,
+    cause: Throwable,
+) : Exception(message, cause)
 
 internal suspend fun getAppsList(
     context: Context,

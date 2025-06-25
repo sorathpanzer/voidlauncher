@@ -39,6 +39,8 @@ import androidx.compose.ui.unit.dp
 import app.voidlauncher.MainViewModel
 import app.voidlauncher.ui.components.appItem
 
+private const val EFFECT_TWEEN_DELAY = 300
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 internal fun hiddenAppsScreen(
@@ -84,7 +86,7 @@ internal fun hiddenAppsScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .animateContentSize(
-                        animationSpec = tween(300),
+                        animationSpec = tween(EFFECT_TWEEN_DELAY),
                     ),
         ) {
             if (loading) {
@@ -97,8 +99,8 @@ internal fun hiddenAppsScreen(
                 AnimatedVisibility(
                     visible = true,
                     enter =
-                        fadeIn(animationSpec = tween(300)) +
-                            expandVertically(animationSpec = tween(300)),
+                        fadeIn(animationSpec = tween(EFFECT_TWEEN_DELAY)) +
+                            expandVertically(animationSpec = tween(EFFECT_TWEEN_DELAY)),
                     modifier = Modifier.align(Alignment.Center),
                 ) {
                     Column(

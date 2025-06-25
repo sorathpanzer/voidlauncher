@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import net.objecthunter.exp4j.ExpressionBuilder
 import java.io.IOException
 
- // * MainViewModel is the primary ViewModel for VoidLauncher app state and user interactions.
+// * MainViewModel is the primary ViewModel for VoidLauncher app state and user interactions.
 internal data class AppDrawerUiState(
     val apps: List<AppModel> = emptyList(),
     val filteredApps: List<AppModel> = emptyList(),

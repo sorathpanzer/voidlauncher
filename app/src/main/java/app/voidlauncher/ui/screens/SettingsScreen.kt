@@ -76,6 +76,9 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.reflect.KProperty1
 
+private const val MAX_SIZE_FILL = 0.8f
+private const val ALPHA = 0.5f
+
 // Sealed class for dialog types
 private sealed class SettingsDialog {
     data class Slider(
@@ -129,7 +132,6 @@ internal fun settingsScreen(
 
     if (showLockDialog) {
         settingsLockDialog(
-            SettingPin = settingPin,
             onDismiss = { viewModel.setShowLockDialog(false) },
             onConfirm = { pin ->
                 if (settingPin) {
@@ -305,7 +307,7 @@ private fun lockedSettingsView(
             modifier =
                 Modifier
                     .padding(16.dp)
-                    .fillMaxWidth(0.8f),
+                    .fillMaxWidth(MAX_SIZE_FILL),
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
@@ -487,7 +489,7 @@ private fun toggleSettingItem(
                 .fillMaxWidth()
                 .clickable(enabled = enabled) { onCheckedChange(!isChecked) }
                 .padding(16.dp)
-                .alpha(if (enabled) 1f else 0.5f),
+                .alpha(if (enabled) 1f else ALPHA),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -714,7 +716,7 @@ private fun settingsItem(
                 .fillMaxWidth()
                 .clickable(enabled = enabled, onClick = onClick)
                 .padding(vertical = 8.dp)
-                .alpha(if (enabled) transparency else 0.5f),
+                .alpha(if (enabled) transparency else ALPHA),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -762,7 +764,7 @@ private fun settingsToggle(
                     toggleState = !toggleState
                     onCheckedChange(toggleState)
                 }.padding(16.dp)
-                .alpha(if (enabled) 1f else 0.5f),
+                .alpha(if (enabled) 1f else ALPHA),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -803,7 +805,7 @@ private fun settingsAction(
             Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 12.dp)
-                .alpha(if (enabled) 1f else 0.5f),
+                .alpha(if (enabled) 1f else ALPHA),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(

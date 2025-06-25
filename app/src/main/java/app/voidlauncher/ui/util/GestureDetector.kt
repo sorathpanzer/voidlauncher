@@ -10,7 +10,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import kotlin.math.abs
 import kotlin.math.hypot
 
- // * Adds swipe gesture detection to a composable
+private const val MIN_SWIPE_DISTANCE = 50f
+
+// * Adds swipe gesture detection to a composable
 internal fun Modifier.detectSwipeGestures(
     onSwipeUp: () -> Unit = {},
     onSwipeDown: () -> Unit = {},
@@ -23,12 +25,9 @@ internal fun Modifier.detectSwipeGestures(
                 change.consume()
                 val (x, y) = dragAmount
 
-                // Use a minimum threshold to avoid accidental swipes
-                val minSwipeDistance = 50f
-
                 // Determine which direction has the highest magnitude
                 when {
-                    abs(x) > abs(y) && abs(x) > minSwipeDistance -> {
+                    abs(x) > abs(y) && abs(x) > MIN_SWIPE_DISTANCE -> {
                         // Horizontal swipe
                         if (x > 0) {
                             onSwipeRight()
@@ -36,7 +35,7 @@ internal fun Modifier.detectSwipeGestures(
                             onSwipeLeft()
                         }
                     }
-                    abs(y) > abs(x) && abs(y) > minSwipeDistance -> {
+                    abs(y) > abs(x) && abs(y) > MIN_SWIPE_DISTANCE -> {
                         // Vertical swipe
                         if (y > 0) {
                             onSwipeDown()
@@ -90,16 +89,14 @@ internal fun Modifier.detectTwoFingerSwipes(
                 val dy = endYs.values.zip(startYs.values).map { (end, start) -> end - start }
                 val dx = endXs.values.zip(startXs.values).map { (end, start) -> end - start }
 
-                val minSwipe = 50f
-
                 if (dy.size == 2 && dx.size == 2) {
-                    if (dy.all { abs(it) > abs(dx.first()) } && dy.all { it > minSwipe }) {
+                    if (dy.all { abs(it) > abs(dx.first()) } && dy.all { it > MIN_SWIPE_DISTANCE }) {
                         onSwipeDown()
-                    } else if (dy.all { abs(it) > abs(dx.first()) } && dy.all { it < -minSwipe }) {
+                    } else if (dy.all { abs(it) > abs(dx.first()) } && dy.all { it < -MIN_SWIPE_DISTANCE }) {
                         onSwipeUp()
-                    } else if (dx.all { abs(it) > abs(dy.first()) } && dx.all { it > minSwipe }) {
+                    } else if (dx.all { abs(it) > abs(dy.first()) } && dx.all { it > MIN_SWIPE_DISTANCE }) {
                         onSwipeRight()
-                    } else if (dx.all { abs(it) > abs(dy.first()) } && dx.all { it < -minSwipe }) {
+                    } else if (dx.all { abs(it) > abs(dy.first()) } && dx.all { it < -MIN_SWIPE_DISTANCE }) {
                         onSwipeLeft()
                     }
                 }

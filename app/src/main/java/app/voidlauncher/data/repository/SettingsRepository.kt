@@ -29,7 +29,7 @@ internal val Context.settingsDataStore: DataStore<Preferences> by preferencesDat
     name = "app.voidlauncher.settings",
 )
 
- // * Repository for managing application settings
+// * Repository for managing application settings
 internal class SettingsRepository(
     private val context: Context,
 ) {
@@ -130,7 +130,7 @@ internal class SettingsRepository(
     private val defaultPinchInApp: AppPreference = defaultAppSettings.pinchInApp
     private val defaultPinchOutApp: AppPreference = defaultAppSettings.pinchOutApp
 
-     // * Flow of settings that emits whenever any setting changes
+    // * Flow of settings that emits whenever any setting changes
 
     inline fun <reified T> getJsonPref(
         prefs: Preferences,
@@ -322,7 +322,7 @@ internal class SettingsRepository(
         }
     }
 
-     // * Update a setting by property name
+    // * Update a setting by property name
     internal suspend fun updateSetting(
         propertyName: String,
         value: Any,
@@ -332,7 +332,7 @@ internal class SettingsRepository(
         updateSetting { updatedSettings }
     }
 
-     // * Methods for managing other settable apps
+    // * Methods for managing other settable apps
     internal suspend fun setGestureApp(
         key: Preferences.Key<String>,
         app: AppPreference,
@@ -376,7 +376,7 @@ internal class SettingsRepository(
 
     internal suspend fun validateSettingsPin(pin: String): Boolean = settings.first().settingsLockPin == pin
 
-     // * Methods for managing hidden apps
+    // * Methods for managing hidden apps
     internal suspend fun toggleAppHidden(packageKey: String) {
         updateSetting {
             val updatedHiddenApps = it.hiddenApps.toMutableSet()

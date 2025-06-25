@@ -74,6 +74,8 @@ import app.voidlauncher.ui.util.detectSwipeGestures
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
 
+private const val DELAY_APP_OPEN = 300L
+
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 internal fun appDrawerScreen(
@@ -217,7 +219,7 @@ internal fun appDrawerScreen(
         val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
 
         LaunchedEffect(appsToShow, settings.autoOpenFilteredApp, searchQuery, handleAppClick) {
-            delay(300)
+            delay(DELAY_APP_OPEN)
             if (searchQuery.isNotEmpty() && appsToShow.size == 1 && settings.autoOpenFilteredApp) {
                 handleAppClick(appsToShow[0])
             }
