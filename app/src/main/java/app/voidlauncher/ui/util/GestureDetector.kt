@@ -57,52 +57,67 @@ internal fun Modifier.detectTwoFingerSwipes(
     this.then(
         Modifier.pointerInput(Unit) {
             awaitEachGesture {
-                val pointersY = mutableMapOf<PointerId, Float>()
-                val pointersX = mutableMapOf<PointerId, Float>()
+                val startPositions = mutableMapOf<PointerId, Offset>()
 
-                // Wait for two fingers down
-                while (pointersY.size < 2) {
+                // Wait for two fingers to be down
+                while (startPositions.size < 2) {
                     val event = awaitPointerEvent()
                     event.changes.filter { it.pressed }.forEach {
-                        pointersY[it.id] = it.position.y
-                        pointersX[it.id] = it.position.x
+                        startPositions[it.id] = it.position
                     }
                 }
 
-                val startYs = pointersY.toMap()
-                val startXs = pointersX.toMap()
+                val startXs = startPositions.values.map { it.x }
+                val startYs = startPositions.values.map { it.y }
 
-                var endYs = startYs
                 var endXs = startXs
+                var endYs = startYs
 
+                // Track finger movement until one is lifted
                 while (true) {
                     val event = awaitPointerEvent()
-                    val current = event.changes.filter { it.pressed }
-                    if (current.size < 2) break
+                    val pressed = event.changes.filter { it.pressed }
 
-                    endYs = current.associate { it.id to it.position.y }
-                    endXs = current.associate { it.id to it.position.x }
+                    if (pressed.size < 2) break
 
-                    current.forEach { it.consume() }
+                    endXs = pressed.map { it.position.x }
+                    endYs = pressed.map { it.position.y }
+
+                    pressed.forEach { it.consume() }
                 }
 
-                val dy = endYs.values.zip(startYs.values).map { (end, start) -> end - start }
-                val dx = endXs.values.zip(startXs.values).map { (end, start) -> end - start }
+                val dx = endXs.zip(startXs) { end, start -> end - start }
+                val dy = endYs.zip(startYs) { end, start -> end - start }
 
-                if (dy.size == 2 && dx.size == 2) {
-                    if (dy.all { abs(it) > abs(dx.first()) } && dy.all { it > MIN_SWIPE_DISTANCE }) {
-                        onSwipeDown()
-                    } else if (dy.all { abs(it) > abs(dx.first()) } && dy.all { it < -MIN_SWIPE_DISTANCE }) {
-                        onSwipeUp()
-                    } else if (dx.all { abs(it) > abs(dy.first()) } && dx.all { it > MIN_SWIPE_DISTANCE }) {
-                        onSwipeRight()
-                    } else if (dx.all { abs(it) > abs(dy.first()) } && dx.all { it < -MIN_SWIPE_DISTANCE }) {
-                        onSwipeLeft()
-                    }
-                }
+                handleTwoFingerSwipe(dx, dy, SwipeCallbacks(onSwipeUp, onSwipeDown, onSwipeLeft, onSwipeRight))
             }
         },
     )
+
+private data class SwipeCallbacks(
+    val onSwipeUp: () -> Unit = {},
+    val onSwipeDown: () -> Unit = {},
+    val onSwipeLeft: () -> Unit = {},
+    val onSwipeRight: () -> Unit = {},
+)
+
+private fun handleTwoFingerSwipe(
+    dx: List<Float>,
+    dy: List<Float>,
+    callbacks: SwipeCallbacks,
+) {
+    if (dy.all { abs(it) > abs(dx.first()) }) {
+        when {
+            dy.all { it > MIN_SWIPE_DISTANCE } -> callbacks.onSwipeDown()
+            dy.all { it < -MIN_SWIPE_DISTANCE } -> callbacks.onSwipeUp()
+        }
+    } else if (dx.all { abs(it) > abs(dy.first()) }) {
+        when {
+            dx.all { it > MIN_SWIPE_DISTANCE } -> callbacks.onSwipeRight()
+            dx.all { it < -MIN_SWIPE_DISTANCE } -> callbacks.onSwipeLeft()
+        }
+    }
+}
 
 internal fun Modifier.detectPinchGestures(onPinch: (zoomDelta: Float) -> Unit): Modifier =
     pointerInput(Unit) {
