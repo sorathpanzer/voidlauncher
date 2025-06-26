@@ -132,6 +132,7 @@ internal fun settingsScreen(
 
     if (showLockDialog) {
         settingsLockDialog(
+            settingPin = settingPin,
             onDismiss = { viewModel.setShowLockDialog(false) },
             onConfirm = { pin ->
                 if (settingPin) {

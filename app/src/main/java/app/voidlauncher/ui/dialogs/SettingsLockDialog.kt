@@ -38,98 +38,107 @@ internal fun settingsLockDialog(
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
         ) {
             Column(
-                modifier =
-                    Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth(),
+                modifier = Modifier.padding(16.dp).fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(
-                    text = if (settingPin) "Set PIN" else "Enter PIN",
-                    style = MaterialTheme.typography.headlineSmall,
-                )
-
+                dialogTitle(settingPin)
                 Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedTextField(
-                    value = pin,
-                    onValueChange = {
-                        if (it.length <= 6) pin = it
-                        error = ""
-                    },
-                    label = { Text("PIN") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                pinInputField(value = pin, onValueChange = {
+                    if (it.length <= 6) pin = it
+                    error = ""
+                })
 
                 if (settingPin) {
                     Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlinedTextField(
+                    pinInputField(
+                        label = "Confirm PIN",
                         value = confirmPin,
                         onValueChange = {
                             if (it.length <= 6) confirmPin = it
                             error = ""
                         },
-                        label = { Text("Confirm PIN") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
 
                 if (error.isNotEmpty()) {
-                    Text(
-                        text = error,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 8.dp),
-                    )
+                    errorText(error)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                ) {
-                    TextButton(onClick = onDismiss) {
-                        Text("Cancel")
-                    }
-
-                    Button(
-                        onClick = {
-                            if (settingPin) {
-                                if (pin.isEmpty()) {
-                                    error = "PIN cannot be empty"
-                                } else if (pin != confirmPin) {
-                                    error = "PINs do not match"
-                                } else {
-                                    onConfirm(pin)
-                                }
-                            } else {
-                                if (pin.isEmpty()) {
-                                    error = "Please enter PIN"
-                                } else {
-                                    onConfirm(pin)
-                                }
+                dialogButtons(
+                    onDismiss = onDismiss,
+                    onConfirmClick = {
+                        error = when {
+                            pin.isEmpty() -> if (settingPin) "PIN cannot be empty" else "Please enter PIN"
+                            settingPin && pin != confirmPin -> "PINs do not match"
+                            else -> {
+                                onConfirm(pin)
+                                return@dialogButtons
                             }
-                        },
-                        modifier = Modifier.padding(start = 8.dp),
-                    ) {
-                        Text("Confirm")
-                    }
-                }
+                        }
+                    },
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun dialogTitle(settingPin: Boolean) {
+    Text(
+        text = if (settingPin) "Set PIN" else "Enter PIN",
+        style = MaterialTheme.typography.headlineSmall,
+    )
+}
+
+@Composable
+private fun pinInputField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String = "PIN",
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+        visualTransformation = PasswordVisualTransformation(),
+        modifier = Modifier.fillMaxWidth(),
+    )
+}
+
+@Composable
+private fun errorText(error: String) {
+    Text(
+        text = error,
+        color = MaterialTheme.colorScheme.error,
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier.padding(top = 8.dp),
+    )
+}
+
+@Composable
+private fun dialogButtons(
+    onDismiss: () -> Unit,
+    onConfirmClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
+    ) {
+        TextButton(onClick = onDismiss) {
+            Text("Cancel")
+        }
+        Button(
+            onClick = onConfirmClick,
+            modifier = Modifier.padding(start = 8.dp),
+        ) {
+            Text("Confirm")
         }
     }
 }
