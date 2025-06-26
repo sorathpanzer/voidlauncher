@@ -72,14 +72,15 @@ internal fun settingsLockDialog(
                 dialogButtons(
                     onDismiss = onDismiss,
                     onConfirmClick = {
-                        error = when {
-                            pin.isEmpty() -> if (settingPin) "PIN cannot be empty" else "Please enter PIN"
-                            settingPin && pin != confirmPin -> "PINs do not match"
-                            else -> {
-                                onConfirm(pin)
-                                return@dialogButtons
+                        error =
+                            when {
+                                pin.isEmpty() -> if (settingPin) "PIN cannot be empty" else "Please enter PIN"
+                                settingPin && pin != confirmPin -> "PINs do not match"
+                                else -> {
+                                    onConfirm(pin)
+                                    return@dialogButtons
+                                }
                             }
-                        }
                     },
                 )
             }
