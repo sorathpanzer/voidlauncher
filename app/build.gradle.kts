@@ -24,15 +24,17 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-         allWarningsAsErrors = true
-        freeCompilerArgs += listOf(
-            "-Xjsr305=strict",
-            "-opt-in=kotlin.RequiresOptIn",
-            "-Xreport-perf",
-            "-Xexplicit-api=strict"
-        )
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+            allWarningsAsErrors.set(true)
+            freeCompilerArgs.addAll(
+                "-Xjsr305=strict",
+                "-opt-in=kotlin.RequiresOptIn",
+                "-Xreport-perf",
+                "-Xexplicit-api=strict",
+            )
+        }
     }
 
     defaultConfig {
@@ -65,26 +67,28 @@ android {
 
             if (abiName != null) {
                 val baseVersionCode = variant.versionCode
-                val abiVersionCode = when (abiName) {
-                    "x86" -> baseVersionCode - 3
-                    "x86_64" -> baseVersionCode - 2
-                    "armeabi-v7a" -> baseVersionCode - 1
-                    "arm64-v8a" -> baseVersionCode
-                    else -> baseVersionCode
-                }
+                val abiVersionCode =
+                    when (abiName) {
+                        "x86" -> baseVersionCode - 3
+                        "x86_64" -> baseVersionCode - 2
+                        "armeabi-v7a" -> baseVersionCode - 1
+                        "arm64-v8a" -> baseVersionCode
+                        else -> baseVersionCode
+                    }
 
                 (output as ApkVariantOutputImpl).versionCodeOverride = abiVersionCode
-                output.outputFileName = ("voidlauncher-${variant.versionName}-${abiName}.apk")
+                output.outputFileName = ("voidlauncher-${variant.versionName}-$abiName.apk")
             }
         }
     }
 
-    val userHomeProps = Properties().apply {
-        val userGradleFile = File(System.getProperty("user.home"), ".gradle/gradle.properties")
-        if (userGradleFile.exists()) {
-            load(userGradleFile.inputStream())
+    val userHomeProps =
+        Properties().apply {
+            val userGradleFile = File(System.getProperty("user.home"), ".gradle/gradle.properties")
+            if (userGradleFile.exists()) {
+                load(userGradleFile.inputStream())
+            }
         }
-    }
 
     signingConfigs {
         create("release") {
