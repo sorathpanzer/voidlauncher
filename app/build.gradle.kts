@@ -39,8 +39,8 @@ android {
         applicationId = "app.voidlauncher"
         minSdk = 24
         targetSdk = 36
-        versionCode = 707
-        versionName = "v0.3"
+        versionCode = 708
+        versionName = "v0.3.1"
 
         androidResources { localeFilters += setOf("en") }
 
