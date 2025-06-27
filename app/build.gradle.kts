@@ -153,4 +153,5 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.kotlin.reflect)
     implementation(libs.exp4j)
+    implementation("androidx.compose.material:material:1.6.7")
 }
