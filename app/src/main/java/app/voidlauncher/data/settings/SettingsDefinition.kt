@@ -86,10 +86,10 @@ internal data class AppSettings(
     )
     val searchResultsFontSize: Float = 1.0f,
     @Setting(
-        title = "Set Plain Wallpaper",
+        title = "Set Black Wallpaper",
         category = SettingCategory.APPEARANCE,
         type = SettingType.BUTTON,
-        description = "Set a plain black/white wallpaper based on theme",
+        description = "Set a plain black wallpaper",
     )
     val plainWallpaper: Boolean = false,
     @Setting(
@@ -261,43 +261,41 @@ internal class SettingsManager {
             it.second.category
         }
 
-    internal fun updateSetting(
-        settings: AppSettings,
-        propertyName: String,
-        value: Any,
-    ): AppSettings =
-        when (propertyName) {
-            "showAppNames" -> settings.copy(showAppNames = value as Boolean)
-            "showHiddenAppsOnSearch" -> settings.copy(showHiddenAppsOnSearch = value as Boolean)
-            "statusBar" -> settings.copy(statusBar = value as Boolean)
-            "searchResultsFontSize" -> settings.copy(searchResultsFontSize = value as Float)
-            "plainWallpaper" -> settings.copy(plainWallpaper = value as Boolean)
-            "swipeUpAction" -> settings.copy(swipeUpAction = value as Int)
-            "swipeUpApp" -> settings.copy(swipeUpApp = value as AppPreference)
-            "swipeDownAction" -> settings.copy(swipeDownAction = value as Int)
-            "swipeDownApp" -> settings.copy(swipeDownApp = value as AppPreference)
-            "swipeRightAction" -> settings.copy(swipeRightAction = value as Int)
-            "swipeRightApp" -> settings.copy(swipeRightApp = value as AppPreference)
-            "swipeLeftAction" -> settings.copy(swipeLeftAction = value as Int)
-            "swipeLeftApp" -> settings.copy(swipeLeftApp = value as AppPreference)
-            "twoFingerSwipeUpAction" -> settings.copy(twoFingerSwipeUpAction = value as Int)
-            "twoFingerSwipeUpApp" -> settings.copy(twoFingerSwipeUpApp = value as AppPreference)
-            "twoFingerSwipeDownAction" -> settings.copy(twoFingerSwipeDownAction = value as Int)
-            "twoFingerSwipeDownApp" -> settings.copy(twoFingerSwipeDownApp = value as AppPreference)
-            "twoFingerSwipeRightAction" -> settings.copy(twoFingerSwipeRightAction = value as Int)
-            "twoFingerSwipeRightApp" -> settings.copy(twoFingerSwipeRightApp = value as AppPreference)
-            "twoFingerSwipeLeftAction" -> settings.copy(twoFingerSwipeLeftAction = value as Int)
-            "twoFingerSwipeLeftApp" -> settings.copy(twoFingerSwipeLeftApp = value as AppPreference)
-            "oneTapAction" -> settings.copy(oneTapAction = value as Int)
-            "oneTapApp" -> settings.copy(oneTapApp = value as AppPreference)
-            "doubleTapAction" -> settings.copy(doubleTapAction = value as Int)
-            "doubleTapApp" -> settings.copy(doubleTapApp = value as AppPreference)
-            "pinchInAction" -> settings.copy(pinchInAction = value as Int)
-            "pinchInApp" -> settings.copy(pinchInApp = value as AppPreference)
-            "pinchOutAction" -> settings.copy(pinchOutAction = value as Int)
-            "pinchOutApp" -> settings.copy(pinchOutApp = value as AppPreference)
-            else -> settings
-        }
+     private val updaters: Map<String, (AppSettings, Any) -> AppSettings> = mapOf(
+        "showAppNames" to { s, v -> s.copy(showAppNames = v as Boolean) },
+        "showHiddenAppsOnSearch" to { s, v -> s.copy(showHiddenAppsOnSearch = v as Boolean) },
+        "statusBar" to { s, v -> s.copy(statusBar = v as Boolean) },
+        "searchResultsFontSize" to { s, v -> s.copy(searchResultsFontSize = v as Float) },
+        "plainWallpaper" to { s, v -> s.copy(plainWallpaper = v as Boolean) },
+        "swipeUpAction" to { s, v -> s.copy(swipeUpAction = v as Int) },
+        "swipeUpApp" to { s, v -> s.copy(swipeUpApp = v as AppPreference) },
+        "swipeDownAction" to { s, v -> s.copy(swipeDownAction = v as Int) },
+        "swipeDownApp" to { s, v -> s.copy(swipeDownApp = v as AppPreference) },
+        "swipeRightAction" to { s, v -> s.copy(swipeRightAction = v as Int) },
+        "swipeRightApp" to { s, v -> s.copy(swipeRightApp = v as AppPreference) },
+        "swipeLeftAction" to { s, v -> s.copy(swipeLeftAction = v as Int) },
+        "swipeLeftApp" to { s, v -> s.copy(swipeLeftApp = v as AppPreference) },
+        "twoFingerSwipeUpAction" to { s, v -> s.copy(twoFingerSwipeUpAction = v as Int) },
+        "twoFingerSwipeUpApp" to { s, v -> s.copy(twoFingerSwipeUpApp = v as AppPreference) },
+        "twoFingerSwipeDownAction" to { s, v -> s.copy(twoFingerSwipeDownAction = v as Int) },
+        "twoFingerSwipeDownApp" to { s, v -> s.copy(twoFingerSwipeDownApp = v as AppPreference) },
+        "twoFingerSwipeRightAction" to { s, v -> s.copy(twoFingerSwipeRightAction = v as Int) },
+        "twoFingerSwipeRightApp" to { s, v -> s.copy(twoFingerSwipeRightApp = v as AppPreference) },
+        "twoFingerSwipeLeftAction" to { s, v -> s.copy(twoFingerSwipeLeftAction = v as Int) },
+        "twoFingerSwipeLeftApp" to { s, v -> s.copy(twoFingerSwipeLeftApp = v as AppPreference) },
+        "oneTapAction" to { s, v -> s.copy(oneTapAction = v as Int) },
+        "oneTapApp" to { s, v -> s.copy(oneTapApp = v as AppPreference) },
+        "doubleTapAction" to { s, v -> s.copy(doubleTapAction = v as Int) },
+        "doubleTapApp" to { s, v -> s.copy(doubleTapApp = v as AppPreference) },
+        "pinchInAction" to { s, v -> s.copy(pinchInAction = v as Int) },
+        "pinchInApp" to { s, v -> s.copy(pinchInApp = v as AppPreference) },
+        "pinchOutAction" to { s, v -> s.copy(pinchOutAction = v as Int) },
+        "pinchOutApp" to { s, v -> s.copy(pinchOutApp = v as AppPreference) },
+    )
+
+    internal fun updateSetting(settings: AppSettings, propertyName: String, value: Any): AppSettings {
+        return updaters[propertyName]?.invoke(settings, value) ?: settings
+    }
 
     internal fun isSettingEnabled(
         settings: AppSettings,

@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -233,92 +234,92 @@ internal class SettingsRepository(
             default
         }
 
+    private val settingUpdaters: Map<String, suspend (MutablePreferences, Any) -> Unit> =
+        mapOf(
+            // General
+            "showAppNames" to { prefs, v -> prefs[SHOW_APP_NAMES] = v as Boolean },
+            "showHiddenAppsOnSearch" to { prefs, v -> prefs[SHOW_HIDDEN_APPS_IN_SEARCH] = v as Boolean },
+            "searchType" to { prefs, v -> prefs[SEARCH_TYPE] = v as Int },
+            // Appearance
+            "appTheme" to { prefs, v -> prefs[APP_THEME] = v as Int },
+            "statusBar" to { prefs, v -> prefs[STATUS_BAR] = v as Boolean },
+            "showHomeScreenIcons" to { prefs, v -> prefs[SHOW_HOME_SCREEN_ICONS] = v as Boolean },
+            "plainWallpaper" to { prefs, v -> prefs[PLAIN_WALLPAPER] = v as Boolean },
+            "searchResultsFontSize" to { prefs, v -> prefs[SEARCH_RESULTS_FONT_SIZE] = v as Float },
+            // Gestures
+            "swipeDownAction" to { prefs, v -> prefs[SWIPE_DOWN_ACTION] = v as Int },
+            "swipeUpAction" to { prefs, v -> prefs[SWIPE_UP_ACTION] = v as Int },
+            "twoFingerSwipeDownAction" to { prefs, v -> prefs[TWOFINGER_SWIPE_DOWN_ACTION] = v as Int },
+            "twoFingerSwipeUpAction" to { prefs, v -> prefs[TWOFINGER_SWIPE_UP_ACTION] = v as Int },
+            "twoFingerSwipeRightAction" to { prefs, v -> prefs[TWOFINGER_SWIPE_RIGHT_ACTION] = v as Int },
+            "twoFingerSwipeLeftAction" to { prefs, v -> prefs[TWOFINGER_SWIPE_LEFT_ACTION] = v as Int },
+            "swipeLeftAction" to { prefs, v -> prefs[SWIPE_LEFT_ACTION] = v as Int },
+            "swipeRightAction" to { prefs, v -> prefs[SWIPE_RIGHT_ACTION] = v as Int },
+            "oneTapAction" to { prefs, v -> prefs[ONE_TAP_ACTION] = v as Int },
+            "doubleTapAction" to { prefs, v -> prefs[DOUBLE_TAP_ACTION] = v as Int },
+            "pinchInAction" to { prefs, v -> prefs[PINCH_IN_ACTION] = v as Int },
+            "pinchOutAction" to { prefs, v -> prefs[PINCH_OUT_ACTION] = v as Int },
+            // Lockscreen
+            "lockSettings" to { prefs, v -> prefs[LOCK_SETTINGS] = v as Boolean },
+            "settingsLockPin" to { prefs, v -> prefs[SETTINGS_LOCK_PIN] = v as String },
+            // First-launch flags
+            "firstOpen" to { prefs, v -> prefs[FIRST_OPEN] = v as Boolean },
+            "firstOpenTime" to { prefs, v -> prefs[FIRST_OPEN_TIME] = v as Long },
+            "firstSettingsOpen" to { prefs, v -> prefs[FIRST_SETTINGS_OPEN] = v as Boolean },
+            "firstHide" to { prefs, v -> prefs[FIRST_HIDE] = v as Boolean },
+            // Misc
+            "lockMode" to { prefs, v -> prefs[LOCK_MODE] = v as Boolean },
+            "keyboardMessage" to { prefs, v -> prefs[KEYBOARD_MESSAGE] = v as Boolean },
+            "appLabelAlignment" to { prefs, v -> prefs[APP_LABEL_ALIGNMENT] = v as Int },
+            "hiddenAppsUpdated" to { prefs, v -> prefs[HIDDEN_APPS_UPDATED] = v as Boolean },
+            "showHintCounter" to { prefs, v -> prefs[SHOW_HINT_COUNTER] = v as Int },
+            "aboutClicked" to { prefs, v -> prefs[ABOUT_CLICKED] = v as Boolean },
+            "hiddenApps" to { prefs, v ->
+                if (v is Set<*>) {
+                    prefs[HIDDEN_APPS] = v.filterIsInstance<String>().toSet()
+                } else {
+                    error("Expected Set<String>, got ${v::class.simpleName}")
+                }
+            },
+            // AppPreference (JSON-encoded)
+            "swipeLeftApp" to { prefs, v -> prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(v) },
+            "swipeRightApp" to { prefs, v -> prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(v) },
+            "oneTapApp" to { prefs, v -> prefs[ONE_TAP_APP_JSON] = json.encodeToString(v) },
+            "doubleTapApp" to { prefs, v -> prefs[DOUBLE_TAP_APP_JSON] = json.encodeToString(v) },
+            "swipeUpApp" to { prefs, v -> prefs[SWIPE_UP_APP_JSON] = json.encodeToString(v) },
+            "swipeDownApp" to { prefs, v -> prefs[SWIPE_DOWN_APP_JSON] = json.encodeToString(v) },
+            "twoFingerSwipeUpApp" to { prefs, v -> prefs[TWOFINGER_SWIPE_UP_APP_JSON] = json.encodeToString(v) },
+            "twoFingerSwipeDownApp" to { prefs, v -> prefs[TWOFINGER_SWIPE_DOWN_APP_JSON] = json.encodeToString(v) },
+            "twoFingerSwipeLeftApp" to { prefs, v -> prefs[TWOFINGER_SWIPE_LEFT_APP_JSON] = json.encodeToString(v) },
+            "twoFingerSwipeRightApp" to { prefs, v -> prefs[TWOFINGER_SWIPE_RIGHT_APP_JSON] = json.encodeToString(v) },
+            "pinchInApp" to { prefs, v -> prefs[PINCH_IN_APP_JSON] = json.encodeToString(v) },
+            "pinchOutApp" to { prefs, v -> prefs[PINCH_OUT_APP_JSON] = json.encodeToString(v) },
+            "renamedApps" to { prefs, v -> prefs[RENAMED_APPS_JSON] = json.encodeToString(v) },
+        )
+
+    private suspend fun applyChangedFields(
+        current: AppSettings,
+        updated: AppSettings,
+        prefs: MutablePreferences,
+    ) {
+        AppSettings::class.java.declaredFields.forEach { field ->
+            field.isAccessible = true
+            val name = field.name
+            val oldValue = field.get(current)
+            val newValue = field.get(updated)
+
+            if (oldValue != newValue) {
+                newValue?.let { settingUpdaters[name]?.invoke(prefs, it) }
+            }
+        }
+    }
+
     internal suspend fun updateSetting(update: (AppSettings) -> AppSettings) {
         val currentSettings = settings.first()
         val updatedSettings = update(currentSettings)
 
         context.settingsDataStore.edit { prefs ->
-            AppSettings::class.java.declaredFields.forEach { field ->
-                field.isAccessible = true
-                val name = field.name
-                val currentValue = field.get(currentSettings)
-                val newValue = field.get(updatedSettings)
-
-                if (currentValue != newValue) {
-                    @Suppress("UNCHECKED_CAST")
-                    when (name) {
-                        // General settings
-                        "showAppNames" -> prefs[SHOW_APP_NAMES] = newValue as Boolean
-                        "showHiddenAppsOnSearch" -> prefs[SHOW_HIDDEN_APPS_IN_SEARCH] = newValue as Boolean
-                        "searchType" -> prefs[SEARCH_TYPE] = newValue as Int
-
-                        // Appearance settings
-                        "appTheme" -> prefs[APP_THEME] = newValue as Int
-
-                        // Layout settings
-                        "statusBar" -> prefs[STATUS_BAR] = newValue as Boolean
-                        "showHomeScreenIcons" -> prefs[SHOW_HOME_SCREEN_ICONS] = newValue as Boolean
-
-                        // Gestures settings
-                        "swipeDownAction" -> prefs[SWIPE_DOWN_ACTION] = newValue as Int
-                        "swipeUpAction" -> prefs[SWIPE_UP_ACTION] = newValue as Int
-                        "twoFingerSwipeDownAction" -> prefs[TWOFINGER_SWIPE_DOWN_ACTION] = newValue as Int
-                        "twoFingerSwipeUpAction" -> prefs[TWOFINGER_SWIPE_UP_ACTION] = newValue as Int
-                        "twoFingerSwipeRightAction" -> prefs[TWOFINGER_SWIPE_RIGHT_ACTION] = newValue as Int
-                        "twoFingerSwipeLeftAction" -> prefs[TWOFINGER_SWIPE_LEFT_ACTION] = newValue as Int
-                        "swipeLeftAction" -> prefs[SWIPE_LEFT_ACTION] = newValue as Int
-                        "swipeRightAction" -> prefs[SWIPE_RIGHT_ACTION] = newValue as Int
-                        "oneTapAction" -> prefs[ONE_TAP_ACTION] = newValue as Int
-                        "doubleTapAction" -> prefs[DOUBLE_TAP_ACTION] = newValue as Int
-                        "pinchInAction" -> prefs[PINCH_IN_ACTION] = newValue as Int
-                        "pinchOutAction" -> prefs[PINCH_OUT_ACTION] = newValue as Int
-
-                        // Search result appearance
-                        "searchResultsFontSize" -> prefs[SEARCH_RESULTS_FONT_SIZE] = newValue as Float
-
-                        "lockSettings" -> prefs[LOCK_SETTINGS] = newValue as Boolean
-                        "settingsLockPin" -> prefs[SETTINGS_LOCK_PIN] = newValue as String
-
-                        // Other properties
-                        "firstOpen" -> prefs[FIRST_OPEN] = newValue as Boolean
-                        "firstOpenTime" -> prefs[FIRST_OPEN_TIME] = newValue as Long
-                        "firstSettingsOpen" -> prefs[FIRST_SETTINGS_OPEN] = newValue as Boolean
-                        "firstHide" -> prefs[FIRST_HIDE] = newValue as Boolean
-                        "lockMode" -> prefs[LOCK_MODE] = newValue as Boolean
-                        "keyboardMessage" -> prefs[KEYBOARD_MESSAGE] = newValue as Boolean
-                        "plainWallpaper" -> prefs[PLAIN_WALLPAPER] = newValue as Boolean
-                        "appLabelAlignment" -> prefs[APP_LABEL_ALIGNMENT] = newValue as Int
-                        "hiddenAppsUpdated" -> prefs[HIDDEN_APPS_UPDATED] = newValue as Boolean
-                        "showHintCounter" -> prefs[SHOW_HINT_COUNTER] = newValue as Int
-                        "aboutClicked" -> prefs[ABOUT_CLICKED] = newValue as Boolean
-
-                        // Special handling for complex types
-                        "hiddenApps" -> prefs[HIDDEN_APPS] = newValue as Set<String>
-
-                        "swipeLeftApp" -> prefs[SWIPE_LEFT_APP_JSON] = json.encodeToString(newValue)
-                        "swipeRightApp" -> prefs[SWIPE_RIGHT_APP_JSON] = json.encodeToString(newValue)
-                        "oneTapApp" -> prefs[ONE_TAP_APP_JSON] = json.encodeToString(newValue)
-                        "doubleTapApp" -> prefs[DOUBLE_TAP_APP_JSON] = json.encodeToString(newValue)
-                        "swipeUpApp" -> prefs[SWIPE_UP_APP_JSON] = json.encodeToString(newValue)
-                        "swipeDownApp" -> prefs[SWIPE_DOWN_APP_JSON] = json.encodeToString(newValue)
-                        "twoFingerSwipeUpApp" -> prefs[TWOFINGER_SWIPE_UP_APP_JSON] = json.encodeToString(newValue)
-                        "twoFingerSwipeDownApp" -> prefs[TWOFINGER_SWIPE_DOWN_APP_JSON] = json.encodeToString(newValue)
-                        "twoFingerSwipeLeftApp" -> prefs[TWOFINGER_SWIPE_LEFT_APP_JSON] = json.encodeToString(newValue)
-                        "twoFingerSwipeRightApp" ->
-                            prefs[TWOFINGER_SWIPE_RIGHT_APP_JSON] =
-                                json.encodeToString(newValue)
-                        "pinchInApp" -> prefs[PINCH_IN_APP_JSON] = json.encodeToString(newValue)
-                        "pinchOutApp" -> prefs[PINCH_OUT_APP_JSON] = json.encodeToString(newValue)
-                        "renamedApps" -> prefs[RENAMED_APPS_JSON] = json.encodeToString(newValue)
-
-                        // Add other fields if needed
-
-                        else -> {
-                            // Unknown property - optionally log or ignore
-                        }
-                    }
-                }
-            }
+            applyChangedFields(currentSettings, updatedSettings, prefs)
         }
     }
 

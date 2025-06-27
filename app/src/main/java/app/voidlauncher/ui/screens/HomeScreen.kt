@@ -15,6 +15,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import app.voidlauncher.MainViewModel
 import app.voidlauncher.data.Constants
+import app.voidlauncher.data.settings.AppSettings
 import app.voidlauncher.helper.expandNotificationDrawer
 import app.voidlauncher.helper.isAccessServiceEnabled
 import app.voidlauncher.ui.util.detectPinchGestures
@@ -40,6 +41,136 @@ private fun checkAccessibilityAndLock(
     }
 }
 
+private fun handleAction(
+    context: Context,
+    viewModel: MainViewModel,
+    action: Int,
+    onSearch: () -> Unit,
+    launchApp: () -> Unit = {},
+) {
+    when (action) {
+        Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
+        Constants.SwipeAction.SEARCH -> onSearch()
+        Constants.SwipeAction.APP -> launchApp()
+        Constants.SwipeAction.LOCKSCREEN -> checkAccessibilityAndLock(context, viewModel)
+        Constants.SwipeAction.NULL -> Unit
+        else -> Unit
+    }
+}
+
+private fun Modifier.applySwipeGestures(
+    context: Context,
+    viewModel: MainViewModel,
+    settings: AppSettings,
+    onNavigateToAppDrawer: () -> Unit,
+) = this.detectSwipeGestures(
+    onSwipeUp = {
+        handleAction(context, viewModel, settings.swipeUpAction, onNavigateToAppDrawer) {
+            viewModel.launchSwipeUpApp()
+        }
+    },
+    onSwipeDown = {
+        handleAction(context, viewModel, settings.swipeDownAction, onNavigateToAppDrawer) {
+            viewModel.launchSwipeDownApp()
+        }
+    },
+    onSwipeLeft = {
+        handleAction(context, viewModel, settings.swipeLeftAction, onNavigateToAppDrawer) {
+            viewModel.launchSwipeLeftApp()
+        }
+    },
+    onSwipeRight = {
+        handleAction(context, viewModel, settings.swipeRightAction, onNavigateToAppDrawer) {
+            viewModel.launchSwipeRightApp()
+        }
+    },
+)
+
+private fun Modifier.applyTwoFingerSwipes(
+    context: Context,
+    viewModel: MainViewModel,
+    settings: AppSettings,
+    onNavigateToAppDrawer: () -> Unit,
+) = this.detectTwoFingerSwipes(
+    onSwipeUp = {
+        handleAction(context, viewModel, settings.twoFingerSwipeUpAction, onNavigateToAppDrawer) {
+            viewModel.launchTwoFingerSwipeUpApp()
+        }
+    },
+    onSwipeDown = {
+        handleAction(context, viewModel, settings.twoFingerSwipeDownAction, onNavigateToAppDrawer) {
+            viewModel.launchTwoFingerSwipeDownApp()
+        }
+    },
+    onSwipeRight = {
+        handleAction(context, viewModel, settings.twoFingerSwipeRightAction, onNavigateToAppDrawer) {
+            viewModel.launchTwoFingerSwipeRightApp()
+        }
+    },
+    onSwipeLeft = {
+        handleAction(context, viewModel, settings.twoFingerSwipeLeftAction, onNavigateToAppDrawer) {
+            viewModel.launchTwoFingerSwipeLeftApp()
+        }
+    },
+)
+
+private fun Modifier.applyPinchGestures(
+    context: Context,
+    viewModel: MainViewModel,
+    settings: AppSettings,
+    onNavigateToAppDrawer: () -> Unit,
+) = this.detectPinchGestures { zoomDelta ->
+    when {
+        zoomDelta > ZOOM_DELTA_VAL -> {
+            handleAction(context, viewModel, settings.pinchOutAction, onNavigateToAppDrawer) {
+                viewModel.launchPinchOutApp()
+            }
+        }
+
+        zoomDelta < -ZOOM_DELTA_VAL -> {
+            handleAction(context, viewModel, settings.pinchInAction, onNavigateToAppDrawer) {
+                viewModel.launchPinchInApp()
+            }
+        }
+    }
+}
+
+private fun Modifier.applyTapGestures(
+    context: Context,
+    viewModel: MainViewModel,
+    settings: AppSettings,
+    onNavigateToAppDrawer: () -> Unit,
+    onNavigateToSettings: () -> Unit,
+) = this.pointerInput(Unit) {
+    detectTapGestures(
+        onDoubleTap = {
+            handleAction(context, viewModel, settings.doubleTapAction, onNavigateToAppDrawer) {
+                viewModel.launchDoubleTapApp()
+            }
+        },
+        onLongPress = { onNavigateToSettings() },
+        onTap = {
+            handleAction(context, viewModel, settings.oneTapAction, onNavigateToAppDrawer) {
+                viewModel.launchOneTapApp()
+            }
+        },
+    )
+}
+
+@Composable
+private fun Modifier.applyGestureHandlers(
+    context: Context,
+    viewModel: MainViewModel,
+    settings: AppSettings,
+    onNavigateToAppDrawer: () -> Unit,
+    onNavigateToSettings: () -> Unit,
+): Modifier =
+    this
+        .applySwipeGestures(context, viewModel, settings, onNavigateToAppDrawer)
+        .applyTwoFingerSwipes(context, viewModel, settings, onNavigateToAppDrawer)
+        .applyPinchGestures(context, viewModel, settings, onNavigateToAppDrawer)
+        .applyTapGestures(context, viewModel, settings, onNavigateToAppDrawer, onNavigateToSettings)
+
 @Composable
 internal fun homeScreen(
     viewModel: MainViewModel,
@@ -50,102 +181,17 @@ internal fun homeScreen(
     val context = LocalContext.current
     val settings by settingsViewModel.settingsState.collectAsState()
 
-    fun handleAction(
-        context: Context,
-        viewModel: MainViewModel,
-        action: Int,
-        launchApp: () -> Unit = {},
-    ) {
-        when (action) {
-            Constants.SwipeAction.NOTIFICATIONS -> expandNotificationDrawer(context)
-            Constants.SwipeAction.SEARCH -> onNavigateToAppDrawer()
-            Constants.SwipeAction.APP -> launchApp()
-            Constants.SwipeAction.LOCKSCREEN -> checkAccessibilityAndLock(context, viewModel)
-            Constants.SwipeAction.NULL -> Unit
-            else -> {}
-        }
-    }
-
     Box(
         modifier =
             Modifier
                 .fillMaxSize()
-                .detectSwipeGestures(
-                    onSwipeUp = {
-                        handleAction(context, viewModel, settings.swipeUpAction) {
-                            viewModel.launchSwipeUpApp()
-                        }
-                    },
-                    onSwipeDown = {
-                        handleAction(context, viewModel, settings.swipeDownAction) {
-                            viewModel.launchSwipeDownApp()
-                        }
-                    },
-                    onSwipeLeft = {
-                        handleAction(context, viewModel, settings.swipeLeftAction) {
-                            viewModel.launchSwipeLeftApp()
-                        }
-                    },
-                    onSwipeRight = {
-                        handleAction(context, viewModel, settings.swipeRightAction) {
-                            viewModel.launchSwipeRightApp()
-                        }
-                    },
-                )
-                // Multi-finger swipe support
-                .detectTwoFingerSwipes(
-                    onSwipeUp = {
-                        handleAction(context, viewModel, settings.twoFingerSwipeUpAction) {
-                            viewModel.launchTwoFingerSwipeUpApp()
-                        }
-                    },
-                    onSwipeDown = {
-                        handleAction(context, viewModel, settings.twoFingerSwipeDownAction) {
-                            viewModel.launchTwoFingerSwipeDownApp()
-                        }
-                    },
-                    onSwipeRight = {
-                        handleAction(context, viewModel, settings.twoFingerSwipeRightAction) {
-                            viewModel.launchTwoFingerSwipeRightApp()
-                        }
-                    },
-                    onSwipeLeft = {
-                        handleAction(context, viewModel, settings.twoFingerSwipeLeftAction) {
-                            viewModel.launchTwoFingerSwipeLeftApp()
-                        }
-                    },
-                ).detectPinchGestures { zoomDelta ->
-                    when {
-                        zoomDelta > ZOOM_DELTA_VAL -> {
-                            // Pinch out (zoom in)
-                            handleAction(context, viewModel, settings.pinchOutAction) {
-                                viewModel.launchPinchOutApp()
-                            }
-                        }
-                        zoomDelta < -ZOOM_DELTA_VAL -> {
-                            // Pinch in (zoom out)
-                            handleAction(context, viewModel, settings.pinchInAction) {
-                                viewModel.launchPinchInApp()
-                            }
-                        }
-                    }
-                }.pointerInput(Unit) {
-                    detectTapGestures(
-                        onDoubleTap = {
-                            handleAction(context, viewModel, settings.doubleTapAction) {
-                                viewModel.launchDoubleTapApp()
-                            }
-                        },
-                        onLongPress = {
-                            onNavigateToSettings()
-                        },
-                        onTap = {
-                            handleAction(context, viewModel, settings.oneTapAction) {
-                                viewModel.launchOneTapApp()
-                            }
-                        },
-                    )
-                },
+                .applyGestureHandlers(
+                    context = context,
+                    viewModel = viewModel,
+                    settings = settings,
+                    onNavigateToAppDrawer = onNavigateToAppDrawer,
+                    onNavigateToSettings = onNavigateToSettings,
+                ),
     ) {
         // * Add your HomeScreen UI content here
     }
