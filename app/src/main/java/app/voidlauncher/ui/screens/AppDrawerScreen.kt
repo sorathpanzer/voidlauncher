@@ -262,22 +262,24 @@ internal fun appDrawerScreen(
                         items = appsToShow,
                         key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" },
                     ) { app ->
-                        appListItem(
-                            app = app,
-                            showAppNames = settings.showAppNames,
-                            fontScale = searchResultsFontSize,
-                            onClick = { handleAppClick(app) },
-                            onLongClick = {
-                                selectedApp = app
-                                showContextMenu = true
-                            },
-                            modifier =
-                                Modifier.animateItem(
-                                    fadeInSpec = null,
-                                    fadeOutSpec = null,
-                                    placementSpec = tween(durationMillis = 300),
-                                ),
-                        )
+                        if (settings.showAppNames) {
+                            appListItem(
+                                app = app,
+                                showAppNames = settings.showAppNames,
+                                fontScale = searchResultsFontSize,
+                                onClick = { handleAppClick(app) },
+                                onLongClick = {
+                                    selectedApp = app
+                                    showContextMenu = true
+                                },
+                                modifier =
+                                    Modifier.animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null,
+                                        placementSpec = tween(durationMillis = 300),
+                                    ),
+                            )
+                        }
                     }
                 }
             }
