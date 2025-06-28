@@ -53,37 +53,18 @@ private val DarkColorScheme =
 
 @Composable
 internal fun voidLauncherTheme(content: @Composable () -> Unit) {
-    val context = LocalContext.current
-    val settingsRepository = remember { SettingsRepository(context) }
-
-    val settings = settingsRepository.settings.collectAsState(initial = AppSettings()).value
-
-    val appTheme = settings.appTheme
-    val darkTheme =
-        when (appTheme) {
-            AppCompatDelegate.MODE_NIGHT_YES -> true
-            AppCompatDelegate.MODE_NIGHT_NO -> false
-            else -> isSystemInDarkTheme()
-        }
-
-    val colorScheme = DarkColorScheme
-
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-
-            // Enable drawing behind system bars
             WindowCompat.setDecorFitsSystemWindows(window, false)
-
-            // Control status bar icon color (light or dark)
             val insetsController = WindowCompat.getInsetsController(window, view)
-            insetsController.isAppearanceLightStatusBars = !darkTheme
+            insetsController.isAppearanceLightStatusBars = false // dark icons off
         }
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = DarkColorScheme,
         content = content,
     )
 }
