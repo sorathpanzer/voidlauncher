@@ -164,10 +164,10 @@ internal fun setPlainWallpaper(
     }
 }
 
-internal fun openSearch(context: Context) {
+internal fun Context.openSearch(query: String? = null) {
     val intent = Intent(Intent.ACTION_WEB_SEARCH)
-    intent.putExtra(SearchManager.QUERY, "")
-    context.startActivity(intent)
+    intent.putExtra(SearchManager.QUERY, query ?: "")
+    startActivity(intent)
 }
 
 internal fun expandNotificationDrawer(context: Context) {
