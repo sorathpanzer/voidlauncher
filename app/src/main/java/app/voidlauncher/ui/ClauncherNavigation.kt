@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -47,6 +48,18 @@ import kotlinx.coroutines.flow.collectLatest
 
 private const val ANIMATION_TWEEN_VAL = 300
 
+private data class NavigationControllers(
+    val mainViewModel: MainViewModel,
+    val settingsViewModel: SettingsViewModel,
+)
+
+private data class NavigationState(
+    val currentScreen: String,
+    val currentSelectionType: AppSelectionType?,
+    val onClearSelection: () -> Unit,
+    val onScreenChange: (String) -> Unit,
+)
+
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 internal fun voidlauncherNavigation(
@@ -57,306 +70,209 @@ internal fun voidlauncherNavigation(
 ) {
     val context = LocalContext.current
     val settings by settingsViewModel.settingsState.collectAsState()
-
-    // Apply system UI settings
     systemUIController(showStatusBar = settings.statusBar)
 
-    var showAppSelectionDialog by remember { mutableStateOf(false) }
     var currentSelectionType by remember { mutableStateOf<AppSelectionType?>(null) }
 
-    val handleEvent: (UiEvent) -> Unit = { event ->
-        when (event) {
-            is UiEvent.NavigateToAppDrawer -> {
-                onScreenChange(Navigation.APP_DRAWER)
-            }
-            is UiEvent.NavigateToSettings -> {
-                onScreenChange(Navigation.SETTINGS)
-            }
-            is UiEvent.NavigateToHiddenApps -> {
-                onScreenChange(Navigation.HIDDEN_APPS)
-            }
-            is UiEvent.NavigateBack -> {
-                onScreenChange(Navigation.HOME)
-                settingsViewModel.resetUnlockState()
-            }
-
-            is UiEvent.StartActivityForResult -> {
-                try {
-                    event.intent.addFlags(
-                        Intent.FLAG_ACTIVITY_NEW_TASK or
-                            Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                            Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS,
-                    )
-                    context.startActivity(event.intent)
-                } catch (e2: ActivityNotFoundException) {
-                    Log.e("Navigation", "Fallback failed too", e2)
-                    Toast
-                        .makeText(
-                            context,
-                            "Failed to configure widget. Please check app permissions.",
-                            Toast.LENGTH_LONG,
-                        ).show()
-                } catch (e: ActivityNotFoundException) {
-                    Log.e("Navigation", "Failed to start activity for result", e)
-                    Toast
-                        .makeText(
-                            context,
-                            "Failed to start widget configuration: ${e.localizedMessage}",
-                            Toast.LENGTH_LONG,
-                        ).show()
-                }
-            }
-            is UiEvent.ShowToast -> {
-                // Show toast message
-                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
-            }
-            is UiEvent.NavigateToAppSelection -> {
-                // Store selection type and show dialog
-                currentSelectionType = event.selectionType
-                showAppSelectionDialog = true
-                // Navigate to app drawer with selection mode
-                onScreenChange(Navigation.APP_DRAWER)
-            }
-            else -> {
-                // Handle other events, presently nothing.
-            }
-        }
-    }
-
-    // Collect events from MainViewModel
-    LaunchedEffect(key1 = viewModel) {
-        viewModel.eventsFlow.collectLatest { event ->
-            handleEvent(event)
-        }
-    }
-
-    // from SettingsViewModel
-    LaunchedEffect(key1 = settingsViewModel) {
-        settingsViewModel.events.collectLatest { event ->
-            handleEvent(event)
-        }
-    }
-
-    // Main animation container with content alignment for proper scaling
-    AnimatedContent(
-        targetState = currentScreen,
-        transitionSpec = {
-            // Define different animations based on navigation direction
-            when (targetState) {
-                Navigation.HOME -> {
-                    when (initialState) {
-                        Navigation.APP_DRAWER -> {
-                            // App drawer to home: slide down
-                            slideInVertically(
-                                initialOffsetY = { -it },
-                                animationSpec = tween(ANIMATION_TWEEN_VAL),
-                            ).togetherWith(
-                                slideOutVertically(
-                                    targetOffsetY = { it },
-                                    animationSpec = tween(ANIMATION_TWEEN_VAL),
-                                ),
+    val handleEvent =
+        remember(context, onScreenChange) {
+            { event: UiEvent ->
+                when (event) {
+                    is UiEvent.NavigateToAppDrawer -> onScreenChange(Navigation.APP_DRAWER)
+                    is UiEvent.NavigateToSettings -> onScreenChange(Navigation.SETTINGS)
+                    is UiEvent.NavigateToHiddenApps -> onScreenChange(Navigation.HIDDEN_APPS)
+                    is UiEvent.NavigateBack -> {
+                        onScreenChange(Navigation.HOME)
+                        settingsViewModel.resetUnlockState()
+                    }
+                    is UiEvent.StartActivityForResult -> {
+                        try {
+                            event.intent.addFlags(
+                                Intent.FLAG_ACTIVITY_NEW_TASK or
+                                    Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                                    Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS,
                             )
-                        }
-                        else -> {
-                            // Settings/Hidden apps to home: slide right
-                            slideInHorizontally(
-                                initialOffsetX = { -it },
-                                animationSpec = tween(ANIMATION_TWEEN_VAL),
-                            ).togetherWith(
-                                slideOutHorizontally(
-                                    targetOffsetX = { it },
-                                    animationSpec = tween(ANIMATION_TWEEN_VAL),
-                                ),
-                            )
+                            context.startActivity(event.intent)
+                        } catch (e: ActivityNotFoundException) {
+                            val message = "Failed to start widget configuration: ${e.localizedMessage}"
+                            Log.e("Navigation", message, e)
+                            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                         }
                     }
-                }
-                Navigation.APP_DRAWER -> {
-                    // Home to app drawer: slide up
-                    slideInVertically(
-                        initialOffsetY = { it },
-                        animationSpec = tween(ANIMATION_TWEEN_VAL),
-                    ).togetherWith(
-                        slideOutVertically(
-                            targetOffsetY = { -it },
-                            animationSpec = tween(ANIMATION_TWEEN_VAL),
-                        ),
-                    )
-                }
-                Navigation.SETTINGS -> {
-                    // Home to settings: slide left
-                    slideInHorizontally(
-                        initialOffsetX = { it },
-                        animationSpec = tween(ANIMATION_TWEEN_VAL),
-                    ).togetherWith(
-                        slideOutHorizontally(
-                            targetOffsetX = { -it },
-                            animationSpec = tween(ANIMATION_TWEEN_VAL),
-                        ),
-                    )
-                }
-                Navigation.HIDDEN_APPS -> {
-                    // Settings to hidden apps: slide left
-                    slideInHorizontally(
-                        initialOffsetX = { it },
-                        animationSpec = tween(ANIMATION_TWEEN_VAL),
-                    ).togetherWith(
-                        slideOutHorizontally(
-                            targetOffsetX = { -it },
-                            animationSpec = tween(ANIMATION_TWEEN_VAL),
-                        ),
-                    )
-                }
-                else -> {
-                    // Default animation with fade and scale
-                    (
-                        fadeIn(animationSpec = tween(ANIMATION_TWEEN_VAL)) +
-                            scaleIn(initialScale = 0.95f, animationSpec = tween(ANIMATION_TWEEN_VAL))
-                    ).togetherWith(
-                        fadeOut(animationSpec = tween(ANIMATION_TWEEN_VAL)) +
-                            scaleOut(targetScale = 0.95f, animationSpec = tween(ANIMATION_TWEEN_VAL)),
-                    )
+                    is UiEvent.ShowToast -> {
+                        Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+                    }
+                    is UiEvent.NavigateToAppSelection -> {
+                        currentSelectionType = event.selectionType
+                        onScreenChange(Navigation.APP_DRAWER)
+                    }
+                    else -> Unit
                 }
             }
+        }
+
+    LaunchedEffect(viewModel) {
+        viewModel.eventsFlow.collectLatest(handleEvent)
+    }
+
+    LaunchedEffect(settingsViewModel) {
+        settingsViewModel.events.collectLatest(handleEvent)
+    }
+
+    navigationContent(
+        controllers = NavigationControllers(viewModel, settingsViewModel),
+        state =
+            NavigationState(
+                currentScreen = currentScreen,
+                currentSelectionType = currentSelectionType,
+                onClearSelection = { currentSelectionType = null },
+                onScreenChange = onScreenChange,
+            ),
+    )
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun navigationContent(
+    controllers: NavigationControllers,
+    state: NavigationState,
+) {
+    AnimatedContent(
+        targetState = state.currentScreen,
+        transitionSpec = {
+            getTransition(initialState, targetState)
         },
-        contentAlignment = Alignment.Center, // Important for proper scaling
+        contentAlignment = Alignment.Center,
     ) { screen ->
-        // Render the appropriate screen based on current navigation state
         Box(modifier = Modifier.fillMaxSize()) {
             when (screen) {
-                Navigation.HOME -> {
+                Navigation.HOME ->
                     homeScreen(
-                        viewModel = viewModel,
-                        settingsViewModel = settingsViewModel,
-                        onNavigateToAppDrawer = {
-                            onScreenChange(Navigation.APP_DRAWER)
-                        },
-                        onNavigateToSettings = {
-                            onScreenChange(Navigation.SETTINGS)
-                        },
+                        viewModel = controllers.mainViewModel,
+                        settingsViewModel = controllers.settingsViewModel,
+                        onNavigateToAppDrawer = { state.onScreenChange(Navigation.APP_DRAWER) },
+                        onNavigateToSettings = { state.onScreenChange(Navigation.SETTINGS) },
                     )
-                }
-                Navigation.APP_DRAWER -> {
+
+                Navigation.APP_DRAWER ->
                     appDrawerScreen(
-                        viewModel = viewModel,
-                        settingsViewModel = settingsViewModel,
+                        viewModel = controllers.mainViewModel,
+                        settingsViewModel = controllers.settingsViewModel,
                         onAppClick = { app ->
-                            // Check if we're in app selection mode
-                            if (currentSelectionType != null) {
-                                when (currentSelectionType) {
-                                    AppSelectionType.SWIPE_UP_APP ->
-                                        viewModel.selectedApp(
-                                            app,
-                                            Constants.FLAG_SET_SWIPE_UP_APP,
-                                        )
-                                    AppSelectionType.SWIPE_DOWN_APP ->
-                                        viewModel.selectedApp(
-                                            app,
-                                            Constants.FLAG_SET_SWIPE_DOWN_APP,
-                                        )
-                                    AppSelectionType.TWOFINGER_SWIPE_UP_APP ->
-                                        viewModel.selectedApp(
-                                            app,
-                                            Constants.FLAG_SET_TWOFINGER_SWIPE_UP_APP,
-                                        )
-                                    AppSelectionType.TWOFINGER_SWIPE_DOWN_APP ->
-                                        viewModel.selectedApp(
-                                            app,
-                                            Constants.FLAG_SET_TWOFINGER_SWIPE_DOWN_APP,
-                                        )
-                                    AppSelectionType.SWIPE_LEFT_APP ->
-                                        viewModel.selectedApp(
-                                            app,
-                                            Constants.FLAG_SET_SWIPE_LEFT_APP,
-                                        )
-                                    AppSelectionType.SWIPE_RIGHT_APP ->
-                                        viewModel.selectedApp(
-                                            app,
-                                            Constants.FLAG_SET_SWIPE_RIGHT_APP,
-                                        )
-                                    AppSelectionType.TWOFINGER_SWIPE_LEFT_APP ->
-                                        viewModel.selectedApp(
-                                            app,
-                                            Constants.FLAG_SET_TWOFINGER_SWIPE_LEFT_APP,
-                                        )
-                                    AppSelectionType.TWOFINGER_SWIPE_RIGHT_APP ->
-                                        viewModel.selectedApp(
-                                            app,
-                                            Constants.FLAG_SET_TWOFINGER_SWIPE_RIGHT_APP,
-                                        )
-                                    AppSelectionType.ONE_TAP_APP ->
-                                        viewModel.selectedApp(
-                                            app,
-                                            Constants.FLAG_SET_ONE_TAP_APP,
-                                        )
-                                    AppSelectionType.DOUBLE_TAP_APP ->
-                                        viewModel.selectedApp(
-                                            app,
-                                            Constants.FLAG_SET_DOUBLE_TAP_APP,
-                                        )
-                                    AppSelectionType.PINCH_IN_APP ->
-                                        viewModel.selectedApp(
-                                            app,
-                                            Constants.FLAG_SET_PINCH_IN_APP,
-                                        )
-                                    AppSelectionType.PINCH_OUT_APP ->
-                                        viewModel.selectedApp(
-                                            app,
-                                            Constants.FLAG_SET_PINCH_OUT_APP,
-                                        )
-                                    else -> {}
-                                }
-                                // After selection, reset and go back to settings
-                                currentSelectionType = null
-                                onScreenChange(Navigation.SETTINGS)
-                            } else {
-                                // Normal app launch
-                                viewModel.launchApp(app)
-                            }
+                            state.currentSelectionType?.let {
+                                controllers.mainViewModel.selectedApp(app, it.toFlag())
+                                state.onClearSelection()
+                                state.onScreenChange(Navigation.SETTINGS)
+                            } ?: controllers.mainViewModel.launchApp(app)
                         },
-                        onSwipeDown = { onScreenChange(Navigation.HOME) },
-                        selectionMode = currentSelectionType != null,
-                        selectionTitle =
-                            when (currentSelectionType) {
-                                AppSelectionType.SWIPE_UP_APP -> "Select Swipe Up Action App"
-                                AppSelectionType.SWIPE_DOWN_APP -> "Select Swipe Down Action App"
-                                AppSelectionType.TWOFINGER_SWIPE_UP_APP -> "Select 2 fingers Swipe Up Action App"
-                                AppSelectionType.TWOFINGER_SWIPE_DOWN_APP -> "Select 2 fingers Swipe Down Action App"
-                                AppSelectionType.SWIPE_LEFT_APP -> "Select Swipe Left App"
-                                AppSelectionType.SWIPE_RIGHT_APP -> "Select Swipe Right App"
-                                AppSelectionType.ONE_TAP_APP -> "Select One Tap App"
-                                AppSelectionType.DOUBLE_TAP_APP -> "Select Double Tap App"
-                                AppSelectionType.TWOFINGER_SWIPE_LEFT_APP -> "Select 2 fingers Swipe Left App"
-                                AppSelectionType.TWOFINGER_SWIPE_RIGHT_APP -> "Select 2 fingers Swipe Right App"
-                                AppSelectionType.PINCH_IN_APP -> "Select Pinch In App"
-                                AppSelectionType.PINCH_OUT_APP -> "Select Pinch Out App"
-                                null -> ""
-                            },
+                        onSwipeDown = { state.onScreenChange(Navigation.HOME) },
+                        selectionMode = state.currentSelectionType != null,
+                        selectionTitle = state.currentSelectionType?.toTitle().orEmpty(),
                     )
-                }
-                Navigation.SETTINGS -> {
+
+                Navigation.SETTINGS ->
                     settingsScreen(
-                        viewModel = settingsViewModel,
-                        onNavigateBack = {
-                            onScreenChange(Navigation.HOME)
-                        },
-                        onNavigateToHiddenApps = {
-                            onScreenChange(Navigation.HIDDEN_APPS)
-                        },
+                        viewModel = controllers.settingsViewModel,
+                        onNavigateBack = { state.onScreenChange(Navigation.HOME) },
+                        onNavigateToHiddenApps = { state.onScreenChange(Navigation.HIDDEN_APPS) },
                     )
-                }
-                Navigation.HIDDEN_APPS -> {
+
+                Navigation.HIDDEN_APPS ->
                     hiddenAppsScreen(
-                        viewModel = viewModel,
-                        onNavigateBack = {
-                            onScreenChange(Navigation.SETTINGS)
-                        },
+                        viewModel = controllers.mainViewModel,
+                        onNavigateBack = { state.onScreenChange(Navigation.SETTINGS) },
                     )
-                }
             }
         }
     }
 }
+
+@OptIn(ExperimentalAnimationApi::class)
+private fun getTransition(
+    initial: String,
+    target: String,
+): ContentTransform =
+    when (target) {
+        Navigation.HOME -> {
+            if (initial == Navigation.APP_DRAWER) {
+                slideInVertically(
+                    initialOffsetY = { fullSize -> -fullSize },
+                    animationSpec = tween(ANIMATION_TWEEN_VAL),
+                ) togetherWith
+                    slideOutVertically(
+                        targetOffsetY = { fullSize -> fullSize },
+                        animationSpec = tween(ANIMATION_TWEEN_VAL),
+                    )
+            } else {
+                slideInHorizontally(
+                    initialOffsetX = { fullSize -> -fullSize },
+                    animationSpec = tween(ANIMATION_TWEEN_VAL),
+                ) togetherWith
+                    slideOutHorizontally(
+                        targetOffsetX = { fullSize -> fullSize },
+                        animationSpec = tween(ANIMATION_TWEEN_VAL),
+                    )
+            }
+        }
+
+        Navigation.APP_DRAWER ->
+            slideInVertically(
+                initialOffsetY = { fullSize -> fullSize },
+                animationSpec = tween(ANIMATION_TWEEN_VAL),
+            ) togetherWith
+                slideOutVertically(
+                    targetOffsetY = { fullSize -> -fullSize },
+                    animationSpec = tween(ANIMATION_TWEEN_VAL),
+                )
+
+        Navigation.SETTINGS, Navigation.HIDDEN_APPS ->
+            slideInHorizontally(
+                initialOffsetX = { fullSize -> fullSize },
+                animationSpec = tween(ANIMATION_TWEEN_VAL),
+            ) togetherWith
+                slideOutHorizontally(
+                    targetOffsetX = { fullSize -> -fullSize },
+                    animationSpec = tween(ANIMATION_TWEEN_VAL),
+                )
+
+        else ->
+            fadeIn(animationSpec = tween(ANIMATION_TWEEN_VAL)) +
+                scaleIn(initialScale = 0.95f, animationSpec = tween(ANIMATION_TWEEN_VAL)) togetherWith
+                fadeOut(animationSpec = tween(ANIMATION_TWEEN_VAL)) +
+                scaleOut(targetScale = 0.95f, animationSpec = tween(ANIMATION_TWEEN_VAL))
+    }
+
+private fun AppSelectionType.toFlag(): Int =
+    when (this) {
+        AppSelectionType.SWIPE_UP_APP -> Constants.FLAG_SET_SWIPE_UP_APP
+        AppSelectionType.SWIPE_DOWN_APP -> Constants.FLAG_SET_SWIPE_DOWN_APP
+        AppSelectionType.SWIPE_LEFT_APP -> Constants.FLAG_SET_SWIPE_LEFT_APP
+        AppSelectionType.SWIPE_RIGHT_APP -> Constants.FLAG_SET_SWIPE_RIGHT_APP
+        AppSelectionType.TWOFINGER_SWIPE_UP_APP -> Constants.FLAG_SET_TWOFINGER_SWIPE_UP_APP
+        AppSelectionType.TWOFINGER_SWIPE_DOWN_APP -> Constants.FLAG_SET_TWOFINGER_SWIPE_DOWN_APP
+        AppSelectionType.TWOFINGER_SWIPE_LEFT_APP -> Constants.FLAG_SET_TWOFINGER_SWIPE_LEFT_APP
+        AppSelectionType.TWOFINGER_SWIPE_RIGHT_APP -> Constants.FLAG_SET_TWOFINGER_SWIPE_RIGHT_APP
+        AppSelectionType.ONE_TAP_APP -> Constants.FLAG_SET_ONE_TAP_APP
+        AppSelectionType.DOUBLE_TAP_APP -> Constants.FLAG_SET_DOUBLE_TAP_APP
+        AppSelectionType.PINCH_IN_APP -> Constants.FLAG_SET_PINCH_IN_APP
+        AppSelectionType.PINCH_OUT_APP -> Constants.FLAG_SET_PINCH_OUT_APP
+    }
+
+private fun AppSelectionType.toTitle(): String =
+    when (this) {
+        AppSelectionType.SWIPE_UP_APP -> "Select Swipe Up Action App"
+        AppSelectionType.SWIPE_DOWN_APP -> "Select Swipe Down Action App"
+        AppSelectionType.SWIPE_LEFT_APP -> "Select Swipe Left App"
+        AppSelectionType.SWIPE_RIGHT_APP -> "Select Swipe Right App"
+        AppSelectionType.TWOFINGER_SWIPE_UP_APP -> "Select 2 fingers Swipe Up Action App"
+        AppSelectionType.TWOFINGER_SWIPE_DOWN_APP -> "Select 2 fingers Swipe Down Action App"
+        AppSelectionType.TWOFINGER_SWIPE_LEFT_APP -> "Select 2 fingers Swipe Left App"
+        AppSelectionType.TWOFINGER_SWIPE_RIGHT_APP -> "Select 2 fingers Swipe Right App"
+        AppSelectionType.ONE_TAP_APP -> "Select One Tap App"
+        AppSelectionType.DOUBLE_TAP_APP -> "Select Double Tap App"
+        AppSelectionType.PINCH_IN_APP -> "Select Pinch In App"
+        AppSelectionType.PINCH_OUT_APP -> "Select Pinch Out App"
+    }
 
 @Composable
 internal fun backHandler(

@@ -1,6 +1,5 @@
 package app.voidlauncher
 
-import android.app.Application
 import android.appwidget.AppWidgetHost
 import android.content.Intent
 import android.content.res.Configuration
@@ -18,7 +17,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -55,7 +53,6 @@ internal class MainActivity : ComponentActivity() {
         viewModel =
             ViewModelProvider(
                 this,
-                MainViewModelFactory(application, appWidgetHost),
             )[MainViewModel::class.java]
 
         settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
@@ -146,18 +143,5 @@ internal class MainActivity : ComponentActivity() {
                 viewModel.emitEvent(UiEvent.NavigateBack)
             }
         }
-    }
-}
-
-private class MainViewModelFactory(
-    private val application: Application,
-    private val appWidgetHost: AppWidgetHost,
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return MainViewModel(application) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
