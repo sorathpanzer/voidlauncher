@@ -104,11 +104,6 @@ internal fun appDrawerScreen(
     var selectedApp by remember { mutableStateOf<AppModel?>(null) }
     var showContextMenu by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        searchQuery = ""
-        viewModel.searchApps("")
-    }
-
     val handleAppClick: (AppModel) -> Unit = { app ->
         searchQuery = ""
         viewModel.searchApps("")
@@ -267,24 +262,22 @@ internal fun appDrawerScreen(
                         items = appsToShow,
                         key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" },
                     ) { app ->
-                        if (settings.showAppNames) {
-                            appListItem(
-                                app = app,
-                                showAppNames = settings.showAppNames,
-                                fontScale = searchResultsFontSize,
-                                onClick = { handleAppClick(app) },
-                                onLongClick = {
-                                    selectedApp = app
-                                    showContextMenu = true
-                                },
-                                modifier =
-                                    Modifier.animateItem(
-                                        fadeInSpec = null,
-                                        fadeOutSpec = null,
-                                        placementSpec = tween(durationMillis = 300),
-                                    ),
-                            )
-                        }
+                        appListItem(
+                            app = app,
+                            showAppNames = settings.showAppNames,
+                            fontScale = searchResultsFontSize,
+                            onClick = { handleAppClick(app) },
+                            onLongClick = {
+                                selectedApp = app
+                                showContextMenu = true
+                            },
+                            modifier =
+                                Modifier.animateItem(
+                                    fadeInSpec = null,
+                                    fadeOutSpec = null,
+                                    placementSpec = tween(durationMillis = 300),
+                                ),
+                        )
                     }
                 }
             }
