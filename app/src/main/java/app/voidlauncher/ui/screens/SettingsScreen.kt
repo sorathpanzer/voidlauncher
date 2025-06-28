@@ -7,64 +7,24 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.voidlauncher.data.Constants
-import app.voidlauncher.data.settings.AppPreference
-import app.voidlauncher.data.settings.AppSettings
-import app.voidlauncher.data.settings.Setting
-import app.voidlauncher.data.settings.SettingCategory
-import app.voidlauncher.data.settings.SettingType
-import app.voidlauncher.data.settings.SettingsManager
+import app.voidlauncher.data.settings.*
 import app.voidlauncher.helper.isClauncherDefault
 import app.voidlauncher.helper.setPlainWallpaperByTheme
 import app.voidlauncher.ui.AppSelectionType
@@ -244,89 +204,128 @@ private fun handleCurrentDialog(
 ) {
     currentDialog?.let { dialog ->
         when (dialog) {
-            is SettingsDialog.Slider -> {
-                sliderSettingDialog(
-                    title = dialog.annotation.title,
-                    currentValue = getCurrentValue(dialog.property, uiState),
-                    min = dialog.annotation.min,
-                    max = dialog.annotation.max,
-                    step = dialog.annotation.step,
-                    onDismiss = onDismiss,
-                    onValueSelected = { newValue ->
-                        coroutineScope.launch {
-                            val propertyName = dialog.property.name
-                            when (dialog.property.returnType.classifier) {
-                                Int::class -> viewModel.updateSetting(propertyName, newValue.toInt())
-                                Float::class -> viewModel.updateSetting(propertyName, newValue)
-                            }
-                            onDismiss()
-                        }
-                    },
-                )
-            }
+            is SettingsDialog.Slider ->
+                handleSliderDialog(dialog, uiState, viewModel, coroutineScope, onDismiss)
 
-            is SettingsDialog.Dropdown -> {
-                dropdownSettingDialog(
-                    title = dialog.annotation.title,
-                    options = dialog.annotation.options.toList(),
-                    selectedIndex = dialog.property.get(uiState) as Int,
-                    onDismiss = onDismiss,
-                    onOptionSelected = { index ->
-                        coroutineScope.launch {
-                            viewModel.updateSetting(dialog.property.name, index)
+            is SettingsDialog.Dropdown ->
+                handleDropdownDialog(dialog, uiState, viewModel, coroutineScope, onDismiss)
 
-                            if (dialog.property.name.endsWith("Action") &&
-                                index == Constants.SwipeAction.APP
-                            ) {
-                                val appPropertyName = dialog.property.name.replace("Action", "App")
-                                AppSettings::class
-                                    .members
-                                    .filterIsInstance<KProperty1<AppSettings, *>>()
-                                    .firstOrNull { it.name == appPropertyName }
-                                    ?.let { appProperty ->
-                                        // You'll need to handle this state in the parent
-                                    }
-                            }
-                            onDismiss()
-                        }
-                    },
-                )
-            }
+            is SettingsDialog.AppPicker ->
+                handleAppPickerDialog(dialog, viewModel, onDismiss)
 
-            is SettingsDialog.AppPicker -> {
-                LaunchedEffect(dialog) {
-                    val selectionType =
-                        when (dialog.property.name) {
-                            "swipeLeftApp" -> AppSelectionType.SWIPE_LEFT_APP
-                            "swipeRightApp" -> AppSelectionType.SWIPE_RIGHT_APP
-                            "oneTapApp" -> AppSelectionType.ONE_TAP_APP
-                            "doubleTapApp" -> AppSelectionType.DOUBLE_TAP_APP
-                            "swipeUpApp" -> AppSelectionType.SWIPE_UP_APP
-                            "swipeDownApp" -> AppSelectionType.SWIPE_DOWN_APP
-                            "twoFingerSwipeUpApp" -> AppSelectionType.TWOFINGER_SWIPE_UP_APP
-                            "twoFingerSwipeDownApp" -> AppSelectionType.TWOFINGER_SWIPE_DOWN_APP
-                            "twoFingerSwipeLeftApp" -> AppSelectionType.TWOFINGER_SWIPE_LEFT_APP
-                            "twoFingerSwipeRightApp" -> AppSelectionType.TWOFINGER_SWIPE_RIGHT_APP
-                            "pinchInApp" -> AppSelectionType.PINCH_IN_APP
-                            "pinchOutApp" -> AppSelectionType.PINCH_OUT_APP
-                            else -> null
-                        }
+            is SettingsDialog.ButtonAction ->
+                handleButtonActionDialog(dialog, context, onDismiss)
+        }
+    }
+}
 
-                    selectionType?.let {
-                        viewModel.emitEvent(UiEvent.NavigateToAppSelection(it))
-                        onDismiss()
-                    }
+@Composable
+private fun handleSliderDialog(
+    dialog: SettingsDialog.Slider,
+    uiState: AppSettings,
+    viewModel: SettingsViewModel,
+    coroutineScope: CoroutineScope,
+    onDismiss: () -> Unit,
+) {
+    sliderSettingDialog(
+        title = dialog.annotation.title,
+        currentValue = getCurrentValue(dialog.property, uiState),
+        min = dialog.annotation.min,
+        max = dialog.annotation.max,
+        step = dialog.annotation.step,
+        onDismiss = onDismiss,
+        onValueSelected = { newValue ->
+            coroutineScope.launch {
+                val propertyName = dialog.property.name
+                when (dialog.property.returnType.classifier) {
+                    Int::class -> viewModel.updateSetting(propertyName, newValue.toInt())
+                    Float::class -> viewModel.updateSetting(propertyName, newValue)
                 }
+                onDismiss()
+            }
+        },
+    )
+}
+
+@Composable
+private fun handleDropdownDialog(
+    dialog: SettingsDialog.Dropdown,
+    uiState: AppSettings,
+    viewModel: SettingsViewModel,
+    coroutineScope: CoroutineScope,
+    onDismiss: () -> Unit,
+) {
+    dropdownSettingDialog(
+        title = dialog.annotation.title,
+        options = dialog.annotation.options.toList(),
+        selectedIndex = dialog.property.get(uiState) as Int,
+        onDismiss = onDismiss,
+        onOptionSelected = { index ->
+            coroutineScope.launch {
+                viewModel.updateSetting(dialog.property.name, index)
+
+                if (dialog.property.name.endsWith("Action") &&
+                    index == Constants.SwipeAction.APP
+                ) {
+                    val appPropertyName = dialog.property.name.replace("Action", "App")
+                    AppSettings::class
+                        .members
+                        .filterIsInstance<KProperty1<AppSettings, *>>()
+                        .firstOrNull { it.name == appPropertyName }
+                        ?.let {
+                            // You'll need to handle this state in the parent
+                        }
+                }
+                onDismiss()
+            }
+        },
+    )
+}
+
+@Composable
+private fun handleAppPickerDialog(
+    dialog: SettingsDialog.AppPicker,
+    viewModel: SettingsViewModel,
+    onDismiss: () -> Unit,
+) {
+    LaunchedEffect(dialog) {
+        val selectionType =
+            when (dialog.property.name) {
+                "swipeLeftApp" -> AppSelectionType.SWIPE_LEFT_APP
+                "swipeRightApp" -> AppSelectionType.SWIPE_RIGHT_APP
+                "oneTapApp" -> AppSelectionType.ONE_TAP_APP
+                "doubleTapApp" -> AppSelectionType.DOUBLE_TAP_APP
+                "swipeUpApp" -> AppSelectionType.SWIPE_UP_APP
+                "swipeDownApp" -> AppSelectionType.SWIPE_DOWN_APP
+                "twoFingerSwipeUpApp" -> AppSelectionType.TWOFINGER_SWIPE_UP_APP
+                "twoFingerSwipeDownApp" -> AppSelectionType.TWOFINGER_SWIPE_DOWN_APP
+                "twoFingerSwipeLeftApp" -> AppSelectionType.TWOFINGER_SWIPE_LEFT_APP
+                "twoFingerSwipeRightApp" -> AppSelectionType.TWOFINGER_SWIPE_RIGHT_APP
+                "pinchInApp" -> AppSelectionType.PINCH_IN_APP
+                "pinchOutApp" -> AppSelectionType.PINCH_OUT_APP
+                else -> null
             }
 
-            is SettingsDialog.ButtonAction -> {
-                when (dialog.property.name) {
-                    "plainWallpaper" -> {
-                        setPlainWallpaperByTheme(context, appTheme = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                        onDismiss()
-                    }
-                }
-            }
+        selectionType?.let {
+            viewModel.emitEvent(UiEvent.NavigateToAppSelection(it))
+            onDismiss()
+        }
+    }
+}
+
+@Composable
+private fun handleButtonActionDialog(
+    dialog: SettingsDialog.ButtonAction,
+    context: Context,
+    onDismiss: () -> Unit,
+) {
+    when (dialog.property.name) {
+        "plainWallpaper" -> {
+            setPlainWallpaperByTheme(
+                context = context,
+                appTheme = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM,
+            )
+            onDismiss()
         }
     }
 }
@@ -753,13 +752,51 @@ private fun settingsSection(
 }
 
 @Composable
+private fun settingTextBlock(
+    title: String,
+    subtitle: String? = null,
+    description: String? = null,
+    titleStyle: TextStyle = MaterialTheme.typography.bodyLarge,
+    subtitleStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    descriptionStyle: TextStyle = MaterialTheme.typography.bodySmall,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    val onSurface = MaterialTheme.colorScheme.onSurface
+    val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
+
+    Column(modifier = modifier) {
+        Text(
+            text = title,
+            style = titleStyle,
+            color = onSurface.copy(alpha = if (enabled) 1f else 0.5f),
+        )
+        subtitle?.let {
+            Text(
+                text = it,
+                style = subtitleStyle,
+                color = onSurface.copy(alpha = 0.7f),
+            )
+        }
+        description?.let {
+            Text(
+                text = it,
+                style = descriptionStyle,
+                color = onSurface.copy(alpha = if (enabled) 0.5f else 0.3f),
+                modifier = Modifier.padding(top = 4.dp),
+            )
+        }
+    }
+}
+
+@Composable
 private fun settingsItem(
     title: String,
     subtitle: String? = null,
     description: String? = null,
     enabled: Boolean = true,
     onClick: () -> Unit,
-    transparency: Float = 1.0f,
+    transparency: Float = 1f,
 ) {
     Surface(
         modifier =
@@ -769,27 +806,13 @@ private fun settingsItem(
                 .padding(vertical = 8.dp)
                 .alpha(if (enabled) transparency else ALPHA),
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-            )
-            subtitle?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                )
-            }
-            description?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    modifier = Modifier.padding(top = 4.dp),
-                )
-            }
-        }
+        settingTextBlock(
+            title = title,
+            subtitle = subtitle,
+            description = description,
+            modifier = Modifier.padding(16.dp),
+            enabled = enabled,
+        )
     }
 }
 
@@ -801,44 +824,26 @@ private fun settingsToggle(
     enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit,
 ) {
-    var toggleState by remember { mutableStateOf(isChecked) }
-
-    LaunchedEffect(isChecked) {
-        toggleState = isChecked
-    }
-
     Row(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .clickable(enabled = enabled) {
-                    toggleState = !toggleState
-                    onCheckedChange(toggleState)
+                    onCheckedChange(!isChecked)
                 }.padding(16.dp)
                 .alpha(if (enabled) 1f else ALPHA),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-            )
-            description?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    modifier = Modifier.padding(top = 4.dp),
-                )
-            }
-        }
+        settingTextBlock(
+            title = title,
+            description = description,
+            modifier = Modifier.weight(1f),
+            enabled = enabled,
+        )
         Switch(
-            checked = toggleState,
-            onCheckedChange = {
-                toggleState = it
-                onCheckedChange(it)
-            },
+            checked = isChecked,
+            onCheckedChange = onCheckedChange,
             enabled = enabled,
         )
     }
@@ -859,27 +864,12 @@ private fun settingsAction(
                 .alpha(if (enabled) 1f else ALPHA),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(
-            modifier =
-                Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp),
-        ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = if (enabled) 1f else 0.5f),
-            )
-
-            if (description != null) {
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (enabled) 0.7f else 0.5f),
-                )
-            }
-        }
-
+        settingTextBlock(
+            title = title,
+            description = description,
+            modifier = Modifier.weight(1f).padding(end = 8.dp),
+            enabled = enabled,
+        )
         Button(
             onClick = onClick,
             enabled = enabled,
@@ -914,8 +904,8 @@ private fun sliderSettingDialog(
         title = { Text(title) },
         text = {
             Column {
-                Text(String.format(Locale.getDefault(), "%.1f", sliderValue))
-                Spacer(modifier = Modifier.height(16.dp))
+                Text("%.1f".format(sliderValue))
+                Spacer(Modifier.height(16.dp))
                 Slider(
                     value = sliderValue,
                     onValueChange = {
@@ -931,14 +921,10 @@ private fun sliderSettingDialog(
             TextButton(onClick = {
                 onValueSelected(sliderValue)
                 onDismiss()
-            }) {
-                Text("Apply")
-            }
+            }) { Text("Apply") }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
+            TextButton(onClick = onDismiss) { Text("Cancel") }
         },
     )
 }
@@ -958,7 +944,7 @@ private fun dropdownSettingDialog(
         title = { Text(title) },
         text = {
             LazyColumn {
-                items(options.size) { index ->
+                itemsIndexed(options) { index, option ->
                     Row(
                         modifier =
                             Modifier
@@ -971,8 +957,8 @@ private fun dropdownSettingDialog(
                             selected = selected == index,
                             onClick = { selected = index },
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(options[index])
+                        Spacer(Modifier.width(8.dp))
+                        Text(option)
                     }
                 }
             }
@@ -981,14 +967,10 @@ private fun dropdownSettingDialog(
             TextButton(onClick = {
                 onOptionSelected(selected)
                 onDismiss()
-            }) {
-                Text("Apply")
-            }
+            }) { Text("Apply") }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
+            TextButton(onClick = onDismiss) { Text("Cancel") }
         },
     )
 }
