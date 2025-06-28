@@ -430,97 +430,108 @@ private fun appDrawerSearch(
     calculatorResult: String,
     viewModel: MainViewModel,
 ) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // Calculator result display
         if (showCalculatorResult) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = searchQuery,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    )
-                    Text(
-                        text = calculatorResult,
-                        style =
-                            MaterialTheme.typography.displayLarge.copy(
-                                fontSize = 64.sp,
-                                fontWeight = FontWeight.Bold,
-                            ),
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
+            calculatorResultDisplay(searchQuery, calculatorResult)
+        }
+
+        searchTextField(
+            searchQuery = searchQuery,
+            onSearchChanged = onSearchChanged,
+            onEnterPressed = onEnterPressed,
+            onFocusStateChanged = onFocusStateChanged,
+            viewModel = viewModel,
+        )
+    }
+}
+
+@Composable
+private fun calculatorResultDisplay(
+    searchQuery: String,
+    calculatorResult: String,
+) {
+    Box(
+        modifier = Modifier.fillMaxWidth().height(200.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        with(MaterialTheme.typography) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = searchQuery,
+                    style = titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                )
+                Text(
+                    text = calculatorResult,
+                    style = displayLarge.copy(fontSize = 64.sp, fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary,
+                )
             }
         }
+    }
+}
 
-        // Search field
-        BoxWithConstraints(
+@Composable
+private fun searchTextField(
+    searchQuery: String,
+    onSearchChanged: (String) -> Unit,
+    onEnterPressed: () -> Unit,
+    onFocusStateChanged: (Boolean) -> Unit,
+    viewModel: MainViewModel,
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    BoxWithConstraints(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        val width = minOf(maxWidth, 600.dp)
+
+        TextField(
+            value = searchQuery,
+            onValueChange = onSearchChanged,
             modifier =
                 Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            val maxTextFieldWidth = 600.dp
-            val calculatedWidth = if (maxWidth < maxTextFieldWidth) maxWidth else maxTextFieldWidth
-
-            TextField(
-                value = searchQuery,
-                onValueChange = onSearchChanged,
-                modifier =
-                    Modifier
-                        .width(calculatedWidth)
-                        .onFocusChanged { focusState ->
-                            onFocusStateChanged(focusState.isFocused)
-                            if (focusState.isFocused) {
-                                keyboardController?.show()
-                            }
-                        },
-                placeholder = {
-                    Text(
-                        text = "Search App...",
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                },
-                singleLine = true,
-                textStyle =
-                    TextStyle(
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    ),
-                keyboardOptions =
-                    KeyboardOptions(
-                        imeAction = ImeAction.Search,
-                        // keyboardType = KeyboardType.Number
-                    ),
-                keyboardActions =
-                    KeyboardActions(
-                        onSearch = {
-                            keyboardController?.hide()
-                            viewModel.searchApps(searchQuery, true)
-                            onEnterPressed()
-                        },
-                    ),
-                colors =
-                    TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                    ),
-            )
-        }
+                    .width(width)
+                    .onFocusChanged {
+                        onFocusStateChanged(it.isFocused)
+                        if (it.isFocused) keyboardController?.show()
+                    },
+            placeholder = {
+                Text(
+                    "Search App...",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            },
+            singleLine = true,
+            textStyle =
+                TextStyle(
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface,
+                ),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions =
+                KeyboardActions(
+                    onSearch = {
+                        keyboardController?.hide()
+                        viewModel.searchApps(searchQuery, true)
+                        onEnterPressed()
+                    },
+                ),
+            colors =
+                TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                ),
+        )
     }
 }
