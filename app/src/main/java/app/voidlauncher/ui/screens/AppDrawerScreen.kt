@@ -73,6 +73,11 @@ import app.voidlauncher.ui.backHandler
 import app.voidlauncher.ui.util.detectSwipeGestures
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
+import androidx.compose.material3.Typography
+import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.padding
 
 private const val DELAY_APP_OPEN = 300L
 
@@ -91,6 +96,7 @@ internal fun appDrawerScreen(
     val context = LocalContext.current
     val uiState by viewModel.appDrawerState.collectAsState()
     val settings by settingsViewModel.settingsState.collectAsState()
+    val effectiveShowAppNames = if (selectionMode) true else settings.showAppNames
 
     var searchQuery by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
@@ -186,7 +192,13 @@ internal fun appDrawerScreen(
     ) {
         if (selectionMode) {
             TopAppBar(
-                title = { Text(selectionTitle) },
+                title = { Text(
+                    text = selectionTitle,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    textAlign = TextAlign.Center,
+                ) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
         }
@@ -262,10 +274,10 @@ internal fun appDrawerScreen(
                         items = appsToShow,
                         key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" },
                     ) { app ->
-                        if (settings.showAppNames) {
+                        if (effectiveShowAppNames) {
                             appListItem(
                                 app = app,
-                                showAppNames = settings.showAppNames,
+                                showAppNames = effectiveShowAppNames,
                                 fontScale = searchResultsFontSize,
                                 onClick = { handleAppClick(app) },
                                 onLongClick = {
