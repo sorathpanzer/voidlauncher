@@ -73,11 +73,6 @@ import app.voidlauncher.ui.backHandler
 import app.voidlauncher.ui.util.detectSwipeGestures
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
-import androidx.compose.material3.Typography
-import androidx.compose.material3.Text
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.padding
 
 private const val DELAY_APP_OPEN = 300L
 
@@ -96,7 +91,6 @@ internal fun appDrawerScreen(
     val context = LocalContext.current
     val uiState by viewModel.appDrawerState.collectAsState()
     val settings by settingsViewModel.settingsState.collectAsState()
-    val effectiveShowAppNames = if (selectionMode) true else settings.showAppNames
 
     var searchQuery by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
@@ -274,10 +268,10 @@ internal fun appDrawerScreen(
                         items = appsToShow,
                         key = { app -> "${app.appPackage}/${app.activityClassName ?: ""}/${app.user.hashCode()}" },
                     ) { app ->
-                        if (effectiveShowAppNames) {
+                        if (settings.showAppNames) {
                             appListItem(
                                 app = app,
-                                showAppNames = effectiveShowAppNames,
+                                showAppNames = settings.showAppNames,
                                 fontScale = searchResultsFontSize,
                                 onClick = { handleAppClick(app) },
                                 onLongClick = {

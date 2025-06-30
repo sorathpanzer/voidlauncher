@@ -41,8 +41,8 @@ android {
         applicationId = "app.voidlauncher"
         minSdk = 24
         targetSdk = 36
-        versionCode = 737
-        versionName = "v0.3.7"
+        versionCode = 738
+        versionName = "v0.3.8"
 
         androidResources { localeFilters += setOf("en") }
 
@@ -153,5 +153,4 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.kotlin.reflect)
     implementation(libs.exp4j)
-    implementation("androidx.compose.material:material:1.6.7")
 }
