@@ -31,7 +31,6 @@
 }
 
 -keep class app.voidlauncher.data.settings.SettingsManager { *; }
-
 -keep class app.voidlauncher.ui.screens.SettingsScreenKt { *; }
 
 # Keep all Setting annotations and enums used in annotations
@@ -42,24 +41,6 @@
 # Keep annotations & runtime visible annotations for reflection & tools
 -keepattributes *Annotation*
 -keepattributes RuntimeVisibleAnnotations, Signature, EnclosingMethod, InnerClasses
-
-# --- Obfuscation and shrinking enabled ---
-# Remove unused code & rename classes/methods/fields not explicitly kept
-# This helps reduce size and improve performance and security
-
-# Don't disable obfuscation or shrinking unless necessary
-# So no "-dontobfuscate" or "-dontshrink"
-
-# Keep line numbers for crash stack trace debugging (optional)
-# -keepattributes SourceFile,LineNumberTable
-
-# --- Optimization ---
-# You can enable optimizations, but some projects disable to avoid issues
-# If you want, you can add:
-# -optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
-
-# --- Misc ---
-# You can add specific rules for libraries or dependencies as needed
 
 -assumenosideeffects class android.util.Log {
     public static *** d(...);
