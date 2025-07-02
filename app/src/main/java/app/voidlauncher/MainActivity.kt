@@ -28,10 +28,6 @@ import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import app.voidlauncher.ui.voidlauncherNavigation
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
-
 
 private const val APP_WIDGETHOST_ID = 1024
 
@@ -42,7 +38,6 @@ internal class MainActivity : ComponentActivity() {
     private lateinit var appWidgetHost: AppWidgetHost
 
     protected override fun onCreate(savedInstanceState: Bundle?) {
-
         // Use hardware acceleration
         window.setFlags(
             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,

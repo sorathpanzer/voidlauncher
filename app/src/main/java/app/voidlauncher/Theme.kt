@@ -1,20 +1,13 @@
 package app.voidlauncher
 
 import android.app.Activity
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import app.voidlauncher.data.repository.SettingsRepository
-import app.voidlauncher.data.settings.AppSettings
 
 private const val BLACK = 0xFF000000
 private const val DARK_GRAY_0 = 0xFF121212

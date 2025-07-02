@@ -186,13 +186,16 @@ internal fun appDrawerScreen(
     ) {
         if (selectionMode) {
             TopAppBar(
-                title = { Text(
-                    text = selectionTitle,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    textAlign = TextAlign.Center,
-                ) },
+                title = {
+                    Text(
+                        text = selectionTitle,
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                        textAlign = TextAlign.Center,
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
         }

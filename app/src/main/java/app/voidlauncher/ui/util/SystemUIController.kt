@@ -51,7 +51,7 @@ private fun disableImmersiveMode(
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         window.insetsController?.let {
-            it.show(WindowInsetsCompat.Type.navigationBars())    
+            it.show(WindowInsetsCompat.Type.navigationBars())
         }
     } catch (e: IllegalStateException) {
         throw AppLoadingException("Failed to disable Immersive Mode", e)
@@ -64,10 +64,10 @@ private fun enableImmersiveMode(
 ) {
     try {
         WindowCompat.setDecorFitsSystemWindows(window, false)
-    
+
         window.insetsController?.let {
             it.hide(WindowInsetsCompat.Type.navigationBars())
-            it.systemBarsBehavior = 
+            it.systemBarsBehavior =
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
     } catch (e: IllegalStateException) {

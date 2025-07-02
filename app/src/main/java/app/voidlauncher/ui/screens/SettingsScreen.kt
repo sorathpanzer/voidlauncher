@@ -1,6 +1,5 @@
 package app.voidlauncher.ui.screens
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
@@ -54,8 +53,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.voidlauncher.data.Constants
@@ -65,7 +64,7 @@ import app.voidlauncher.data.settings.Setting
 import app.voidlauncher.data.settings.SettingCategory
 import app.voidlauncher.data.settings.SettingType
 import app.voidlauncher.data.settings.SettingsManager
-import app.voidlauncher.helper.isClauncherDefault
+import app.voidlauncher.helper.isVoidLauncherDefault
 import app.voidlauncher.helper.setPlainWallpaperByTheme
 import app.voidlauncher.ui.AppSelectionType
 import app.voidlauncher.ui.UiEvent
@@ -612,12 +611,12 @@ private fun systemSettings(
 ) {
     settingsItem(
         title = "Set as Default Launcher",
-        subtitle = if (isClauncherDefault(context)) "VoidLauncher is default" else "VoidLauncher is not default",
+        subtitle = if (isVoidLauncherDefault(context)) "VoidLauncher is default" else "VoidLauncher is not default",
         onClick = {
             val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
             context.startActivity(intent)
         },
-        transparency = if (isClauncherDefault(context)) 0.7f else 1.0f,
+        transparency = if (isVoidLauncherDefault(context)) 0.7f else 1.0f,
     )
 
     settingsToggle(
@@ -699,7 +698,7 @@ private fun settingsSection(
 }
 
 @Composable
-private fun SettingTextBlock(
+private fun settingTextBlock(
     title: String,
     subtitle: String? = null,
     description: String? = null,
@@ -746,13 +745,14 @@ private fun settingsItem(
     transparency: Float = 1f,
 ) {
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(vertical = 8.dp)
-            .alpha(if (enabled) transparency else ALPHA),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(enabled = enabled, onClick = onClick)
+                .padding(vertical = 8.dp)
+                .alpha(if (enabled) transparency else ALPHA),
     ) {
-        SettingTextBlock(
+        settingTextBlock(
             title = title,
             subtitle = subtitle,
             description = description,
@@ -771,17 +771,17 @@ private fun settingsToggle(
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(enabled = enabled) {
-                onCheckedChange(!isChecked)
-            }
-            .padding(16.dp)
-            .alpha(if (enabled) 1f else ALPHA),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(enabled = enabled) {
+                    onCheckedChange(!isChecked)
+                }.padding(16.dp)
+                .alpha(if (enabled) 1f else ALPHA),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SettingTextBlock(
+        settingTextBlock(
             title = title,
             description = description,
             modifier = Modifier.weight(1f),
@@ -803,13 +803,14 @@ private fun settingsAction(
     onClick: () -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-            .alpha(if (enabled) 1f else ALPHA),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .alpha(if (enabled) 1f else ALPHA),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SettingTextBlock(
+        settingTextBlock(
             title = title,
             description = description,
             modifier = Modifier.weight(1f).padding(end = 8.dp),
@@ -819,12 +820,13 @@ private fun settingsAction(
             onClick = onClick,
             enabled = enabled,
             modifier = Modifier.padding(start = 8.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            ),
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
         ) {
             Text("Set")
         }
@@ -890,10 +892,11 @@ private fun dropdownSettingDialog(
             LazyColumn {
                 items(options.size) { index ->
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { selected = index }
-                            .padding(vertical = 12.dp, horizontal = 16.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .clickable { selected = index }
+                                .padding(vertical = 12.dp, horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(
@@ -917,5 +920,3 @@ private fun dropdownSettingDialog(
         },
     )
 }
-
-

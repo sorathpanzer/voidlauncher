@@ -118,7 +118,7 @@ internal fun getUserHandleFromString(
     return android.os.Process.myUserHandle()
 }
 
-internal fun isClauncherDefault(context: Context): Boolean {
+internal fun isVoidLauncherDefault(context: Context): Boolean {
     val launcherPackageName = getDefaultLauncherPackage(context)
     return context.packageName == launcherPackageName
 }
