@@ -16,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -32,56 +31,35 @@ import kotlinx.coroutines.launch
 private const val APP_WIDGETHOST_ID = 1024
 
 internal class MainActivity : ComponentActivity() {
-    private lateinit var viewModel: MainViewModel
-    private lateinit var settingsViewModel: SettingsViewModel
+    private val viewModel by lazy { ViewModelProvider(this)[MainViewModel::class.java] }
+    private val settingsViewModel by lazy { ViewModelProvider(this)[SettingsViewModel::class.java] }
     private lateinit var settingsRepository: SettingsRepository
     private lateinit var appWidgetHost: AppWidgetHost
 
-    protected override fun onCreate(savedInstanceState: Bundle?) {
-        // Use hardware acceleration
+    override fun onCreate(savedInstanceState: Bundle?) {
         window.setFlags(
             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
         )
-
-        // Initialize settings repository
-        settingsRepository = SettingsRepository(applicationContext)
-
-        appWidgetHost = AppWidgetHost(applicationContext, APP_WIDGETHOST_ID)
-        Log.d("MainActivity", "AppWidgetHost created with ID: $APP_WIDGETHOST_ID")
-
-        viewModel =
-            ViewModelProvider(
-                this,
-            )[MainViewModel::class.java]
-
-        settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
+        window.addFlags(FLAG_LAYOUT_NO_LIMITS)
 
         super.onCreate(savedInstanceState)
 
-        // Handle first open
-        lifecycleScope.launch {
-            val settings = settingsRepository.settings.first()
-            if (settings.firstOpen) {
-                viewModel.firstOpen(false)
-                settingsRepository.setFirstOpen(false)
-                settingsRepository.updateSetting { it.copy(firstOpenTime = System.currentTimeMillis()) }
-            }
-        }
+        settingsRepository = SettingsRepository(applicationContext)
+        appWidgetHost = AppWidgetHost(applicationContext, APP_WIDGETHOST_ID)
+        Log.d("MainActivity", "AppWidgetHost created with ID: $APP_WIDGETHOST_ID")
 
-        window.addFlags(FLAG_LAYOUT_NO_LIMITS)
+        handleFirstOpen()
 
         setContent {
-            voidLauncherTheme {
-                var currentScreen by remember { mutableStateOf(Navigation.HOME) }
+            var currentScreen by remember { mutableStateOf(Navigation.HOME) }
 
+            voidLauncherTheme {
                 voidlauncherNavigation(
                     viewModel = viewModel,
                     settingsViewModel = settingsViewModel,
                     currentScreen = currentScreen,
-                    onScreenChange = { screen ->
-                        currentScreen = screen
-                    },
+                    onScreenChange = { currentScreen = it },
                 )
             }
         }
@@ -92,34 +70,41 @@ internal class MainActivity : ComponentActivity() {
         onBackPressedDispatcher.addCallback(
             this,
             object : OnBackPressedCallback(true) {
-                public override fun handleOnBackPressed() {
-                    lifecycleScope.launch {
-                        viewModel.emitEvent(UiEvent.NavigateBack)
-                    }
+                override fun handleOnBackPressed() {
+                    lifecycleScope.launch { viewModel.emitEvent(UiEvent.NavigateBack) }
                 }
             },
         )
     }
 
-    private fun initObservers() {
+    private fun handleFirstOpen() {
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.launcherResetFailed.collect { resetFailed ->
-                    openLauncherChooser(resetFailed)
+            val settings = settingsRepository.settings.first()
+            if (settings.firstOpen) {
+                viewModel.firstOpen(false)
+                settingsRepository.setFirstOpen(false)
+                settingsRepository.updateSetting {
+                    it.copy(firstOpenTime = System.currentTimeMillis())
                 }
             }
         }
     }
 
-    private fun openLauncherChooser(resetFailed: Boolean) {
-        if (resetFailed) {
-            val intent = Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)
-            startActivity(intent)
+    private fun initObservers() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.RESUMED) {
+                viewModel.launcherResetFailed.collect { resetFailed ->
+                    if (resetFailed) {
+                        startActivity(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
+                    }
+                }
+            }
         }
     }
 
-    public override fun onConfigurationChanged(newConfig: Configuration) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
+
         lifecycleScope.launch {
             val settings = settingsRepository.settings.first()
             AppCompatDelegate.setDefaultNightMode(settings.appTheme)
@@ -133,15 +118,10 @@ internal class MainActivity : ComponentActivity() {
         }
     }
 
-    protected override fun onNewIntent(intent: Intent) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-
-        if (intent.action == Intent.ACTION_MAIN &&
-            intent.hasCategory(Intent.CATEGORY_HOME)
-        ) {
-            lifecycleScope.launch {
-                viewModel.emitEvent(UiEvent.NavigateBack)
-            }
+        if (intent.action == Intent.ACTION_MAIN && intent.hasCategory(Intent.CATEGORY_HOME)) {
+            lifecycleScope.launch { viewModel.emitEvent(UiEvent.NavigateBack) }
         }
     }
 }
