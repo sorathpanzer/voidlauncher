@@ -51,31 +51,31 @@ internal data class AppPreference(
 )
 
 internal data class AppSettings(
+    val autoShowKeyboard: Boolean = true,
+    val autoOpenFilteredApp: Boolean = true,
+    val searchType: Int = Constants.SearchType.STARTS_WITH,
+    val appTheme: Int = AppCompatDelegate.MODE_NIGHT_YES,
+    val useDynamicTheme: Boolean = false,
+    val lockSettings: Boolean = false,
+    val settingsLockPin: String = "",
     @Setting(
         title = "Show App Names",
         category = SettingCategory.GENERAL,
         type = SettingType.TOGGLE,
     )
     val showAppNames: Boolean = false,
-    val autoShowKeyboard: Boolean = true,
     @Setting(
         title = "Show Hidden in Search",
         category = SettingCategory.GENERAL,
         type = SettingType.TOGGLE,
     )
     val showHiddenAppsOnSearch: Boolean = false,
-    val autoOpenFilteredApp: Boolean = true,
-    val searchType: Int = Constants.SearchType.STARTS_WITH,
-    val appTheme: Int = AppCompatDelegate.MODE_NIGHT_YES,
-    val useDynamicTheme: Boolean = false,
     @Setting(
-        title = "Show Status Bar",
+        title = "Immersive Mode",
         category = SettingCategory.GENERAL,
         type = SettingType.TOGGLE,
     )
-    val statusBar: Boolean = false,
-    val lockSettings: Boolean = false,
-    val settingsLockPin: String = "",
+    val immersiveMode: Boolean = false,
     @Setting(
         title = "Search Results Font Size",
         category = SettingCategory.APPEARANCE,
@@ -214,7 +214,7 @@ internal class SettingsManager {
         listOf(
             "showAppNames",
             "showHiddenAppsOnSearch",
-            "statusBar",
+            "immersiveMode",
             "swipeUpAction",
             "swipeUpApp",
             "swipeDownAction",
@@ -265,7 +265,7 @@ internal class SettingsManager {
         mapOf(
             "showAppNames" to { s, v -> s.copy(showAppNames = v as Boolean) },
             "showHiddenAppsOnSearch" to { s, v -> s.copy(showHiddenAppsOnSearch = v as Boolean) },
-            "statusBar" to { s, v -> s.copy(statusBar = v as Boolean) },
+            "immersiveMode" to { s, v -> s.copy(immersiveMode = v as Boolean) },
             "searchResultsFontSize" to { s, v -> s.copy(searchResultsFontSize = v as Float) },
             "plainWallpaper" to { s, v -> s.copy(plainWallpaper = v as Boolean) },
             "swipeUpAction" to { s, v -> s.copy(swipeUpAction = v as Int) },

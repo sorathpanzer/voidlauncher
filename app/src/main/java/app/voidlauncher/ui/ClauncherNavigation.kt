@@ -70,7 +70,7 @@ internal fun voidlauncherNavigation(
 ) {
     val context = LocalContext.current
     val settings by settingsViewModel.settingsState.collectAsState()
-    systemUIController(showStatusBar = settings.statusBar)
+    systemUIController(immersiveMode = settings.immersiveMode)
 
     var currentSelectionType by remember { mutableStateOf<AppSelectionType?>(null) }
 

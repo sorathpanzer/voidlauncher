@@ -71,7 +71,6 @@ import app.voidlauncher.ui.AppSelectionType
 import app.voidlauncher.ui.UiEvent
 import app.voidlauncher.ui.backHandler
 import app.voidlauncher.ui.dialogs.settingsLockDialog
-import app.voidlauncher.ui.util.updateStatusBarVisibility
 import app.voidlauncher.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -425,11 +424,6 @@ private fun settingItem(
                     onCheckedChange = { checked ->
                         coroutineScope.launch {
                             viewModel.updateSetting(property.name, checked)
-                            if (property.name == "statusBar") {
-                                (context as? Activity)?.let { activity ->
-                                    updateStatusBarVisibility(activity, checked)
-                                }
-                            }
                         }
                     },
                 )

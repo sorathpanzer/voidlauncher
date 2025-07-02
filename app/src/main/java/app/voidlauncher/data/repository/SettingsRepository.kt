@@ -57,7 +57,7 @@ internal class SettingsRepository(
         val USE_DYNAMIC_THEME = booleanPreferencesKey("USE_DYNAMIC_THEME")
         val ICON_CORNER_RADIUS = intPreferencesKey("ICON_CORNER_RADIUS")
         val ITEM_SPACING = intPreferencesKey("ITEM_SPACING")
-        val STATUS_BAR = booleanPreferencesKey("STATUS_BAR")
+        val IMMERSIVE_MODE = booleanPreferencesKey("IMMERSIVE_MODE")
         val SWIPE_DOWN_ACTION = intPreferencesKey("SWIPE_DOWN_ACTION")
         val SWIPE_UP_ACTION = intPreferencesKey("SWIPE_UP_ACTION")
         val TWOFINGER_SWIPE_DOWN_ACTION = intPreferencesKey("TWOFINGER_SWIPE_DOWN_ACTION")
@@ -177,7 +177,7 @@ internal class SettingsRepository(
                 // Appearance settings
                 appTheme = prefs[APP_THEME] ?: AppCompatDelegate.MODE_NIGHT_YES,
                 // Layout settings
-                statusBar = prefs[STATUS_BAR] ?: false,
+                immersiveMode = prefs[IMMERSIVE_MODE] ?: false,
                 // Gestures settings
                 swipeDownAction = prefs[SWIPE_DOWN_ACTION] ?: Constants.SwipeAction.NOTIFICATIONS,
                 swipeUpAction = prefs[SWIPE_UP_ACTION] ?: Constants.SwipeAction.SEARCH,
@@ -242,7 +242,7 @@ internal class SettingsRepository(
             "searchType" to { prefs, v -> prefs[SEARCH_TYPE] = v as Int },
             // Appearance
             "appTheme" to { prefs, v -> prefs[APP_THEME] = v as Int },
-            "statusBar" to { prefs, v -> prefs[STATUS_BAR] = v as Boolean },
+            "immersiveMode" to { prefs, v -> prefs[IMMERSIVE_MODE] = v as Boolean },
             "showHomeScreenIcons" to { prefs, v -> prefs[SHOW_HOME_SCREEN_ICONS] = v as Boolean },
             "plainWallpaper" to { prefs, v -> prefs[PLAIN_WALLPAPER] = v as Boolean },
             "searchResultsFontSize" to { prefs, v -> prefs[SEARCH_RESULTS_FONT_SIZE] = v as Float },

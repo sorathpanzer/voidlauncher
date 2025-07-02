@@ -10,25 +10,28 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 
 private class AppLoadingException(
     message: String,
     cause: Throwable,
 ) : Exception(message, cause)
 
-// * Controls system UI elements like status bar
+// * Controls system Immersive Mode
 @Composable
-internal fun systemUIController(showStatusBar: Boolean) {
+internal fun systemUIController(immersiveMode: Boolean) {
     val view = LocalView.current
     val context = LocalContext.current
     val window = remember { (context as? Activity)?.window }
 
-    DisposableEffect(showStatusBar) {
+    DisposableEffect(immersiveMode) {
         if (window != null) {
-            if (showStatusBar) {
-                showStatusBar(window, view)
+            if (immersiveMode) {
+                enableImmersiveMode(window, view)
             } else {
-                hideStatusBar(window, view)
+                disableImmersiveMode(window, view)
             }
         }
 
@@ -36,48 +39,7 @@ internal fun systemUIController(showStatusBar: Boolean) {
     }
 }
 
-// * Non-composable function to safely update status bar visibility
-internal fun updateStatusBarVisibility(
-    activity: Activity?,
-    showStatusBar: Boolean,
-) {
-    if (activity == null || !activity.window.isActive) return
-
-    try {
-        val window = activity.window
-        val decorView = window.decorView
-        updateStatusBarApi30(window, showStatusBar)
-    } catch (e: IllegalStateException) {
-        throw AppLoadingException("Failed to update status bar", e)
-    }
-}
-
-private fun updateStatusBarApi30(
-    window: Window,
-    show: Boolean,
-) {
-    val controller = window.insetsController ?: return
-    if (show) {
-        controller.show(WindowInsets.Type.statusBars())
-    } else {
-        controller.hide(WindowInsets.Type.statusBars())
-        controller.systemBarsBehavior =
-            WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-    }
-}
-
-private fun showStatusBar(
-    window: android.view.Window,
-    view: View,
-) {
-    try {
-        window.insetsController?.show(WindowInsets.Type.statusBars())
-    } catch (e: IllegalStateException) {
-        throw AppLoadingException("Failed to show status bar", e)
-    }
-}
-
-private fun hideStatusBar(
+private fun disableImmersiveMode(
     window: android.view.Window,
     view: View,
 ) {
@@ -86,7 +48,29 @@ private fun hideStatusBar(
             it.hide(WindowInsets.Type.statusBars())
             it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        window.insetsController?.let {
+            it.show(WindowInsetsCompat.Type.navigationBars())    
+        }
     } catch (e: IllegalStateException) {
-        throw AppLoadingException("Failed to hide status bar", e)
+        throw AppLoadingException("Failed to disable Immersive Mode", e)
+    }
+}
+
+private fun enableImmersiveMode(
+    window: android.view.Window,
+    view: View,
+) {
+    try {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+    
+        window.insetsController?.let {
+            it.hide(WindowInsetsCompat.Type.navigationBars())
+            it.systemBarsBehavior = 
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+    } catch (e: IllegalStateException) {
+        throw AppLoadingException("Failed to enable Immersive Mode", e)
     }
 }
