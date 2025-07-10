@@ -51,9 +51,7 @@ internal data class AppPreference(
 )
 
 internal data class AppSettings(
-    val autoShowKeyboard: Boolean = true,
     val autoOpenFilteredApp: Boolean = true,
-    val searchType: Int = Constants.SearchType.STARTS_WITH,
     val appTheme: Int = AppCompatDelegate.MODE_NIGHT_YES,
     val useDynamicTheme: Boolean = false,
     val lockSettings: Boolean = false,

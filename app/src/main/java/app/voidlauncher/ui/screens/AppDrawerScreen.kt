@@ -115,10 +115,8 @@ internal fun appDrawerScreen(
     LaunchedEffect(Unit) { viewModel.loadApps() }
     LaunchedEffect(searchQuery) { viewModel.searchApps(searchQuery) }
 
-    LaunchedEffect(settings.autoShowKeyboard, focusRequester) {
-        if (settings.autoShowKeyboard) {
+    LaunchedEffect(focusRequester) {
             focusRequester.requestFocus()
-        }
     }
 
     val scrollState = rememberLazyListState()

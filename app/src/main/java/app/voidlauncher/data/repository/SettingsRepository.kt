@@ -46,10 +46,8 @@ internal class SettingsRepository(
         // Define all preference keys
         val SHOW_APP_NAMES = booleanPreferencesKey("SHOW_APP_NAMES")
         val SHOW_APP_ICONS = booleanPreferencesKey("SHOW_APP_ICONS")
-        val AUTO_SHOW_KEYBOARD = booleanPreferencesKey("AUTO_SHOW_KEYBOARD")
         val SHOW_HIDDEN_APPS_IN_SEARCH = booleanPreferencesKey("SHOW_HIDDEN_APPS_IN_SEARCH")
         val AUTO_OPEN_FILTERED_APP = booleanPreferencesKey("AUTO_OPEN_FILTERED_APP")
-        val SEARCH_TYPE = intPreferencesKey("SEARCH_TYPE")
         val APP_THEME = intPreferencesKey("APP_THEME")
         val TEXT_SIZE_SCALE = floatPreferencesKey("TEXT_SIZE_SCALE")
         val FONT_WEIGHT = intPreferencesKey("FONT_WEIGHT")
@@ -173,7 +171,6 @@ internal class SettingsRepository(
                 // General settings
                 showAppNames = prefs[SHOW_APP_NAMES] ?: false,
                 showHiddenAppsOnSearch = prefs[SHOW_HIDDEN_APPS_IN_SEARCH] ?: false,
-                searchType = prefs[SEARCH_TYPE] ?: Constants.SearchType.STARTS_WITH,
                 // Appearance settings
                 appTheme = prefs[APP_THEME] ?: AppCompatDelegate.MODE_NIGHT_YES,
                 // Layout settings
@@ -239,7 +236,6 @@ internal class SettingsRepository(
             // General
             "showAppNames" to { prefs, v -> prefs[SHOW_APP_NAMES] = v as Boolean },
             "showHiddenAppsOnSearch" to { prefs, v -> prefs[SHOW_HIDDEN_APPS_IN_SEARCH] = v as Boolean },
-            "searchType" to { prefs, v -> prefs[SEARCH_TYPE] = v as Int },
             // Appearance
             "appTheme" to { prefs, v -> prefs[APP_THEME] = v as Int },
             "immersiveMode" to { prefs, v -> prefs[IMMERSIVE_MODE] = v as Boolean },
