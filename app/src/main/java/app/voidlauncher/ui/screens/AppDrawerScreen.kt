@@ -116,7 +116,7 @@ internal fun appDrawerScreen(
     LaunchedEffect(searchQuery) { viewModel.searchApps(searchQuery) }
 
     LaunchedEffect(focusRequester) {
-            focusRequester.requestFocus()
+        focusRequester.requestFocus()
     }
 
     val scrollState = rememberLazyListState()

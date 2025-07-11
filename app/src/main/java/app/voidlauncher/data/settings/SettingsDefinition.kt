@@ -1,7 +1,6 @@
 package app.voidlauncher.data.settings
 
 import android.view.Gravity
-import androidx.appcompat.app.AppCompatDelegate
 import app.voidlauncher.data.Constants
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KProperty1

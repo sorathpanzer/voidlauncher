@@ -10,7 +10,6 @@ import android.os.UserHandle
 import android.os.UserManager
 import android.provider.Settings
 import android.provider.Settings.SettingNotFoundException
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.graphics.createBitmap
 import app.voidlauncher.data.AppModel
 import app.voidlauncher.data.Constants

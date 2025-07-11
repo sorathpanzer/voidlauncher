@@ -3,7 +3,6 @@ package app.voidlauncher.data.repository
 import android.content.Context
 import android.util.Log
 import android.view.Gravity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
