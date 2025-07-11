@@ -374,7 +374,7 @@ internal class MainViewModel(
 
                 _appDrawerState.update { it.copy(filteredApps = filteredApps, loading = false) }
 
-                if (filteredApps.size == 1 && settings.autoOpenFilteredApp) {
+                if (filteredApps.size == 1) {
                     launchApp(filteredApps[0])
                 }
             } catch (e: IllegalArgumentException) {

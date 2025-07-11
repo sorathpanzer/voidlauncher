@@ -171,8 +171,6 @@ internal class SettingsRepository(
                 // General settings
                 showAppNames = prefs[SHOW_APP_NAMES] ?: false,
                 showHiddenAppsOnSearch = prefs[SHOW_HIDDEN_APPS_IN_SEARCH] ?: false,
-                // Appearance settings
-                appTheme = prefs[APP_THEME] ?: AppCompatDelegate.MODE_NIGHT_YES,
                 // Layout settings
                 immersiveMode = prefs[IMMERSIVE_MODE] ?: false,
                 // Gestures settings
@@ -237,7 +235,6 @@ internal class SettingsRepository(
             "showAppNames" to { prefs, v -> prefs[SHOW_APP_NAMES] = v as Boolean },
             "showHiddenAppsOnSearch" to { prefs, v -> prefs[SHOW_HIDDEN_APPS_IN_SEARCH] = v as Boolean },
             // Appearance
-            "appTheme" to { prefs, v -> prefs[APP_THEME] = v as Int },
             "immersiveMode" to { prefs, v -> prefs[IMMERSIVE_MODE] = v as Boolean },
             "showHomeScreenIcons" to { prefs, v -> prefs[SHOW_HOME_SCREEN_ICONS] = v as Boolean },
             "plainWallpaper" to { prefs, v -> prefs[PLAIN_WALLPAPER] = v as Boolean },

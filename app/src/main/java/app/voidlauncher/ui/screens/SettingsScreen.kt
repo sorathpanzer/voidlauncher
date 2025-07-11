@@ -65,7 +65,7 @@ import app.voidlauncher.data.settings.SettingCategory
 import app.voidlauncher.data.settings.SettingType
 import app.voidlauncher.data.settings.SettingsManager
 import app.voidlauncher.helper.isVoidLauncherDefault
-import app.voidlauncher.helper.setPlainWallpaperByTheme
+import app.voidlauncher.helper.setPlainWallpaper
 import app.voidlauncher.ui.AppSelectionType
 import app.voidlauncher.ui.UiEvent
 import app.voidlauncher.ui.backHandler
@@ -229,7 +229,7 @@ internal fun settingsScreen(
             is SettingsDialog.ButtonAction -> {
                 when (dialog.property.name) {
                     "plainWallpaper" -> {
-                        setPlainWallpaperByTheme(context, appTheme = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                        setPlainWallpaper(context, android.R.color.black)
                         currentDialog = null
                     }
                 }

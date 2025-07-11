@@ -107,7 +107,6 @@ internal class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             val settings = settingsRepository.settings.first()
-            AppCompatDelegate.setDefaultNightMode(settings.appTheme)
 
             if (settings.plainWallpaper &&
                 AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM

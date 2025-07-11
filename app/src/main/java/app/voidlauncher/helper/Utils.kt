@@ -136,19 +136,6 @@ private fun getDefaultLauncherPackage(context: Context): String {
     }
 }
 
-internal fun setPlainWallpaperByTheme(
-    context: Context,
-    appTheme: Int,
-) {
-    when (appTheme) {
-        AppCompatDelegate.MODE_NIGHT_YES -> setPlainWallpaper(context, android.R.color.black)
-        AppCompatDelegate.MODE_NIGHT_NO -> setPlainWallpaper(context, android.R.color.white)
-        else -> {
-            setPlainWallpaper(context, android.R.color.black)
-        }
-    }
-}
-
 internal fun setPlainWallpaper(
     context: Context,
     color: Int,

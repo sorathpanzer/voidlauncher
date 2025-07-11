@@ -51,9 +51,6 @@ internal data class AppPreference(
 )
 
 internal data class AppSettings(
-    val autoOpenFilteredApp: Boolean = true,
-    val appTheme: Int = AppCompatDelegate.MODE_NIGHT_YES,
-    val useDynamicTheme: Boolean = false,
     val lockSettings: Boolean = false,
     val settingsLockPin: String = "",
     @Setting(

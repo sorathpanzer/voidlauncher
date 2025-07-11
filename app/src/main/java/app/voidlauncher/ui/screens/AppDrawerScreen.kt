@@ -220,9 +220,9 @@ internal fun appDrawerScreen(
 
         val appsToShow = if (searchQuery.isEmpty()) uiState.apps else uiState.filteredApps
 
-        LaunchedEffect(appsToShow, settings.autoOpenFilteredApp, searchQuery, handleAppClick) {
+        LaunchedEffect(appsToShow, searchQuery, handleAppClick) {
             delay(DELAY_APP_OPEN)
-            if (searchQuery.isNotEmpty() && appsToShow.size == 1 && settings.autoOpenFilteredApp) {
+            if (searchQuery.isNotEmpty() && appsToShow.size == 1) {
                 handleAppClick(appsToShow[0])
             }
         }
