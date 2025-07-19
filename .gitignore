@@ -10,8 +10,9 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.credentials.properties
 .DS_Store
-/build
+/app/build
 /captures
 /app/release.keystore
 .externalNativeBuild

@@ -12,7 +12,7 @@ plugins {
 
 android {
     compileSdk = 36
-    ndkPath = "/nix/store/0h2l3kaf5jdnhf67347jgkh3f9610qgh-android-sdk-ndk-27.0.12077973/libexec/android-sdk/ndk-bundle"
+    ndkPath = "/home/sorath/.androidsdk/ndk-bundle"
 
     lint {
         checkReleaseBuilds = false
@@ -84,7 +84,7 @@ android {
 
     val userHomeProps =
         Properties().apply {
-            val userGradleFile = File(System.getProperty("user.home"), ".gradle/gradle.properties")
+            val userGradleFile = rootProject.file(".credentials.properties")
             if (userGradleFile.exists()) {
                 load(userGradleFile.inputStream())
             }

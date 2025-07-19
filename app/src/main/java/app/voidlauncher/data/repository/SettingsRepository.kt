@@ -44,14 +44,12 @@ internal class SettingsRepository(
     companion object {
         // Define all preference keys
         val SHOW_APP_NAMES = booleanPreferencesKey("SHOW_APP_NAMES")
-        val SHOW_APP_ICONS = booleanPreferencesKey("SHOW_APP_ICONS")
         val SHOW_HIDDEN_APPS_IN_SEARCH = booleanPreferencesKey("SHOW_HIDDEN_APPS_IN_SEARCH")
         val AUTO_OPEN_FILTERED_APP = booleanPreferencesKey("AUTO_OPEN_FILTERED_APP")
         val APP_THEME = intPreferencesKey("APP_THEME")
         val TEXT_SIZE_SCALE = floatPreferencesKey("TEXT_SIZE_SCALE")
         val FONT_WEIGHT = intPreferencesKey("FONT_WEIGHT")
         val USE_SYSTEM_FONT = booleanPreferencesKey("USE_SYSTEM_FONT")
-        val USE_DYNAMIC_THEME = booleanPreferencesKey("USE_DYNAMIC_THEME")
         val ICON_CORNER_RADIUS = intPreferencesKey("ICON_CORNER_RADIUS")
         val ITEM_SPACING = intPreferencesKey("ITEM_SPACING")
         val IMMERSIVE_MODE = booleanPreferencesKey("IMMERSIVE_MODE")
