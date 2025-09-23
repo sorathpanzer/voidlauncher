@@ -5,13 +5,14 @@ import java.util.Properties
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.compose") version "2.2.0"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.2.20"
     id("org.jetbrains.kotlin.plugin.parcelize")
-    kotlin("plugin.serialization") version "2.2.0"
+    kotlin("plugin.serialization") version "2.2.20"
 }
 
 android {
     compileSdk = 36
+    buildToolsVersion = "36.0.0"
     ndkPath = "/home/sorath/.androidsdk/ndk-bundle"
 
     lint {
@@ -42,7 +43,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 741
-        versionName = "v0.4.1"
+        versionName = "v0.5"
 
         androidResources { localeFilters += setOf("en") }
 
@@ -127,13 +128,13 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "2.0.0"
+        kotlinCompilerExtensionVersion = "2.2.20"
     }
 
     namespace = "app.voidlauncher"
 
     dependenciesInfo {
-        includeInApk = false
+        includeInApk = true
     }
 }
 
