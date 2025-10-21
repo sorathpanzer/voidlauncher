@@ -9,16 +9,14 @@ import android.util.Log
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
 import androidx.activity.ComponentActivity
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModelProvider
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.voidlauncher.data.Navigation
 import app.voidlauncher.data.repository.SettingsRepository
 import app.voidlauncher.helper.setPlainWallpaper
@@ -31,10 +29,11 @@ import kotlinx.coroutines.launch
 private const val APP_WIDGETHOST_ID = 1024
 
 internal class MainActivity : ComponentActivity() {
-    private val viewModel by lazy { ViewModelProvider(this)[MainViewModel::class.java] }
-    private val settingsViewModel by lazy { ViewModelProvider(this)[SettingsViewModel::class.java] }
-    private lateinit var settingsRepository: SettingsRepository
-    private lateinit var appWidgetHost: AppWidgetHost
+
+    private val viewModel: MainViewModel by viewModels()
+    private val settingsViewModel: SettingsViewModel by viewModels()
+    private val settingsRepository by lazy { SettingsRepository(applicationContext) }
+    private val appWidgetHost by lazy { AppWidgetHost(applicationContext, APP_WIDGETHOST_ID) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window.setFlags(
@@ -45,14 +44,14 @@ internal class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
-        settingsRepository = SettingsRepository(applicationContext)
-        appWidgetHost = AppWidgetHost(applicationContext, APP_WIDGETHOST_ID)
         Log.d("MainActivity", "AppWidgetHost created with ID: $APP_WIDGETHOST_ID")
 
         handleFirstOpen()
 
         setContent {
-            var currentScreen by remember { mutableStateOf(Navigation.HOME) }
+            var currentScreen by rememberSaveable { mutableStateOf(Navigation.HOME) }
+
+            val resetFailed by viewModel.launcherResetFailed.collectAsStateWithLifecycle(initialValue = false)
 
             voidLauncherTheme {
                 voidlauncherNavigation(
@@ -62,18 +61,26 @@ internal class MainActivity : ComponentActivity() {
                     onScreenChange = { currentScreen = it },
                 )
             }
+
+            LaunchedEffect(resetFailed) {
+                if (resetFailed) {
+                    startActivity(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
+                }
+            }
+
+            LaunchedEffect(Unit) {
+                viewModel.loadApps()
+            }
         }
 
-        initObservers()
-        viewModel.loadApps()
-
+        // ✅ corrigido
         onBackPressedDispatcher.addCallback(
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     lifecycleScope.launch { viewModel.emitEvent(UiEvent.NavigateBack) }
                 }
-            },
+            }
         )
     }
 
@@ -90,29 +97,18 @@ internal class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun initObservers() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.RESUMED) {
-                viewModel.launcherResetFailed.collect { resetFailed ->
-                    if (resetFailed) {
-                        startActivity(Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
-                    }
-                }
-            }
-        }
-    }
-
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
         lifecycleScope.launch {
             val settings = settingsRepository.settings.first()
 
-            if (settings.plainWallpaper &&
+            if (
+                settings.plainWallpaper &&
                 AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
             ) {
                 setPlainWallpaper(this@MainActivity, android.R.color.black)
-                recreate()
+                if (!isFinishing) recreate()
             }
         }
     }

@@ -3,61 +3,83 @@ package app.voidlauncher
 import android.app.Activity
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private const val BLACK = 0xFF000000
-private const val DARK_GRAY_0 = 0xFF121212
-private const val DARK_GRAY_1 = 0xFF1D1D1D
-private const val DARK_GRAY_2 = 0xFF1E1E1E
-private const val DARK_GRAY_3 = 0xFF2E2E2E
-private const val DARK_GRAY_4 = 0xFF2D2D2D
-private const val LIGHT_GRAY = 0xFFE0E0E0
-private const val MEDIUM_GRAY = 0xFFCCCCCC
-private const val LIGHT_GREEN = 0xFF81C784
-private const val ORANGE = 0xFFFFB74D
-private const val LIGHT_BLUE = 0xFF90CAF9
-private const val PINK_RED = 0xFFCF6679
+// ----------------------
+// Declarar todas as cores num mapa imutável
+// ----------------------
+private val AppColors: Map<String, Color> by lazy {
+    mapOf(
+        "black" to Color(0xFF000000),
+        "darkGray0" to Color(0xFF121212),
+        "darkGray1" to Color(0xFF1D1D1D),
+        "darkGray2" to Color(0xFF1E1E1E),
+        "darkGray3" to Color(0xFF2E2E2E),
+        "darkGray4" to Color(0xFF2D2D2D),
+        "lightGray" to Color(0xFFE0E0E0),
+        "mediumGray" to Color(0xFFCCCCCC),
+        "lightGreen" to Color(0xFF81C784),
+        "orange" to Color(0xFFFFB74D),
+        "lightBlue" to Color(0xFF90CAF9),
+        "pinkRed" to Color(0xFFCF6679),
+    )
+}
 
-private val DarkColorScheme =
+// ----------------------
+// Função pura que gera o esquema de cores
+// ----------------------
+private fun buildDarkColorScheme(colors: Map<String, Color>): ColorScheme =
     darkColorScheme(
-        primary = Color(LIGHT_BLUE), // light-blue
-        onPrimary = Color(BLACK), // black text
-        primaryContainer = Color(DARK_GRAY_2), // slightly lighter than background for containers
-        onPrimaryContainer = Color(LIGHT_GRAY), // Light text on primary containers
-        secondary = Color(LIGHT_GREEN), // light-green
-        onSecondary = Color(BLACK), // black text
-        secondaryContainer = Color(DARK_GRAY_3),
-        onSecondaryContainer = Color(LIGHT_GRAY),
-        tertiary = Color(ORANGE), // Orange
-        onTertiary = Color(BLACK),
-        background = Color(DARK_GRAY_0), // Deep Dark background
-        onBackground = Color(LIGHT_GRAY), // Light text
-        surface = Color(DARK_GRAY_1), // Dark surface
-        onSurface = Color(LIGHT_GRAY),
-        surfaceVariant = Color(DARK_GRAY_4), // Variant surface color
-        onSurfaceVariant = Color(MEDIUM_GRAY),
-        error = Color(PINK_RED), // Error color
-        onError = Color(BLACK),
+        primary = colors.getValue("lightBlue"),
+        onPrimary = colors.getValue("black"),
+        primaryContainer = colors.getValue("darkGray2"),
+        onPrimaryContainer = colors.getValue("lightGray"),
+        secondary = colors.getValue("lightGreen"),
+        onSecondary = colors.getValue("black"),
+        secondaryContainer = colors.getValue("darkGray3"),
+        onSecondaryContainer = colors.getValue("lightGray"),
+        tertiary = colors.getValue("orange"),
+        onTertiary = colors.getValue("black"),
+        background = colors.getValue("darkGray0"),
+        onBackground = colors.getValue("lightGray"),
+        surface = colors.getValue("darkGray1"),
+        onSurface = colors.getValue("lightGray"),
+        surfaceVariant = colors.getValue("darkGray4"),
+        onSurfaceVariant = colors.getValue("mediumGray"),
+        error = colors.getValue("pinkRed"),
+        onError = colors.getValue("black"),
     )
 
+// ----------------------
+// ColorScheme lazy (só construído quando usado)
+// ----------------------
+private val DarkColorScheme: ColorScheme by lazy {
+    buildDarkColorScheme(AppColors)
+}
+
+// ----------------------
+// Composable Theme
+// ----------------------
 @Composable
 internal fun voidLauncherTheme(content: @Composable () -> Unit) {
     val view = LocalView.current
+
     if (!view.isInEditMode) {
         SideEffect {
-            val window = (view.context as Activity).window
-            WindowCompat.setDecorFitsSystemWindows(window, false)
-            val insetsController = WindowCompat.getInsetsController(window, view)
-            insetsController.isAppearanceLightStatusBars = false // dark icons off
+            (view.context as? Activity)?.window?.let { window ->
+                WindowCompat.setDecorFitsSystemWindows(window, false)
+                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            }
         }
     }
 
     MaterialTheme(
         colorScheme = DarkColorScheme,
-        content = content,
+        content = content
     )
 }
